@@ -1,0 +1,71 @@
+{
+  "common": {
+    "appName": "OpenClass",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "register": "Register",
+    "save": "Save",
+    "cancel": "Cancel",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "levels": "Levels",
+    "parentLinks": "Parent links",
+    "courses": "Courses",
+    "students": "Students",
+    "profile": "Profile",
+    "qrCodes": "QR Codes"
+  },
+  "home": {
+    "tagline": "Project scaffold is up and running.",
+    "signIn": "Sign in",
+    "register": "Register"
+  },
+  "auth": {
+    "loginTitle": "Sign in",
+    "loginDescription": "Welcome back to OpenClass.",
+    "loginNoAccount": "No account?",
+    "registerTitle": "Create an account",
+    "registerDescription": "Join OpenClass.",
+    "registerHasAccount": "Already have an account?",
+    "role": "Role",
+    "bio": "Bio (optional)",
+    "signingIn": "Signing in…",
+    "creatingAccount": "Creating account…",
+    "createAccountButton": "Create account",
+    "heroHeadline": "Run your classes, attendance & payments in one place.",
+    "heroFeature1": "QR-based attendance in seconds",
+    "heroFeature2": "Semester bookings & recurring payments",
+    "heroFeature3": "One dashboard for teachers, students & parents",
+    "heroFooter": "Teacher-first. Mobile-first. Bilingual."
+  },
+  "dashboard": {
+    "teacherTitle": "Teacher dashboard",
+    "studentTitle": "Student dashboard",
+    "parentTitle": "Parent dashboard",
+    "adminTitle": "Admin dashboard",
+    "signedInAs": "Signed in as {email}",
+    "statCourses": "Courses",
+    "statStudents": "Students",
+    "statPendingPayments": "Pending payments",
+    "manageCourses": "Manage courses",
+    "viewStudents": "View students",
+    "noCoursesYet": "You're not enrolled in any courses yet — browse courses to get started.",
+    "parentTagline": "Track your children's payments and attendance.",
+    "noChildrenLinked": "No children linked to your account yet. Ask an admin to link your account to your child's student account.",
+    "childNotEnrolled": "Not enrolled in any courses yet."
+  },
+  "language": {
+    "english": "English",
+    "arabic": "العربية"
+  },
+  "roles": {
+    "ADMIN": "Admin",
+    "TEACHER": "Teacher",
+    "STUDENT": "Student",
+    "PARENT": "Parent"
+  }
+}

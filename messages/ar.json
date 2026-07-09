@@ -1,0 +1,71 @@
+{
+  "common": {
+    "appName": "أوبن كلاس",
+    "signIn": "تسجيل الدخول",
+    "signOut": "تسجيل الخروج",
+    "register": "إنشاء حساب",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "name": "الاسم"
+  },
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "levels": "المستويات",
+    "parentLinks": "روابط أولياء الأمور",
+    "courses": "الدورات",
+    "students": "الطلاب",
+    "profile": "الملف الشخصي",
+    "qrCodes": "رموز QR"
+  },
+  "home": {
+    "tagline": "المشروع الأساسي يعمل الآن.",
+    "signIn": "تسجيل الدخول",
+    "register": "إنشاء حساب"
+  },
+  "auth": {
+    "loginTitle": "تسجيل الدخول",
+    "loginDescription": "مرحبًا بعودتك إلى أوبن كلاس.",
+    "loginNoAccount": "ليس لديك حساب؟",
+    "registerTitle": "إنشاء حساب جديد",
+    "registerDescription": "انضم إلى أوبن كلاس.",
+    "registerHasAccount": "لديك حساب بالفعل؟",
+    "role": "الدور",
+    "bio": "نبذة تعريفية (اختياري)",
+    "signingIn": "جارٍ تسجيل الدخول…",
+    "creatingAccount": "جارٍ إنشاء الحساب…",
+    "createAccountButton": "إنشاء حساب",
+    "heroHeadline": "أدر دروسك وحضورك ومدفوعاتك في مكان واحد.",
+    "heroFeature1": "تسجيل حضور بالرمز السريع QR في ثوانٍ",
+    "heroFeature2": "حجز فصول دراسية ودفعات متكررة",
+    "heroFeature3": "لوحة تحكم واحدة للمعلمين والطلاب وأولياء الأمور",
+    "heroFooter": "يُركز على المعلم. متوافق مع الجوال. ثنائي اللغة."
+  },
+  "dashboard": {
+    "teacherTitle": "لوحة تحكم المعلم",
+    "studentTitle": "لوحة تحكم الطالب",
+    "parentTitle": "لوحة تحكم ولي الأمر",
+    "adminTitle": "لوحة تحكم المدير",
+    "signedInAs": "تم تسجيل الدخول باسم {email}",
+    "statCourses": "الدورات",
+    "statStudents": "الطلاب",
+    "statPendingPayments": "دفعات معلقة",
+    "manageCourses": "إدارة الدورات",
+    "viewStudents": "عرض الطلاب",
+    "noCoursesYet": "لست مسجلاً في أي دورة بعد — تصفح الدورات للبدء.",
+    "parentTagline": "تابع مدفوعات وحضور أبنائك.",
+    "noChildrenLinked": "لا يوجد أبناء مرتبطون بحسابك بعد. اطلب من المدير ربط حسابك بحساب طفلك الطالب.",
+    "childNotEnrolled": "غير مسجل في أي دورة بعد."
+  },
+  "language": {
+    "english": "English",
+    "arabic": "العربية"
+  },
+  "roles": {
+    "ADMIN": "مدير",
+    "TEACHER": "معلم",
+    "STUDENT": "طالب",
+    "PARENT": "ولي أمر"
+  }
+}

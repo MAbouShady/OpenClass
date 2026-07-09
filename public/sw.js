@@ -21,3 +21,21 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   event.respondWith(caches.match(event.request).then((cached) => cached ?? fetch(event.request)));
 });
+
+self.addEventListener("push", (event) => {
+  if (!event.data) return;
+  const payload = event.data.json();
+  event.waitUntil(
+    self.registration.showNotification(payload.title, {
+      body: payload.body,
+      data: { url: payload.url ?? "/" },
+      icon: "/icons/icon-192.png",
+    }),
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = event.notification.data?.url ?? "/";
+  event.waitUntil(self.clients.openWindow(url));
+});

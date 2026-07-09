@@ -16,3 +16,176 @@ model HealthCheck {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
 }
+
+enum Role {
+  ADMIN
+  TEACHER
+  STUDENT
+  PARENT
+}
+
+model User {
+  id                String           @id @default(cuid())
+  name              String
+  email             String           @unique
+  passwordHash      String
+  role              Role
+  bio               String?
+  locale            String           @default("en")
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  coursesTaught     Course[]
+  enrollments       Enrollment[]
+  approvedPayments  Payment[]
+  attendances       Attendance[]
+  childLinks        ParentStudent[]  @relation("ParentOf")
+  parentLinks       ParentStudent[]  @relation("ChildOf")
+  pushSubscriptions PushSubscription[]
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model ParentStudent {
+  id        String   @id @default(cuid())
+  parentId  String
+  parent    User     @relation("ParentOf", fields: [parentId], references: [id])
+  studentId String
+  student   User     @relation("ChildOf", fields: [studentId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([parentId, studentId])
+  @@index([studentId])
+}
+
+model Level {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  order       Int
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  courses     Course[]
+
+  @@index([order])
+}
+
+enum SessionType {
+  ONLINE
+  OFFLINE
+}
+
+model Course {
+  id          String         @id @default(cuid())
+  title       String
+  description String?
+  sessionType SessionType
+  levelId     String
+  level       Level          @relation(fields: [levelId], references: [id])
+  teacherId   String
+  teacher     User           @relation(fields: [teacherId], references: [id])
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  sessions    ClassSession[]
+  semesters   Semester[]
+
+  @@index([teacherId])
+  @@index([levelId])
+}
+
+model ClassSession {
+  id          String       @id @default(cuid())
+  courseId    String
+  course      Course       @relation(fields: [courseId], references: [id])
+  startTime   DateTime
+  endTime     DateTime
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  attendances Attendance[]
+
+  @@index([courseId])
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+}
+
+model Attendance {
+  id           String           @id @default(cuid())
+  studentId    String
+  student      User             @relation(fields: [studentId], references: [id])
+  sessionId    String
+  session      ClassSession     @relation(fields: [sessionId], references: [id])
+  status       AttendanceStatus
+  checkInTime  DateTime?
+  checkOutTime DateTime?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@unique([studentId, sessionId])
+  @@index([sessionId])
+}
+
+model Semester {
+  id          String       @id @default(cuid())
+  courseId    String
+  course      Course       @relation(fields: [courseId], references: [id])
+  startDate   DateTime
+  endDate     DateTime
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  enrollments Enrollment[]
+
+  @@index([courseId])
+}
+
+model Enrollment {
+  id         String    @id @default(cuid())
+  studentId  String
+  student    User      @relation(fields: [studentId], references: [id])
+  semesterId String
+  semester   Semester  @relation(fields: [semesterId], references: [id])
+  createdAt  DateTime  @default(now())
+  payments   Payment[]
+
+  @@unique([studentId, semesterId])
+  @@index([semesterId])
+}
+
+enum PaymentMethod {
+  ONLINE
+  CASH
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+}
+
+model Payment {
+  id           String        @id @default(cuid())
+  enrollmentId String
+  enrollment   Enrollment    @relation(fields: [enrollmentId], references: [id])
+  month        DateTime
+  method       PaymentMethod
+  status       PaymentStatus @default(PENDING)
+  proofUrl     String?
+  approvedById String?
+  approvedBy   User?         @relation(fields: [approvedById], references: [id])
+  notes        String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@unique([enrollmentId, month])
+  @@index([enrollmentId])
+}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { cn } from "@/shared/lib/utils";
+import { ok, err } from "@/shared/domain/result";
 
 describe("project harness smoke test", () => {
   it("runs a basic assertion", () => {
@@ -7,6 +7,7 @@ describe("project harness smoke test", () => {
   });
 
   it("can import project source via path alias and exercise it", () => {
-    expect(cn("a", false && "b", "c")).toBe("a c");
+    expect(ok(1)).toEqual({ ok: true, value: 1 });
+    expect(err("bad")).toEqual({ ok: false, error: "bad" });
   });
 });
