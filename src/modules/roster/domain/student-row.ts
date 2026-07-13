@@ -4,6 +4,8 @@ import type { PaymentStatus } from "@/modules/payments/domain/payment-method";
 export type StudentRow = {
   readonly enrollmentId: string;
   readonly studentId: string;
+  readonly studentName: string | null;
+  readonly studentIdNumber: number | null;
   readonly studentEmail: string;
   readonly courseId: string;
   readonly courseTitle: string;

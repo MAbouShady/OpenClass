@@ -11,6 +11,7 @@ import { PrismaCourseRepository } from "@/modules/courses/infrastructure/prisma-
 import { PrismaSemesterRepository } from "@/modules/semesters/infrastructure/prisma-semester-repository";
 import { PrismaEnrollmentRepository } from "@/modules/enrollments/infrastructure/prisma-enrollment-repository";
 import { PrismaPaymentRepository } from "@/modules/payments/infrastructure/prisma-payment-repository";
+import { PrismaStudentRepository } from "@/modules/students/infrastructure/prisma-student-repository";
 import type { ActionState } from "@/shared/domain/action-state";
 
 const attendanceRepository = new PrismaAttendanceRepository();
@@ -19,6 +20,7 @@ const courseRepository = new PrismaCourseRepository();
 const semesterRepository = new PrismaSemesterRepository();
 const enrollmentRepository = new PrismaEnrollmentRepository();
 const paymentRepository = new PrismaPaymentRepository();
+const studentRepository = new PrismaStudentRepository();
 
 async function canManage(courseId: string): Promise<boolean> {
   const session = await auth();
@@ -48,6 +50,7 @@ export async function scanEntryAction(
       semesterRepository,
       enrollmentRepository,
       paymentRepository,
+      studentRepository,
     },
     { qrToken, sessionId },
   );
@@ -71,7 +74,7 @@ export async function scanExitAction(
 
   const qrToken = String(formData.get("qrToken") ?? "");
   const result = await scanExit(
-    { attendanceRepository, classSessionRepository },
+    { attendanceRepository, classSessionRepository, studentRepository },
     { qrToken, sessionId },
   );
   if (!result.ok) {

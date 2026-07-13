@@ -24,6 +24,9 @@ export async function authenticateUser(
     return err(new InvalidCredentialsError());
   }
 
+  if (!existing.passwordHash) {
+    return err(new InvalidCredentialsError());
+  }
   const valid = await deps.passwordHasher.verify(password, existing.passwordHash);
   if (!valid) {
     return err(new InvalidCredentialsError());
@@ -35,6 +38,10 @@ export async function authenticateUser(
     email: existing.email,
     role: existing.role,
     bio: existing.bio,
+    photoUrl: existing.photoUrl,
+    coverUrl: existing.coverUrl,
+    accentColor: existing.accentColor,
+    paymentDetails: existing.paymentDetails,
     locale: existing.locale,
   });
 }

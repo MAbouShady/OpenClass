@@ -15,13 +15,13 @@ export async function createLevel(
   deps: CreateLevelDeps,
   input: CreateLevelSchemaInput,
 ): Promise<Result<Level, LevelNameTakenError>> {
-  const { name, order, description } = createLevelSchema.parse(input);
+  const { name, order, description, parentLevelId, teacherId } = createLevelSchema.parse(input);
 
-  const existing = await deps.levelRepository.findByName(name);
+  const existing = await deps.levelRepository.findByName(name, teacherId);
   if (existing) {
     return err(new LevelNameTakenError(name));
   }
 
-  const level = await deps.levelRepository.create({ name, order, description });
+  const level = await deps.levelRepository.create({ name, order, description, parentLevelId, teacherId });
   return ok(level);
 }

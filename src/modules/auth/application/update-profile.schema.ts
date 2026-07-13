@@ -1,13 +1,22 @@
 import { z } from "zod";
 
+const nullableString = z
+  .string()
+  .nullish()
+  .transform((v) => v || null);
+
 export const updateProfileSchema = z.object({
   name: z.string().trim().min(2).max(120),
-  bio: z
+  bio: z.string().max(50000).nullish().transform((v) => v || null),
+  photoUrl: nullableString,
+  coverUrl: nullableString,
+  accentColor: z
     .string()
-    .trim()
-    .max(500)
+    .regex(/^#[0-9a-fA-F]{6}$/)
     .nullish()
-    .transform((value) => (value ? value : null)),
+    .transform((v) => v || null),
+  paymentDetails: z.string().max(50000).nullish().transform((v) => v || null),
+  locale: z.enum(["en", "ar"]).default("en"),
 });
 
 export type UpdateProfileSchemaInput = z.infer<typeof updateProfileSchema>;

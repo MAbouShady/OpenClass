@@ -8,12 +8,14 @@ describe("listClassSessionsForCourse", () => {
       {
         id: "session-1",
         courseId: "course-1",
+        semesterId: "semester-1",
         startTime: new Date("2026-01-01T10:00:00Z"),
         endTime: new Date("2026-01-01T11:00:00Z"),
       },
       {
         id: "session-2",
         courseId: "course-2",
+        semesterId: "semester-2",
         startTime: new Date("2026-01-02T10:00:00Z"),
         endTime: new Date("2026-01-02T11:00:00Z"),
       },

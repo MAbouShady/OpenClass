@@ -38,8 +38,8 @@ export function LanguageSwitcher({ currentLocale }: LanguageSwitcherProps) {
           onClick={() => handleSelect(value)}
           className={
             index === 0
-              ? "rounded-r-none border-r-0"
-              : "rounded-l-none"
+              ? "rounded-e-none border-e-0"
+              : "rounded-s-none"
           }
         >
           {label}

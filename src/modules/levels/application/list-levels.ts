@@ -5,6 +5,7 @@ export type ListLevelsDeps = {
   readonly levelRepository: LevelRepository;
 };
 
-export function listLevels(deps: ListLevelsDeps): Promise<Level[]> {
+export function listLevels(deps: ListLevelsDeps, teacherId?: string): Promise<Level[]> {
+  if (teacherId) return deps.levelRepository.findByTeacher(teacherId);
   return deps.levelRepository.findAll();
 }

@@ -9,6 +9,9 @@ const existingUser: UserWithCredentials = {
   email: "ada@example.com",
   role: "TEACHER",
   bio: null,
+  photoUrl: null,
+  coverUrl: null,
+  accentColor: null, paymentDetails: null,
   locale: "en",
   passwordHash: "hashed:whatever",
 };
@@ -20,6 +23,10 @@ describe("updateProfile", () => {
     const updated = await updateProfile({ userRepository }, "user-1", {
       name: "Ada L.",
       bio: "Mathematician and writer.",
+      photoUrl: null,
+      coverUrl: null,
+      accentColor: null, paymentDetails: null,
+      locale: "en" as const,
     });
 
     expect(updated.name).toBe("Ada L.");
@@ -32,6 +39,10 @@ describe("updateProfile", () => {
     const updated = await updateProfile({ userRepository }, "user-1", {
       name: "Ada L.",
       bio: null,
+      photoUrl: null,
+      coverUrl: null,
+      accentColor: null, paymentDetails: null,
+      locale: "en" as const,
     });
 
     expect(updated).not.toHaveProperty("passwordHash");
@@ -40,7 +51,14 @@ describe("updateProfile", () => {
   it("treats an empty bio as null", async () => {
     const userRepository = new FakeUserRepository([existingUser]);
 
-    const updated = await updateProfile({ userRepository }, "user-1", { name: "Ada", bio: "" });
+    const updated = await updateProfile({ userRepository }, "user-1", {
+      name: "Ada",
+      bio: "",
+      photoUrl: null,
+      coverUrl: null,
+      accentColor: null, paymentDetails: null,
+      locale: "en" as const,
+    });
 
     expect(updated.bio).toBeNull();
   });

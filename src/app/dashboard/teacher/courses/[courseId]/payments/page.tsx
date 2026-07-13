@@ -1,10 +1,11 @@
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
+import { getTranslations } from "next-intl/server";
 import { PrismaCourseRepository } from "@/modules/courses/infrastructure/prisma-course-repository";
 import { listSemestersForCourse } from "@/modules/semesters/application/list-semesters-for-course";
 import { PrismaSemesterRepository } from "@/modules/semesters/infrastructure/prisma-semester-repository";
 import { PrismaEnrollmentRepository } from "@/modules/enrollments/infrastructure/prisma-enrollment-repository";
-import { PrismaUserRepository } from "@/modules/auth/infrastructure/prisma-user-repository";
+import { PrismaStudentRepository } from "@/modules/students/infrastructure/prisma-student-repository";
 import { normalizeToMonthStart } from "@/modules/payments/domain/month";
 import { PrismaPaymentRepository } from "@/modules/payments/infrastructure/prisma-payment-repository";
 import { EnrollmentPaymentRow } from "@/modules/payments/presentation/enrollment-payment-row";
@@ -14,7 +15,7 @@ import { approvePaymentAction, markCashPaymentAction } from "./actions";
 const courseRepository = new PrismaCourseRepository();
 const semesterRepository = new PrismaSemesterRepository();
 const enrollmentRepository = new PrismaEnrollmentRepository();
-const userRepository = new PrismaUserRepository();
+const studentRepository = new PrismaStudentRepository();
 const paymentRepository = new PrismaPaymentRepository();
 
 type PageProps = {
@@ -23,7 +24,7 @@ type PageProps = {
 
 export default async function CoursePaymentsPage({ params }: PageProps) {
   const { courseId } = await params;
-  const session = await auth();
+  const [session, t] = await Promise.all([auth(), getTranslations("payments")]);
   const course = await courseRepository.findById(courseId);
 
   if (!course) notFound();
@@ -39,14 +40,15 @@ export default async function CoursePaymentsPage({ params }: PageProps) {
         const enrollments = await enrollmentRepository.findBySemester(semester.id);
         return Promise.all(
           enrollments.map(async (enrollment) => {
-            const student = await userRepository.findById(enrollment.studentId);
+            const student = await studentRepository.findById(enrollment.studentId);
             const payment = await paymentRepository.findByEnrollmentAndMonth(
               enrollment.id,
               currentMonth,
             );
             return {
               enrollmentId: enrollment.id,
-              studentEmail: student?.email ?? enrollment.studentId,
+              studentName: student?.name ?? enrollment.studentId,
+              studentIdNumber: student?.idNumber ?? null,
               status: payment?.status ?? ("UNPAID" as const),
               pendingPaymentId: payment?.status === "PENDING" ? payment.id : null,
             };
@@ -61,26 +63,27 @@ export default async function CoursePaymentsPage({ params }: PageProps) {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Payments — {course.title}</h1>
+        <h1 className="text-2xl font-bold">{t("pageTitle")} — {course.title}</h1>
         <p className="text-muted-foreground">
-          Current month:{" "}
-          {new Intl.DateTimeFormat("en", { month: "long", year: "numeric" }).format(currentMonth)}
+          {t("currentMonth")}:{" "}
+          {new Intl.DateTimeFormat("ar-EG", { month: "long", year: "numeric" }).format(currentMonth)}
         </p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Enrollment payments</CardTitle>
+          <CardTitle>{t("enrollmentPayments")}</CardTitle>
         </CardHeader>
         <CardContent>
           {rows.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No enrolled students yet.</p>
+            <p className="text-sm text-muted-foreground">{t("noStudents")}</p>
           ) : (
             <div>
               {rows.map((row) => (
                 <EnrollmentPaymentRow
                   key={row.enrollmentId}
-                  studentEmail={row.studentEmail}
+                  studentName={row.studentName}
+                  studentIdNumber={row.studentIdNumber}
                   status={row.status}
                   pendingPaymentId={row.pendingPaymentId}
                   markCashAction={markCashPaymentAction.bind(

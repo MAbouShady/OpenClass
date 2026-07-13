@@ -33,7 +33,9 @@ export async function createCourseAction(
   const parsed = createCourseSchema.safeParse({
     title: formData.get("title"),
     description: formData.get("description"),
+    price: formData.get("price"),
     sessionType: formData.get("sessionType"),
+    paymentFrequency: formData.get("paymentFrequency"),
     levelId: formData.get("levelId"),
     teacherId: session.user.id,
   });
@@ -59,7 +61,9 @@ export async function updateCourseAction(
     id: formData.get("id"),
     title: formData.get("title"),
     description: formData.get("description"),
+    price: formData.get("price"),
     sessionType: formData.get("sessionType"),
+    paymentFrequency: formData.get("paymentFrequency"),
     levelId: formData.get("levelId"),
   });
   if (!parsed.success) {

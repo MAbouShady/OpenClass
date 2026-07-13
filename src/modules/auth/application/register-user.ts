@@ -17,15 +17,23 @@ export async function registerUser(
   deps: RegisterUserDeps,
   input: RegisterUserInput,
 ): Promise<Result<User, EmailAlreadyTakenError>> {
-  const { name, email, password, role, locale } = registerUserSchema.parse(input);
+  const { name, phone, email, password, role, locale } = registerUserSchema.parse(input);
 
-  const existing = await deps.userRepository.findByEmail(email);
-  if (existing) {
-    return err(new EmailAlreadyTakenError(email));
+  if (phone) {
+    const existingByPhone = await deps.userRepository.findByPhone(phone);
+    if (existingByPhone) {
+      return err(new EmailAlreadyTakenError(phone));
+    }
+  }
+  if (email) {
+    const existingByEmail = await deps.userRepository.findByEmail(email);
+    if (existingByEmail) {
+      return err(new EmailAlreadyTakenError(email));
+    }
   }
 
   const passwordHash = await deps.passwordHasher.hash(password);
-  const user = await deps.userRepository.create({ name, email, passwordHash, role, locale });
+  const user = await deps.userRepository.create({ name, phone, email, passwordHash, role, locale });
 
   return ok({
     id: user.id,
@@ -33,6 +41,10 @@ export async function registerUser(
     email: user.email,
     role: user.role,
     bio: user.bio,
+    photoUrl: user.photoUrl,
+    coverUrl: user.coverUrl,
+    accentColor: user.accentColor,
+    paymentDetails: user.paymentDetails,
     locale: user.locale,
   });
 }

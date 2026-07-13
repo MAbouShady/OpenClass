@@ -14,6 +14,9 @@ const PARENT = {
   email: "parent@example.com",
   role: "PARENT" as const,
   bio: null,
+  photoUrl: null,
+  coverUrl: null,
+  accentColor: null, paymentDetails: null,
   locale: "en",
   passwordHash: "hashed",
 };
@@ -24,6 +27,9 @@ const STUDENT = {
   email: "student@example.com",
   role: "STUDENT" as const,
   bio: null,
+  photoUrl: null,
+  coverUrl: null,
+  accentColor: null, paymentDetails: null,
   locale: "en",
   passwordHash: "hashed",
 };

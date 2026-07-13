@@ -6,7 +6,7 @@ import { FakeLevelRepository } from "./fake-level-repository";
 describe("updateLevel", () => {
   it("updates a level's fields", async () => {
     const levelRepository = new FakeLevelRepository([
-      { id: "level-1", name: "Beginner", order: 1, description: null },
+      { id: "level-1", name: "Beginner", order: 1, description: null, parentLevelId: null, teacherId: null },
     ]);
 
     const result = await updateLevel(
@@ -34,8 +34,8 @@ describe("updateLevel", () => {
 
   it("rejects renaming to a name already used by another level", async () => {
     const levelRepository = new FakeLevelRepository([
-      { id: "level-1", name: "Beginner", order: 1, description: null },
-      { id: "level-2", name: "Advanced", order: 2, description: null },
+      { id: "level-1", name: "Beginner", order: 1, description: null, parentLevelId: null, teacherId: null },
+      { id: "level-2", name: "Advanced", order: 2, description: null, parentLevelId: null, teacherId: null },
     ]);
 
     const result = await updateLevel(
@@ -50,7 +50,7 @@ describe("updateLevel", () => {
 
   it("allows keeping the same name on the same level", async () => {
     const levelRepository = new FakeLevelRepository([
-      { id: "level-1", name: "Beginner", order: 1, description: null },
+      { id: "level-1", name: "Beginner", order: 1, description: null, parentLevelId: null, teacherId: null },
     ]);
 
     const result = await updateLevel(

@@ -27,11 +27,19 @@ enum Role {
 model User {
   id                String           @id @default(cuid())
   name              String
-  email             String           @unique
-  passwordHash      String
+  email             String?          @unique
+  passwordHash      String?
   role              Role
   bio               String?
+  photoUrl          String?
+  coverUrl          String?
+  accentColor       String?
+  paymentDetails    String?
   locale            String           @default("en")
+  phone             String?
+  idNumber          Int?             @unique
+  levelId           String?
+  level             Level?           @relation("StudentLevel", fields: [levelId], references: [id], onDelete: SetNull)
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
   coursesTaught     Course[]
@@ -40,7 +48,10 @@ model User {
   attendances       Attendance[]
   childLinks        ParentStudent[]  @relation("ParentOf")
   parentLinks       ParentStudent[]  @relation("ChildOf")
+  teacherLinks      TeacherStudent[] @relation("TeacherOf")
+  studentLinks      TeacherStudent[] @relation("StudentOf")
   pushSubscriptions PushSubscription[]
+  levels            Level[]            @relation("TeacherLevels")
 }
 
 model PushSubscription {
@@ -53,6 +64,17 @@ model PushSubscription {
   createdAt DateTime @default(now())
 
   @@index([userId])
+}
+
+model TeacherStudent {
+  teacherId String
+  studentId String
+  teacher   User     @relation("TeacherOf", fields: [teacherId], references: [id], onDelete: Cascade)
+  student   User     @relation("StudentOf", fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([teacherId, studentId])
+  @@index([studentId])
 }
 
 model ParentStudent {
@@ -68,15 +90,23 @@ model ParentStudent {
 }
 
 model Level {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  order       Int
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  courses     Course[]
+  id            String   @id @default(cuid())
+  name          String
+  order         Int
+  description   String?
+  parentLevelId String?
+  teacherId     String?
+  parent        Level?   @relation("LevelChildren", fields: [parentLevelId], references: [id], onDelete: Cascade)
+  children      Level[]  @relation("LevelChildren")
+  teacher       User?    @relation("TeacherLevels", fields: [teacherId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  courses       Course[]
+  students      User[]   @relation("StudentLevel")
 
   @@index([order])
+  @@index([parentLevelId])
+  @@index([teacherId])
 }
 
 enum SessionType {
@@ -84,12 +114,20 @@ enum SessionType {
   OFFLINE
 }
 
+enum PaymentFrequency {
+  ONE_TIME
+  MONTHLY
+  PER_SEMESTER
+}
+
 model Course {
   id          String         @id @default(cuid())
   title       String
   description String?
-  sessionType SessionType
-  levelId     String
+  price            Int?
+  sessionType      SessionType
+  paymentFrequency PaymentFrequency @default(MONTHLY)
+  levelId          String
   level       Level          @relation(fields: [levelId], references: [id])
   teacherId   String
   teacher     User           @relation(fields: [teacherId], references: [id])
@@ -105,14 +143,18 @@ model Course {
 model ClassSession {
   id          String       @id @default(cuid())
   courseId    String
-  course      Course       @relation(fields: [courseId], references: [id])
+  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  semesterId  String
+  semester    Semester     @relation(fields: [semesterId], references: [id], onDelete: Cascade)
   startTime   DateTime
   endTime     DateTime
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   attendances Attendance[]
 
+  @@unique([courseId, startTime])
   @@index([courseId])
+  @@index([semesterId])
 }
 
 enum AttendanceStatus {
@@ -145,6 +187,7 @@ model Semester {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   enrollments Enrollment[]
+  sessions    ClassSession[]
 
   @@index([courseId])
 }

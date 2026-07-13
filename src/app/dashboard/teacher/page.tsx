@@ -43,11 +43,12 @@ export default async function TeacherDashboardPage() {
       const enrollments = await enrollmentRepository.findBySemester(semester.id);
       for (const enrollment of enrollments) {
         studentIds.add(enrollment.studentId);
+        if (course.paymentFrequency !== "MONTHLY") continue;
         const payment = await paymentRepository.findByEnrollmentAndMonth(
           enrollment.id,
           currentMonth,
         );
-        if (payment?.status === "PENDING") pendingPayments += 1;
+        if (!payment || payment.status !== "APPROVED") pendingPayments += 1;
       }
     }
   }

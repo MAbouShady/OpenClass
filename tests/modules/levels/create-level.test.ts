@@ -8,7 +8,7 @@ describe("createLevel", () => {
     const levelRepository = new FakeLevelRepository();
     const result = await createLevel(
       { levelRepository },
-      { name: "Beginner", order: 1, description: "Just starting out" },
+      { name: "Beginner", order: 1, description: "Just starting out", parentLevelId: null, teacherId: null },
     );
 
     expect(result.ok).toBe(true);
@@ -18,12 +18,12 @@ describe("createLevel", () => {
 
   it("rejects a duplicate name", async () => {
     const levelRepository = new FakeLevelRepository([
-      { id: "level-1", name: "Beginner", order: 1, description: null },
+      { id: "level-1", name: "Beginner", order: 1, description: null, parentLevelId: null, teacherId: null },
     ]);
 
     const result = await createLevel(
       { levelRepository },
-      { name: "Beginner", order: 2, description: null },
+      { name: "Beginner", order: 2, description: null, parentLevelId: null, teacherId: null },
     );
 
     expect(result.ok).toBe(false);

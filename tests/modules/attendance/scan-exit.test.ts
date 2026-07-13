@@ -2,22 +2,34 @@
 import { describe, expect, it } from "vitest";
 import { scanExit } from "@/modules/attendance/application/scan-exit";
 import { AlreadyCheckedOutError, NotCheckedInError } from "@/modules/attendance/domain/errors";
-import { generateQrToken } from "@/modules/qr/domain/qr-token";
 import { FakeAttendanceRepository } from "./fake-attendance-repository";
 import { FakeClassSessionRepository } from "../scheduling/fake-class-session-repository";
+import { FakeStudentRepository } from "./fake-student-repository";
+
+const STUDENT = {
+  id: "student-1",
+  idNumber: 123456,
+  name: "Test Student",
+  email: "test@test.com",
+  phone: null,
+  levelId: null,
+  levelName: null,
+  parentId: null,
+  parentName: null,
+  parentEmail: null,
+};
+
+const QR = "123456";
 
 const CLASS_SESSION = {
   id: "session-1",
   courseId: "course-1",
+  semesterId: "semester-1",
   startTime: new Date("2026-01-01T10:00:00Z"),
   endTime: new Date("2026-01-01T11:00:00Z"),
 };
 
-const TOKEN = generateQrToken({
-  studentId: "student-1",
-  courseId: "course-1",
-  teacherId: "teacher-1",
-});
+const studentRepository = new FakeStudentRepository([STUDENT]);
 
 describe("scanExit", () => {
   it("checks out a checked-in student", async () => {
@@ -34,8 +46,8 @@ describe("scanExit", () => {
     const classSessionRepository = new FakeClassSessionRepository([CLASS_SESSION]);
 
     const result = await scanExit(
-      { attendanceRepository, classSessionRepository },
-      { qrToken: TOKEN, sessionId: "session-1" },
+      { attendanceRepository, classSessionRepository, studentRepository },
+      { qrToken: QR, sessionId: "session-1" },
     );
 
     expect(result.ok).toBe(true);
@@ -48,8 +60,8 @@ describe("scanExit", () => {
     const classSessionRepository = new FakeClassSessionRepository([CLASS_SESSION]);
 
     const result = await scanExit(
-      { attendanceRepository, classSessionRepository },
-      { qrToken: TOKEN, sessionId: "session-1" },
+      { attendanceRepository, classSessionRepository, studentRepository },
+      { qrToken: QR, sessionId: "session-1" },
     );
 
     expect(result.ok).toBe(false);
@@ -71,8 +83,8 @@ describe("scanExit", () => {
     const classSessionRepository = new FakeClassSessionRepository([CLASS_SESSION]);
 
     const result = await scanExit(
-      { attendanceRepository, classSessionRepository },
-      { qrToken: TOKEN, sessionId: "session-1" },
+      { attendanceRepository, classSessionRepository, studentRepository },
+      { qrToken: QR, sessionId: "session-1" },
     );
 
     expect(result.ok).toBe(false);

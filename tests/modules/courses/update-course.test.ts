@@ -9,6 +9,8 @@ const SEED = [
     title: "Intro to Python",
     description: null,
     sessionType: "ONLINE" as const,
+    paymentFrequency: "MONTHLY" as const,
+  price: null,
     levelId: "level-1",
     teacherId: "teacher-1",
   },
@@ -26,6 +28,8 @@ describe("updateCourse", () => {
         title: "Advanced Python",
         description: null,
         sessionType: "OFFLINE",
+        paymentFrequency: "MONTHLY" as const,
+  price: null,
         levelId: "level-2",
       },
     );
@@ -46,6 +50,8 @@ describe("updateCourse", () => {
         title: "Renamed",
         description: null,
         sessionType: "ONLINE",
+        paymentFrequency: "MONTHLY" as const,
+  price: null,
         levelId: "level-1",
       },
     );
@@ -64,6 +70,8 @@ describe("updateCourse", () => {
         title: "Hijacked",
         description: null,
         sessionType: "ONLINE",
+        paymentFrequency: "MONTHLY" as const,
+  price: null,
         levelId: "level-1",
       },
     );
@@ -84,6 +92,8 @@ describe("updateCourse", () => {
         title: "Missing",
         description: null,
         sessionType: "ONLINE",
+        paymentFrequency: "MONTHLY" as const,
+  price: null,
         levelId: "level-1",
       },
     );

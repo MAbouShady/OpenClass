@@ -17,16 +17,29 @@ export class FakeLevelRepository implements LevelRepository {
     return [...this.levels].sort((a, b) => a.order - b.order);
   }
 
+  async findByTeacher(teacherId: string): Promise<Level[]> {
+    return [...this.levels]
+      .filter((l) => l.teacherId === teacherId)
+      .sort((a, b) => a.order - b.order);
+  }
+
   async findById(id: string): Promise<Level | null> {
     return this.levels.find((level) => level.id === id) ?? null;
   }
 
-  async findByName(name: string): Promise<Level | null> {
-    return this.levels.find((level) => level.name === name) ?? null;
+  async findByName(name: string, teacherId?: string | null): Promise<Level | null> {
+    return this.levels.find((l) => l.name === name && l.teacherId === (teacherId ?? null)) ?? null;
   }
 
   async create(input: CreateLevelInput): Promise<Level> {
-    const level: Level = { id: `level-${this.nextId++}`, ...input };
+    const level: Level = {
+      id: `level-${this.nextId++}`,
+      name: input.name,
+      order: input.order,
+      description: input.description,
+      parentLevelId: input.parentLevelId ?? null,
+      teacherId: input.teacherId ?? null,
+    };
     this.levels.push(level);
     return level;
   }

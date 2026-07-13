@@ -9,6 +9,8 @@ const SEED = [
     title: "Intro to Python",
     description: null,
     sessionType: "ONLINE" as const,
+    paymentFrequency: "MONTHLY" as const,
+  price: null,
     levelId: "level-1",
     teacherId: "teacher-1",
   },

@@ -7,9 +7,7 @@ import {
   InvalidQrTokenError,
   OnlineSessionScanNotAllowedError,
   PaymentRequiredError,
-  WrongCourseError,
 } from "@/modules/attendance/domain/errors";
-import { generateQrToken } from "@/modules/qr/domain/qr-token";
 import { normalizeToMonthStart } from "@/modules/payments/domain/month";
 import type { Course } from "@/modules/courses/domain/course";
 import { FakeAttendanceRepository } from "./fake-attendance-repository";
@@ -18,12 +16,30 @@ import { FakeCourseRepository } from "../courses/fake-course-repository";
 import { FakeSemesterRepository } from "../semesters/fake-semester-repository";
 import { FakeEnrollmentRepository } from "../enrollments/fake-enrollment-repository";
 import { FakePaymentRepository } from "../payments/fake-payment-repository";
+import { FakeStudentRepository } from "./fake-student-repository";
+
+const STUDENT = {
+  id: "student-1",
+  idNumber: 123456,
+  name: "Test Student",
+  email: "test@test.com",
+  phone: null,
+  levelId: null,
+  levelName: null,
+  parentId: null,
+  parentName: null,
+  parentEmail: null,
+};
+
+const QR = "123456";
 
 const COURSE = {
   id: "course-1",
   title: "Intro",
   description: null,
   sessionType: "OFFLINE" as const,
+  paymentFrequency: "MONTHLY" as const,
+  price: null,
   levelId: "level-1",
   teacherId: "teacher-1",
 };
@@ -33,6 +49,7 @@ const ONLINE_COURSE = { ...COURSE, id: "course-2", sessionType: "ONLINE" as cons
 const CLASS_SESSION = {
   id: "session-1",
   courseId: "course-1",
+  semesterId: "semester-1",
   startTime: new Date("2026-01-01T10:00:00Z"),
   endTime: new Date("2026-01-01T11:00:00Z"),
 };
@@ -74,19 +91,13 @@ function buildDeps(
     semesterRepository: new FakeSemesterRepository([SEMESTER]),
     enrollmentRepository: new FakeEnrollmentRepository(enrolled ? [ENROLLMENT] : []),
     paymentRepository: new FakePaymentRepository(paid ? [PAID_PAYMENT] : []),
+    studentRepository: new FakeStudentRepository([STUDENT]),
   };
 }
 
 describe("scanEntry", () => {
   it("checks in a valid, enrolled, paid-up student", async () => {
-    const deps = buildDeps();
-    const token = generateQrToken({
-      studentId: "student-1",
-      courseId: "course-1",
-      teacherId: "teacher-1",
-    });
-
-    const result = await scanEntry(deps, { qrToken: token, sessionId: "session-1" });
+    const result = await scanEntry(buildDeps(), { qrToken: QR, sessionId: "session-1" });
 
     expect(result.ok).toBe(true);
     if (!result.ok) return;
@@ -94,29 +105,20 @@ describe("scanEntry", () => {
     expect(result.value.checkInTime).not.toBeNull();
   });
 
-  it("rejects an invalid token", async () => {
-    const deps = buildDeps();
-
-    const result = await scanEntry(deps, { qrToken: "garbage", sessionId: "session-1" });
+  it("rejects a non-numeric token", async () => {
+    const result = await scanEntry(buildDeps(), { qrToken: "garbage", sessionId: "session-1" });
 
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.error).toBeInstanceOf(InvalidQrTokenError);
   });
 
-  it("rejects a token for the wrong course", async () => {
-    const deps = buildDeps();
-    const token = generateQrToken({
-      studentId: "student-1",
-      courseId: "course-999",
-      teacherId: "teacher-1",
-    });
-
-    const result = await scanEntry(deps, { qrToken: token, sessionId: "session-1" });
+  it("rejects an unknown idNumber", async () => {
+    const result = await scanEntry(buildDeps(), { qrToken: "999999", sessionId: "session-1" });
 
     expect(result.ok).toBe(false);
     if (result.ok) return;
-    expect(result.error).toBeInstanceOf(WrongCourseError);
+    expect(result.error).toBeInstanceOf(InvalidQrTokenError);
   });
 
   it("rejects scanning an online course's session", async () => {
@@ -124,13 +126,8 @@ describe("scanEntry", () => {
       course: ONLINE_COURSE,
       classSession: { ...CLASS_SESSION, courseId: "course-2" },
     });
-    const token = generateQrToken({
-      studentId: "student-1",
-      courseId: "course-2",
-      teacherId: "teacher-1",
-    });
 
-    const result = await scanEntry(deps, { qrToken: token, sessionId: "session-1" });
+    const result = await scanEntry(deps, { qrToken: QR, sessionId: "session-1" });
 
     expect(result.ok).toBe(false);
     if (result.ok) return;
@@ -138,14 +135,7 @@ describe("scanEntry", () => {
   });
 
   it("rejects an unenrolled student", async () => {
-    const deps = buildDeps({ enrolled: false });
-    const token = generateQrToken({
-      studentId: "student-1",
-      courseId: "course-1",
-      teacherId: "teacher-1",
-    });
-
-    const result = await scanEntry(deps, { qrToken: token, sessionId: "session-1" });
+    const result = await scanEntry(buildDeps({ enrolled: false }), { qrToken: QR, sessionId: "session-1" });
 
     expect(result.ok).toBe(false);
     if (result.ok) return;
@@ -153,14 +143,7 @@ describe("scanEntry", () => {
   });
 
   it("rejects a student who hasn't paid this month", async () => {
-    const deps = buildDeps({ paid: false });
-    const token = generateQrToken({
-      studentId: "student-1",
-      courseId: "course-1",
-      teacherId: "teacher-1",
-    });
-
-    const result = await scanEntry(deps, { qrToken: token, sessionId: "session-1" });
+    const result = await scanEntry(buildDeps({ paid: false }), { qrToken: QR, sessionId: "session-1" });
 
     expect(result.ok).toBe(false);
     if (result.ok) return;
@@ -169,14 +152,8 @@ describe("scanEntry", () => {
 
   it("rejects a second check-in for the same session", async () => {
     const deps = buildDeps();
-    const token = generateQrToken({
-      studentId: "student-1",
-      courseId: "course-1",
-      teacherId: "teacher-1",
-    });
-
-    await scanEntry(deps, { qrToken: token, sessionId: "session-1" });
-    const result = await scanEntry(deps, { qrToken: token, sessionId: "session-1" });
+    await scanEntry(deps, { qrToken: QR, sessionId: "session-1" });
+    const result = await scanEntry(deps, { qrToken: QR, sessionId: "session-1" });
 
     expect(result.ok).toBe(false);
     if (result.ok) return;

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { ActionState } from "@/shared/domain/action-state";
+import { useTranslations } from "next-intl";
 
 type SessionFormProps = {
   readonly action: (prevState: ActionState, formData: FormData) => Promise<ActionState>;
@@ -13,6 +14,7 @@ type SessionFormProps = {
 };
 
 export function SessionForm({ action, courseId }: SessionFormProps) {
+  const t = useTranslations("sessions");
   const [state, formAction, pending] = useActionState(action, {});
 
   return (
@@ -20,12 +22,12 @@ export function SessionForm({ action, courseId }: SessionFormProps) {
       <input type="hidden" name="courseId" value={courseId} />
 
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="startTime">Start time</Label>
+        <Label htmlFor="startTime">{t("startTimeLabel")}</Label>
         <Input id="startTime" name="startTime" type="datetime-local" required />
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="endTime">End time</Label>
+        <Label htmlFor="endTime">{t("endTimeLabel")}</Label>
         <Input id="endTime" name="endTime" type="datetime-local" required />
       </div>
 
@@ -36,7 +38,7 @@ export function SessionForm({ action, courseId }: SessionFormProps) {
       ) : null}
 
       <Button type="submit" disabled={pending} className="self-start">
-        {pending ? "Scheduling…" : "Add session"}
+        {pending ? t("scheduling") : t("addSession")}
       </Button>
     </form>
   );

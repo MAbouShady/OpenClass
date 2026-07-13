@@ -1,4 +1,8 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
 import type { Semester } from "@/modules/semesters/domain/semester";
 
 type SemesterRowProps = {
@@ -11,16 +15,23 @@ function formatDate(date: Date): string {
 }
 
 export function SemesterRow({ semester, deleteAction }: SemesterRowProps) {
+  const t = useTranslations("semesters");
+
   return (
-    <div className="flex items-center justify-between gap-4 border-b py-3">
+    <div className="flex items-center justify-between gap-4 py-3">
       <p className="text-sm">
         {formatDate(semester.startDate)} – {formatDate(semester.endDate)}
       </p>
-      <form action={deleteAction.bind(null, semester.id)}>
-        <Button type="submit" size="sm" variant="destructive">
-          Delete
+      <ConfirmDeleteDialog
+        title={t("deleteConfirmTitle")}
+        description={t("deleteConfirmDesc")}
+        onConfirm={() => deleteAction(semester.id)}
+        confirmLabel={t("deleteLabel")}
+      >
+        <Button type="button" size="sm" variant="outline" className="text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30">
+          {t("deleteLabel")}
         </Button>
-      </form>
+      </ConfirmDeleteDialog>
     </div>
   );
 }

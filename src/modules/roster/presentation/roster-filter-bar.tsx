@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   Select,
   SelectContent,
@@ -16,18 +17,8 @@ type RosterFilterBarProps = {
   readonly semesterOptions: readonly FilterOption[];
 };
 
-const SESSION_TYPE_OPTIONS = [
-  { value: "ONLINE", label: "Online" },
-  { value: "OFFLINE", label: "Offline" },
-];
-
-const PAYMENT_STATUS_OPTIONS = [
-  { value: "APPROVED", label: "Paid" },
-  { value: "PENDING", label: "Pending" },
-  { value: "UNPAID", label: "Unpaid" },
-];
-
 export function RosterFilterBar({ courseOptions, semesterOptions }: RosterFilterBarProps) {
+  const t = useTranslations("roster");
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -41,13 +32,24 @@ export function RosterFilterBar({ courseOptions, semesterOptions }: RosterFilter
     router.push(`?${next.toString()}`);
   }
 
+  const sessionTypeOptions = [
+    { value: "ONLINE", label: t("online") },
+    { value: "OFFLINE", label: t("offline") },
+  ];
+
+  const paymentStatusOptions = [
+    { value: "APPROVED", label: t("paid") },
+    { value: "PENDING", label: t("pending") },
+    { value: "UNPAID", label: t("unpaid") },
+  ];
+
   return (
     <div className="flex flex-wrap gap-2">
       <div className="flex flex-col gap-1">
         <Select value={searchParams.get("courseId") ?? ""} onValueChange={(val) => setParam("courseId", val)}>
-          <SelectTrigger className="w-44"><SelectValue placeholder="All courses" /></SelectTrigger>
+          <SelectTrigger className="w-44"><SelectValue placeholder={t("allCourses")} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All courses</SelectItem>
+            <SelectItem value="">{t("allCourses")}</SelectItem>
             {courseOptions.map((o) => (
               <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
             ))}
@@ -57,9 +59,9 @@ export function RosterFilterBar({ courseOptions, semesterOptions }: RosterFilter
 
       <div className="flex flex-col gap-1">
         <Select value={searchParams.get("semesterId") ?? ""} onValueChange={(val) => setParam("semesterId", val)}>
-          <SelectTrigger className="w-44"><SelectValue placeholder="All semesters" /></SelectTrigger>
+          <SelectTrigger className="w-44"><SelectValue placeholder={t("allSemesters")} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All semesters</SelectItem>
+            <SelectItem value="">{t("allSemesters")}</SelectItem>
             {semesterOptions.map((o) => (
               <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
             ))}
@@ -69,10 +71,10 @@ export function RosterFilterBar({ courseOptions, semesterOptions }: RosterFilter
 
       <div className="flex flex-col gap-1">
         <Select value={searchParams.get("sessionType") ?? ""} onValueChange={(val) => setParam("sessionType", val)}>
-          <SelectTrigger className="w-44"><SelectValue placeholder="All types" /></SelectTrigger>
+          <SelectTrigger className="w-44"><SelectValue placeholder={t("allTypes")} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All types</SelectItem>
-            {SESSION_TYPE_OPTIONS.map((o) => (
+            <SelectItem value="">{t("allTypes")}</SelectItem>
+            {sessionTypeOptions.map((o) => (
               <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
             ))}
           </SelectContent>
@@ -81,10 +83,10 @@ export function RosterFilterBar({ courseOptions, semesterOptions }: RosterFilter
 
       <div className="flex flex-col gap-1">
         <Select value={searchParams.get("paymentStatus") ?? ""} onValueChange={(val) => setParam("paymentStatus", val)}>
-          <SelectTrigger className="w-44"><SelectValue placeholder="All statuses" /></SelectTrigger>
+          <SelectTrigger className="w-44"><SelectValue placeholder={t("allStatuses")} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All statuses</SelectItem>
-            {PAYMENT_STATUS_OPTIONS.map((o) => (
+            <SelectItem value="">{t("allStatuses")}</SelectItem>
+            {paymentStatusOptions.map((o) => (
               <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
             ))}
           </SelectContent>

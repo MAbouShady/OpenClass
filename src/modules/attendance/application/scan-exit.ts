@@ -4,11 +4,10 @@ import {
   InvalidQrTokenError,
   NotCheckedInError,
   SessionNotFoundError,
-  WrongCourseError,
 } from "@/modules/attendance/domain/errors";
 import type { Attendance } from "@/modules/attendance/domain/attendance";
 import type { AttendanceRepository } from "@/modules/attendance/domain/attendance-repository";
-import { verifyQrToken } from "@/modules/qr/domain/qr-token";
+import type { StudentRepository } from "@/modules/students/domain/student-repository";
 import type { ClassSessionRepository } from "@/modules/scheduling/domain/class-session-repository";
 import {
   scanExitSchema,
@@ -18,6 +17,7 @@ import {
 export type ScanExitDeps = {
   readonly attendanceRepository: AttendanceRepository;
   readonly classSessionRepository: ClassSessionRepository;
+  readonly studentRepository: StudentRepository;
 };
 
 export async function scanExit(
@@ -28,37 +28,24 @@ export async function scanExit(
     Attendance,
     | InvalidQrTokenError
     | SessionNotFoundError
-    | WrongCourseError
     | NotCheckedInError
     | AlreadyCheckedOutError
   >
 > {
   const { qrToken, sessionId } = scanExitSchema.parse(input);
 
-  const payload = verifyQrToken(qrToken);
-  if (!payload) {
-    return err(new InvalidQrTokenError());
-  }
+  const idNumber = parseInt(qrToken.trim(), 10);
+  if (isNaN(idNumber)) return err(new InvalidQrTokenError());
+
+  const student = await deps.studentRepository.findByIdNumber(idNumber);
+  if (!student) return err(new InvalidQrTokenError());
 
   const session = await deps.classSessionRepository.findById(sessionId);
-  if (!session) {
-    return err(new SessionNotFoundError(sessionId));
-  }
+  if (!session) return err(new SessionNotFoundError(sessionId));
 
-  if (session.courseId !== payload.courseId) {
-    return err(new WrongCourseError());
-  }
-
-  const existing = await deps.attendanceRepository.findByStudentAndSession(
-    payload.studentId,
-    sessionId,
-  );
-  if (!existing?.checkInTime) {
-    return err(new NotCheckedInError());
-  }
-  if (existing.checkOutTime) {
-    return err(new AlreadyCheckedOutError());
-  }
+  const existing = await deps.attendanceRepository.findByStudentAndSession(student.id, sessionId);
+  if (!existing?.checkInTime) return err(new NotCheckedInError());
+  if (existing.checkOutTime) return err(new AlreadyCheckedOutError());
 
   const attendance = await deps.attendanceRepository.update(existing.id, {
     checkOutTime: new Date(),

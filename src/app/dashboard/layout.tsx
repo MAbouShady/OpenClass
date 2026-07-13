@@ -10,7 +10,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <DashboardChrome
       role={session?.user.role ?? "TEACHER"}
-      email={session?.user.email ?? ""}
+      name={session?.user.name ?? ""}
+      email={session?.user.email ?? null}
       locale={locale}
     >
       {children}

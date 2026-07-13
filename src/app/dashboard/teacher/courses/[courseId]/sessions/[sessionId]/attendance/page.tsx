@@ -1,23 +1,24 @@
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
+import { getTranslations } from "next-intl/server";
 import { PrismaCourseRepository } from "@/modules/courses/infrastructure/prisma-course-repository";
 import { PrismaClassSessionRepository } from "@/modules/scheduling/infrastructure/prisma-class-session-repository";
 import { listSemestersForCourse } from "@/modules/semesters/application/list-semesters-for-course";
 import { PrismaSemesterRepository } from "@/modules/semesters/infrastructure/prisma-semester-repository";
 import { PrismaEnrollmentRepository } from "@/modules/enrollments/infrastructure/prisma-enrollment-repository";
-import { PrismaUserRepository } from "@/modules/auth/infrastructure/prisma-user-repository";
 import { listAttendanceForSession } from "@/modules/attendance/application/list-attendance-for-session";
 import { PrismaAttendanceRepository } from "@/modules/attendance/infrastructure/prisma-attendance-repository";
 import { ScanForm } from "@/modules/attendance/presentation/scan-form";
-import { AttendanceRow } from "@/modules/attendance/presentation/attendance-row";
+import { AttendanceStudentList } from "@/modules/attendance/presentation/attendance-student-list";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PrismaStudentRepository } from "@/modules/students/infrastructure/prisma-student-repository";
 import { markAttendanceAction, scanEntryAction, scanExitAction } from "./actions";
 
 const courseRepository = new PrismaCourseRepository();
 const classSessionRepository = new PrismaClassSessionRepository();
 const semesterRepository = new PrismaSemesterRepository();
 const enrollmentRepository = new PrismaEnrollmentRepository();
-const userRepository = new PrismaUserRepository();
+const studentRepository = new PrismaStudentRepository();
 const attendanceRepository = new PrismaAttendanceRepository();
 
 type PageProps = {
@@ -26,7 +27,7 @@ type PageProps = {
 
 export default async function SessionAttendancePage({ params }: PageProps) {
   const { courseId, sessionId } = await params;
-  const session = await auth();
+  const [session, t] = await Promise.all([auth(), getTranslations("attendance")]);
   const course = await courseRepository.findById(courseId);
   const classSession = await classSessionRepository.findById(sessionId);
 
@@ -46,14 +47,17 @@ export default async function SessionAttendancePage({ params }: PageProps) {
 
   const rows = await Promise.all(
     enrollments.map(async (enrollment) => {
-      const student = await userRepository.findById(enrollment.studentId);
+      const student = await studentRepository.findById(enrollment.studentId);
       const attendance = attendanceByStudentId.get(enrollment.studentId);
       return {
         studentId: enrollment.studentId,
-        studentEmail: student?.email ?? enrollment.studentId,
+        studentName: student?.name ?? enrollment.studentId,
+        studentIdNumber: student?.idNumber ?? null,
         status: attendance?.status ?? ("UNMARKED" as const),
         checkInTime: attendance?.checkInTime ?? null,
         checkOutTime: attendance?.checkOutTime ?? null,
+        markPresentAction: markAttendanceAction.bind(null, courseId, sessionId, enrollment.studentId, "PRESENT"),
+        markAbsentAction: markAttendanceAction.bind(null, courseId, sessionId, enrollment.studentId, "ABSENT"),
       };
     }),
   );
@@ -64,9 +68,9 @@ export default async function SessionAttendancePage({ params }: PageProps) {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Attendance — {course.title}</h1>
+        <h1 className="text-2xl font-bold">{t("pageTitle")} — {course.title}</h1>
         <p className="text-muted-foreground">
-          {new Intl.DateTimeFormat("en", { dateStyle: "medium", timeStyle: "short" }).format(
+          {new Intl.DateTimeFormat("ar-EG", { dateStyle: "medium", timeStyle: "short" }).format(
             classSession.startTime,
           )}
         </p>
@@ -75,53 +79,23 @@ export default async function SessionAttendancePage({ params }: PageProps) {
       {course.sessionType === "OFFLINE" ? (
         <Card>
           <CardHeader>
-            <CardTitle>Scan QR code</CardTitle>
+            <CardTitle>{t("scanQr")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <ScanForm label="Check in" action={boundScanEntry} />
-            <ScanForm label="Check out" action={boundScanExit} />
+            <ScanForm label={t("checkIn")} action={boundScanEntry} />
+            <ScanForm label={t("checkOut")} action={boundScanExit} />
           </CardContent>
         </Card>
       ) : (
-        <p className="text-sm text-muted-foreground">
-          This is an online session — mark attendance manually below.
-        </p>
+        <p className="text-sm text-muted-foreground">{t("onlineSessionNote")}</p>
       )}
 
       <Card>
         <CardHeader>
-          <CardTitle>Students</CardTitle>
+          <CardTitle>{t("studentsTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
-          {rows.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No enrolled students yet.</p>
-          ) : (
-            <div>
-              {rows.map((row) => (
-                <AttendanceRow
-                  key={row.studentId}
-                  studentEmail={row.studentEmail}
-                  status={row.status}
-                  checkInTime={row.checkInTime}
-                  checkOutTime={row.checkOutTime}
-                  markPresentAction={markAttendanceAction.bind(
-                    null,
-                    courseId,
-                    sessionId,
-                    row.studentId,
-                    "PRESENT",
-                  )}
-                  markAbsentAction={markAttendanceAction.bind(
-                    null,
-                    courseId,
-                    sessionId,
-                    row.studentId,
-                    "ABSENT",
-                  )}
-                />
-              ))}
-            </div>
-          )}
+          <AttendanceStudentList rows={rows} />
         </CardContent>
       </Card>
     </div>

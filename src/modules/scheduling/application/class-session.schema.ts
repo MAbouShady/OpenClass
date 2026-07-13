@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const createClassSessionSchema = z.object({
   courseId: z.string().min(1),
+  semesterId: z.string().min(1),
   startTime: z.coerce.date(),
   endTime: z.coerce.date(),
 });

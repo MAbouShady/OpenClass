@@ -6,6 +6,8 @@ const ROWS: StudentRow[] = [
   {
     enrollmentId: "enrollment-1",
     studentId: "student-1",
+    studentName: "Alice",
+    studentIdNumber: 1,
     studentEmail: "a@example.com",
     courseId: "course-1",
     courseTitle: "Course A",
@@ -18,6 +20,8 @@ const ROWS: StudentRow[] = [
   {
     enrollmentId: "enrollment-2",
     studentId: "student-2",
+    studentName: "Bob",
+    studentIdNumber: 2,
     studentEmail: "b@example.com",
     courseId: "course-1",
     courseTitle: "Course A",
@@ -30,6 +34,8 @@ const ROWS: StudentRow[] = [
   {
     enrollmentId: "enrollment-3",
     studentId: "student-3",
+    studentName: "Carol",
+    studentIdNumber: 3,
     studentEmail: "c@example.com",
     courseId: "course-2",
     courseTitle: "Course B",

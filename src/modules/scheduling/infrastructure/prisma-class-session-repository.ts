@@ -14,6 +14,10 @@ export class PrismaClassSessionRepository implements ClassSessionRepository {
     return prisma.classSession.findMany({ where: { courseId }, orderBy: { startTime: "asc" } });
   }
 
+  async findBySemester(semesterId: string): Promise<ClassSession[]> {
+    return prisma.classSession.findMany({ where: { semesterId }, orderBy: { startTime: "asc" } });
+  }
+
   async create(input: CreateClassSessionInput): Promise<ClassSession> {
     return prisma.classSession.create({ data: input });
   }

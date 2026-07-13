@@ -65,6 +65,11 @@ function getNavItems(role: Role): NavItem[] {
 
   if (role === "TEACHER") {
     items.push({
+      labelKey: "levels",
+      href: "/dashboard/teacher/levels",
+      icon: <Layers className="h-4 w-4 shrink-0" />,
+    });
+    items.push({
       labelKey: "students",
       href: "/dashboard/teacher/students",
       icon: <Users className="h-4 w-4 shrink-0" />,
@@ -92,13 +97,12 @@ function getNavItems(role: Role): NavItem[] {
   return items;
 }
 
-function getInitials(email: string): string {
-  const [local = ""] = email.split("@");
-  const parts = local.split(/[._-]/);
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/);
   if (parts.length >= 2 && parts[0] && parts[1]) {
     return ((parts[0][0] ?? "") + (parts[1][0] ?? "")).toUpperCase();
   }
-  return local.slice(0, 2).toUpperCase();
+  return (parts[0] ?? "").slice(0, 2).toUpperCase();
 }
 
 // ── Sub-components (defined at module level to avoid reconciliation issues) ──
@@ -141,11 +145,13 @@ function NavList({ navItems, pathname, t, onNavigate }: NavListProps) {
 }
 
 type UserFooterProps = {
-  readonly email: string;
+  readonly name: string;
+  readonly email: string | null;
   readonly initials: string;
 };
 
-function UserFooter({ email, initials }: UserFooterProps) {
+function UserFooter({ name, email, initials }: UserFooterProps) {
+  const label = email ?? name;
   return (
     <div className="flex shrink-0 items-center gap-3 p-4">
       <Avatar className="h-7 w-7 shrink-0">
@@ -155,9 +161,9 @@ function UserFooter({ email, initials }: UserFooterProps) {
       </Avatar>
       <p
         className="min-w-0 flex-1 truncate text-xs text-sidebar-foreground/50"
-        title={email}
+        title={label}
       >
-        {email}
+        {label}
       </p>
     </div>
   );
@@ -167,18 +173,19 @@ function UserFooter({ email, initials }: UserFooterProps) {
 
 type DashboardChromeProps = {
   readonly role: Role;
-  readonly email: string;
+  readonly name: string;
+  readonly email: string | null;
   readonly locale: Locale;
   readonly children: React.ReactNode;
 };
 
-export function DashboardChrome({ role, email, locale, children }: DashboardChromeProps) {
+export function DashboardChrome({ role, name, email, locale, children }: DashboardChromeProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
   const navItems = getNavItems(role);
   const t = useTranslations("nav");
   const tCommon = useTranslations("common");
-  const initials = getInitials(email);
+  const initials = getInitials(name);
 
   const logoMark = (
     <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary">
@@ -190,7 +197,7 @@ export function DashboardChrome({ role, email, locale, children }: DashboardChro
     <TooltipProvider>
       <div className="flex min-h-full">
         {/* ── Desktop sidebar ──────────────────────────────────────────── */}
-        <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-sidebar-border bg-sidebar md:flex">
+        <aside className="fixed inset-y-0 start-0 z-30 hidden w-64 flex-col border-e border-sidebar-border bg-sidebar md:flex">
           {/* Logo */}
           <div className="flex h-14 shrink-0 items-center gap-2.5 px-5">
             {logoMark}
@@ -205,7 +212,7 @@ export function DashboardChrome({ role, email, locale, children }: DashboardChro
 
           <Separator className="bg-sidebar-border" />
 
-          <UserFooter email={email} initials={initials} />
+          <UserFooter name={name} email={email} initials={initials} />
         </aside>
 
         {/* ── Mobile overlay drawer ────────────────────────────────────── */}
@@ -219,7 +226,7 @@ export function DashboardChrome({ role, email, locale, children }: DashboardChro
             />
 
             {/* Panel */}
-            <aside className="absolute inset-y-0 left-0 flex w-64 flex-col border-r border-sidebar-border bg-sidebar shadow-2xl">
+            <aside className="absolute inset-y-0 start-0 flex w-64 flex-col border-e border-sidebar-border bg-sidebar shadow-2xl">
               {/* Logo row + close */}
               <div className="flex h-14 shrink-0 items-center justify-between px-5">
                 <div className="flex items-center gap-2.5">
@@ -250,13 +257,13 @@ export function DashboardChrome({ role, email, locale, children }: DashboardChro
 
               <Separator className="bg-sidebar-border" />
 
-              <UserFooter email={email} initials={initials} />
+              <UserFooter name={name} email={email} initials={initials} />
             </aside>
           </div>
         )}
 
         {/* ── Content column ───────────────────────────────────────────── */}
-        <div className="flex min-h-full flex-1 flex-col md:pl-64">
+        <div className="flex min-h-full flex-1 flex-col md:ps-64">
           {/* Header */}
           <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4 shadow-sm">
             {/* Mobile hamburger */}
@@ -275,7 +282,7 @@ export function DashboardChrome({ role, email, locale, children }: DashboardChro
             {/* Right-side actions */}
             <div className="flex items-center gap-1.5">
               <span className="mr-1 hidden text-sm text-muted-foreground sm:block">
-                {email}
+                {email ?? name}
               </span>
               <LanguageSwitcher currentLocale={locale} />
               <NotificationOptInButton />

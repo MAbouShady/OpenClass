@@ -2,9 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
 import { CourseForm } from "@/modules/courses/presentation/course-form";
+import { PAYMENT_FREQUENCY_LABELS } from "@/modules/courses/domain/payment-frequency";
 import type { Course } from "@/modules/courses/domain/course";
 import type { Level } from "@/modules/levels/domain/level";
 import type { ActionState } from "@/shared/domain/action-state";
@@ -18,6 +21,7 @@ type CourseRowProps = {
 
 export function CourseRow({ course, levels, updateAction, deleteAction }: CourseRowProps) {
   const [editing, setEditing] = useState(false);
+  const t = useTranslations("courses");
   const levelName = levels.find((level) => level.id === course.levelId)?.name ?? "Unknown level";
 
   if (editing) {
@@ -27,10 +31,10 @@ export function CourseRow({ course, levels, updateAction, deleteAction }: Course
           action={updateAction}
           levels={levels}
           defaultValues={course}
-          submitLabel="Save changes"
+          submitLabel={t("saveLabel")}
         />
         <Button size="sm" variant="ghost" onClick={() => setEditing(false)} className="mt-2">
-          Cancel
+          {t("cancelLabel")}
         </Button>
       </div>
     );
@@ -38,45 +42,53 @@ export function CourseRow({ course, levels, updateAction, deleteAction }: Course
 
   return (
     <div className="flex items-center justify-between gap-4 border-b py-4">
-      <div className="space-y-1">
-        <div className="flex items-center gap-2">
-          <span className="font-medium">{course.title}</span>
+      <div className="space-y-1 min-w-0">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="font-medium truncate">{course.title}</span>
           <Badge variant="secondary">{levelName}</Badge>
           <Badge variant={course.sessionType === "ONLINE" ? "default" : "outline"}>
             {course.sessionType === "ONLINE" ? "Online" : "Offline"}
           </Badge>
+          <Badge variant="outline" className="text-xs font-normal">
+            {PAYMENT_FREQUENCY_LABELS[course.paymentFrequency]}
+          </Badge>
         </div>
         {course.description ? (
-          <p className="text-sm text-muted-foreground">{course.description}</p>
+          <p className="text-sm text-muted-foreground truncate">{course.description}</p>
         ) : null}
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex shrink-0 flex-wrap items-center gap-2">
         <Link
           href={`/dashboard/teacher/courses/${course.id}/sessions`}
           className={buttonVariants({ variant: "outline", size: "sm" })}
         >
-          Sessions
+          {t("sessionsLabel")}
         </Link>
         <Link
           href={`/dashboard/teacher/courses/${course.id}/semesters`}
           className={buttonVariants({ variant: "outline", size: "sm" })}
         >
-          Semesters
+          {t("semestersLabel")}
         </Link>
         <Link
           href={`/dashboard/teacher/courses/${course.id}/payments`}
           className={buttonVariants({ variant: "outline", size: "sm" })}
         >
-          Payments
+          {t("paymentsLabel")}
         </Link>
         <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
-          Edit
+          {t("editLabel")}
         </Button>
-        <form action={deleteAction.bind(null, course.id)}>
-          <Button type="submit" variant="outline" size="sm" className="text-destructive hover:text-destructive">
-            Delete
+        <ConfirmDeleteDialog
+          title={t("deleteConfirmTitle")}
+          description={t("deleteConfirmDesc")}
+          onConfirm={() => deleteAction(course.id)}
+          confirmLabel={t("deleteLabel")}
+        >
+          <Button type="button" size="sm" variant="outline" className="text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30">
+            {t("deleteLabel")}
           </Button>
-        </form>
+        </ConfirmDeleteDialog>
       </div>
     </div>
   );

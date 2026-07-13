@@ -1,16 +1,22 @@
+import { getTranslations } from "next-intl/server";
 import { listParentLinks } from "@/modules/family/application/list-parent-links";
 import { PrismaParentLinkRepository } from "@/modules/family/infrastructure/prisma-parent-link-repository";
 import { PrismaUserRepository } from "@/modules/auth/infrastructure/prisma-user-repository";
-import { ParentLinkForm } from "@/modules/family/presentation/parent-link-form";
 import { ParentLinkRow } from "@/modules/family/presentation/parent-link-row";
+import { AddParentLinkModal } from "@/modules/family/presentation/add-parent-link-modal";
 import { createParentLinkAction, deleteParentLinkAction } from "./actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link2 } from "lucide-react";
 
 const parentLinkRepository = new PrismaParentLinkRepository();
 const userRepository = new PrismaUserRepository();
 
 export default async function ParentLinksAdminPage() {
-  const links = await listParentLinks({ parentLinkRepository });
+  const [links, t] = await Promise.all([
+    listParentLinks({ parentLinkRepository }),
+    getTranslations("parentLinks"),
+  ]);
+
   const rows = await Promise.all(
     links.map(async (link) => {
       const [parent, student] = await Promise.all([
@@ -19,39 +25,38 @@ export default async function ParentLinksAdminPage() {
       ]);
       return {
         id: link.id,
-        parentEmail: parent?.email ?? link.parentId,
-        studentEmail: student?.email ?? link.studentId,
+        parentEmail: parent?.email ?? parent?.name ?? link.parentId,
+        studentEmail: student?.email ?? student?.name ?? link.studentId,
       };
     }),
   );
 
   return (
-    <div className="max-w-[560px] mx-auto flex flex-col gap-8">
-      <div>
-        <h1 className="text-xl font-semibold">Parent links</h1>
-        <p className="text-sm text-muted-foreground">
-          Link a parent account to their child&apos;s student account.
-        </p>
+    <div className="mx-auto max-w-2xl space-y-6">
+      {/* Page header */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
+            <Link2 className="h-5 w-5" />
+          </div>
+          <div>
+            <h1 className="text-xl font-semibold">{t("pageTitle")}</h1>
+            <p className="text-sm text-muted-foreground">{t("pageSubtitle")}</p>
+          </div>
+        </div>
+        <AddParentLinkModal createAction={createParentLinkAction} />
       </div>
 
+      {/* Links list */}
       <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base font-medium">Add a link</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ParentLinkForm action={createParentLinkAction} />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base font-medium">Existing links</CardTitle>
+        <CardHeader>
+          <CardTitle>{t("existingLinks")}</CardTitle>
         </CardHeader>
         <CardContent>
           {rows.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No links yet.</p>
+            <p className="text-sm text-muted-foreground">{t("noLinks")}</p>
           ) : (
-            <div>
+            <div className="divide-y">
               {rows.map((row) => (
                 <ParentLinkRow
                   key={row.id}

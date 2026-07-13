@@ -23,6 +23,10 @@ export async function updateProfile(
     email: user.email,
     role: user.role,
     bio: user.bio,
+    photoUrl: user.photoUrl,
+    coverUrl: user.coverUrl,
+    accentColor: user.accentColor,
+    paymentDetails: user.paymentDetails,
     locale: user.locale,
   };
 }

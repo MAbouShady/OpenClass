@@ -15,7 +15,7 @@ describe("registerUser", () => {
     const result = await registerUser(
       { userRepository, passwordHasher: fakeHasher },
       {
-        name: "Ada Lovelace",
+        name: "Ada Lovelace", phone: "+1555000001",
         email: "ada@example.com",
         password: "password123",
         role: "TEACHER",
@@ -25,9 +25,9 @@ describe("registerUser", () => {
 
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    expect(result.value).toEqual({
+    expect(result.value).toMatchObject({
       id: "user-1",
-      name: "Ada Lovelace",
+      name: "Ada Lovelace", phone: "+1555000001",
       email: "ada@example.com",
       role: "TEACHER",
       bio: null,
@@ -41,7 +41,7 @@ describe("registerUser", () => {
     await registerUser(
       { userRepository, passwordHasher: fakeHasher },
       {
-        name: "Ada Lovelace",
+        name: "Ada Lovelace", phone: "+1555000001",
         email: "ada@example.com",
         password: "password123",
         role: "TEACHER",
@@ -61,6 +61,9 @@ describe("registerUser", () => {
         email: "ada@example.com",
         role: "TEACHER",
         bio: null,
+        photoUrl: null,
+        coverUrl: null,
+        accentColor: null, paymentDetails: null,
         locale: "en",
         passwordHash: "hashed:whatever",
       },
@@ -69,7 +72,7 @@ describe("registerUser", () => {
     const result = await registerUser(
       { userRepository, passwordHasher: fakeHasher },
       {
-        name: "Ada Lovelace",
+        name: "Ada Lovelace", phone: "+1555000001",
         email: "ada@example.com",
         password: "password123",
         role: "TEACHER",

@@ -17,12 +17,48 @@ export class FakeUserRepository implements UserRepository {
     return this.users.find((user) => user.email === email) ?? null;
   }
 
+  async findByPhone(phone: string): Promise<UserWithCredentials | null> {
+    return (this.users as (UserWithCredentials & { phone?: string })[]).find((u) => u.phone === phone) ?? null;
+  }
+
   async findById(id: string): Promise<User | null> {
     return this.users.find((user) => user.id === id) ?? null;
   }
 
   async create(input: CreateUserInput): Promise<UserWithCredentials> {
-    const user: UserWithCredentials = { id: `user-${this.nextId++}`, bio: null, ...input };
+    const email = input.email ?? null;
+    const user: UserWithCredentials = {
+      id: `user-${this.nextId++}`,
+      bio: null,
+      photoUrl: null,
+      coverUrl: null,
+      accentColor: null,
+      paymentDetails: null,
+      ...input,
+      email,
+    };
+    this.users.push(user);
+    return user;
+  }
+
+  async findOrCreateByPhone(phone: string, name: string): Promise<User> {
+    const existing = (this.users as (UserWithCredentials & { phone?: string })[]).find((u) => u.phone === phone);
+    if (existing) return existing;
+    const email = `phone-${phone.replace(/\D/g, "")}@no-email.internal`;
+    const user: UserWithCredentials = {
+      id: `user-${this.nextId++}`,
+      name,
+      phone,
+      email,
+      passwordHash: null,
+      role: "STUDENT",
+      locale: "ar",
+      bio: null,
+      photoUrl: null,
+      coverUrl: null,
+      accentColor: null,
+      paymentDetails: null,
+    } as UserWithCredentials & { phone: string };
     this.users.push(user);
     return user;
   }

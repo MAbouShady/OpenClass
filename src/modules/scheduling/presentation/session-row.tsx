@@ -1,5 +1,9 @@
+"use client";
+
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
 import type { ClassSession } from "@/modules/scheduling/domain/class-session";
 
 type SessionRowProps = {
@@ -14,21 +18,28 @@ function formatRange(start: Date, end: Date): string {
 }
 
 export function SessionRow({ session, deleteAction }: SessionRowProps) {
+  const t = useTranslations("sessions");
+
   return (
-    <div className="flex items-center justify-between gap-4 border-b py-3">
+    <div className="flex items-center justify-between gap-4 py-3">
       <p className="text-sm">{formatRange(session.startTime, session.endTime)}</p>
       <div className="flex gap-2">
         <Link
           className={buttonVariants({ variant: "outline", size: "sm" })}
           href={`/dashboard/teacher/courses/${session.courseId}/sessions/${session.id}/attendance`}
         >
-          Attendance
+          {t("attendanceLabel")}
         </Link>
-        <form action={deleteAction.bind(null, session.id)}>
-          <Button type="submit" size="sm" variant="destructive">
-            Delete
+        <ConfirmDeleteDialog
+          title={t("deleteConfirmTitle")}
+          description={t("deleteConfirmDesc")}
+          onConfirm={() => deleteAction(session.id)}
+          confirmLabel={t("deleteLabel")}
+        >
+          <Button type="button" size="sm" variant="outline" className="text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30">
+            {t("deleteLabel")}
           </Button>
-        </form>
+        </ConfirmDeleteDialog>
       </div>
     </div>
   );

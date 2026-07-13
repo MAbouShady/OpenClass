@@ -18,6 +18,7 @@ export async function createLevelAction(
     name: formData.get("name"),
     order: formData.get("order"),
     description: formData.get("description"),
+    parentLevelId: formData.get("parentLevelId") || null,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input." };

@@ -12,6 +12,8 @@ describe("createCourse", () => {
         title: "Intro to Python",
         description: null,
         sessionType: "ONLINE",
+        paymentFrequency: "MONTHLY" as const,
+  price: null,
         levelId: "level-1",
         teacherId: "teacher-1",
       },

@@ -35,7 +35,7 @@ export class EnrollmentRequiredError extends DomainError {
 
 export class PaymentRequiredError extends DomainError {
   constructor() {
-    super("This student's payment is not up to date for this month.", "PAYMENT_REQUIRED");
+    super("الطالب ده مش دافع الشهر ده.", "PAYMENT_REQUIRED");
   }
 }
 

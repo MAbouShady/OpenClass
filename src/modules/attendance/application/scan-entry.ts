@@ -6,11 +6,10 @@ import {
   OnlineSessionScanNotAllowedError,
   PaymentRequiredError,
   SessionNotFoundError,
-  WrongCourseError,
 } from "@/modules/attendance/domain/errors";
 import type { Attendance } from "@/modules/attendance/domain/attendance";
 import type { AttendanceRepository } from "@/modules/attendance/domain/attendance-repository";
-import { verifyQrToken } from "@/modules/qr/domain/qr-token";
+import type { StudentRepository } from "@/modules/students/domain/student-repository";
 import { isEnrollmentBlocked } from "@/modules/payments/application/is-enrollment-blocked";
 import type { PaymentRepository } from "@/modules/payments/domain/payment-repository";
 import type { ClassSessionRepository } from "@/modules/scheduling/domain/class-session-repository";
@@ -29,6 +28,7 @@ export type ScanEntryDeps = {
   readonly semesterRepository: SemesterRepository;
   readonly enrollmentRepository: EnrollmentRepository;
   readonly paymentRepository: PaymentRepository;
+  readonly studentRepository: StudentRepository;
 };
 
 export async function scanEntry(
@@ -39,7 +39,6 @@ export async function scanEntry(
     Attendance,
     | InvalidQrTokenError
     | SessionNotFoundError
-    | WrongCourseError
     | OnlineSessionScanNotAllowedError
     | EnrollmentRequiredError
     | PaymentRequiredError
@@ -48,57 +47,38 @@ export async function scanEntry(
 > {
   const { qrToken, sessionId } = scanEntrySchema.parse(input);
 
-  const payload = verifyQrToken(qrToken);
-  if (!payload) {
-    return err(new InvalidQrTokenError());
-  }
+  const idNumber = parseInt(qrToken.trim(), 10);
+  if (isNaN(idNumber)) return err(new InvalidQrTokenError());
+
+  const student = await deps.studentRepository.findByIdNumber(idNumber);
+  if (!student) return err(new InvalidQrTokenError());
 
   const session = await deps.classSessionRepository.findById(sessionId);
-  if (!session) {
-    return err(new SessionNotFoundError(sessionId));
-  }
-
-  if (session.courseId !== payload.courseId) {
-    return err(new WrongCourseError());
-  }
+  if (!session) return err(new SessionNotFoundError(sessionId));
 
   const course = await deps.courseRepository.findById(session.courseId);
-  if (course?.sessionType === "ONLINE") {
-    return err(new OnlineSessionScanNotAllowedError());
-  }
+  if (course?.sessionType === "ONLINE") return err(new OnlineSessionScanNotAllowedError());
 
   const semesters = await deps.semesterRepository.findByCourse(session.courseId);
   let enrollment = null;
   for (const semester of semesters) {
     const found = await deps.enrollmentRepository.findByStudentAndSemester(
-      payload.studentId,
+      student.id,
       semester.id,
     );
-    if (found) {
-      enrollment = found;
-      break;
-    }
+    if (found) { enrollment = found; break; }
   }
-  if (!enrollment) {
-    return err(new EnrollmentRequiredError());
-  }
+  if (!enrollment) return err(new EnrollmentRequiredError());
 
   const blocked = await isEnrollmentBlocked(
     { paymentRepository: deps.paymentRepository },
     enrollment.id,
     new Date(),
   );
-  if (blocked) {
-    return err(new PaymentRequiredError());
-  }
+  if (blocked) return err(new PaymentRequiredError());
 
-  const existing = await deps.attendanceRepository.findByStudentAndSession(
-    payload.studentId,
-    sessionId,
-  );
-  if (existing?.checkInTime) {
-    return err(new AlreadyCheckedInError());
-  }
+  const existing = await deps.attendanceRepository.findByStudentAndSession(student.id, sessionId);
+  if (existing?.checkInTime) return err(new AlreadyCheckedInError());
 
   const attendance = existing
     ? await deps.attendanceRepository.update(existing.id, {
@@ -106,7 +86,7 @@ export async function scanEntry(
         checkInTime: new Date(),
       })
     : await deps.attendanceRepository.create({
-        studentId: payload.studentId,
+        studentId: student.id,
         sessionId,
         status: "PRESENT",
         checkInTime: new Date(),

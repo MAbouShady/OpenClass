@@ -20,6 +20,10 @@ export class FakeClassSessionRepository implements ClassSessionRepository {
     return this.sessions.filter((session) => session.courseId === courseId);
   }
 
+  async findBySemester(semesterId: string): Promise<ClassSession[]> {
+    return this.sessions.filter((session) => session.semesterId === semesterId);
+  }
+
   async create(input: CreateClassSessionInput): Promise<ClassSession> {
     const session: ClassSession = { id: `session-${this.nextId++}`, ...input };
     this.sessions.push(session);

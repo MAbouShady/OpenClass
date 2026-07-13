@@ -9,6 +9,7 @@ describe("deleteClassSession", () => {
       {
         id: "session-1",
         courseId: "course-1",
+        semesterId: "semester-1",
         startTime: new Date("2026-01-01T10:00:00Z"),
         endTime: new Date("2026-01-01T11:00:00Z"),
       },

@@ -9,13 +9,23 @@ export const createLevelSchema = z.object({
     .max(280)
     .nullish()
     .transform((value) => (value ? value : null)),
+  parentLevelId: z
+    .string()
+    .trim()
+    .nullish()
+    .transform((value) => (value ? value : null)),
+  teacherId: z
+    .string()
+    .trim()
+    .nullish()
+    .transform((value) => (value ? value : null)),
 });
 
 export type CreateLevelSchemaInput = z.infer<typeof createLevelSchema>;
 
-export const updateLevelSchema = createLevelSchema.extend({
-  id: z.string().min(1),
-});
+export const updateLevelSchema = createLevelSchema
+  .omit({ parentLevelId: true, teacherId: true })
+  .extend({ id: z.string().min(1) });
 
 export type UpdateLevelSchemaInput = z.infer<typeof updateLevelSchema>;
 

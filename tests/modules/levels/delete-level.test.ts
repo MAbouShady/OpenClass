@@ -6,7 +6,7 @@ import { FakeLevelRepository } from "./fake-level-repository";
 describe("deleteLevel", () => {
   it("deletes an existing level", async () => {
     const levelRepository = new FakeLevelRepository([
-      { id: "level-1", name: "Beginner", order: 1, description: null },
+      { id: "level-1", name: "Beginner", order: 1, description: null, parentLevelId: null, teacherId: null },
     ]);
 
     const result = await deleteLevel({ levelRepository }, { id: "level-1" });

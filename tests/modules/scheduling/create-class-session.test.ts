@@ -11,6 +11,7 @@ describe("createClassSession", () => {
       { classSessionRepository },
       {
         courseId: "course-1",
+        semesterId: "semester-1",
         startTime: new Date("2026-01-01T10:00:00Z"),
         endTime: new Date("2026-01-01T11:00:00Z"),
       },
@@ -26,6 +27,7 @@ describe("createClassSession", () => {
       { classSessionRepository },
       {
         courseId: "course-1",
+        semesterId: "semester-1",
         startTime: new Date("2026-01-01T11:00:00Z"),
         endTime: new Date("2026-01-01T10:00:00Z"),
       },

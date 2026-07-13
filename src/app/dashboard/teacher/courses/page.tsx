@@ -1,8 +1,9 @@
+import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { listCoursesForTeacher } from "@/modules/courses/application/list-courses-for-teacher";
 import { PrismaCourseRepository } from "@/modules/courses/infrastructure/prisma-course-repository";
-import { CourseForm } from "@/modules/courses/presentation/course-form";
 import { CourseRow } from "@/modules/courses/presentation/course-row";
+import { AddCourseModal } from "@/modules/courses/presentation/add-course-modal";
 import { listLevels } from "@/modules/levels/application/list-levels";
 import { PrismaLevelRepository } from "@/modules/levels/infrastructure/prisma-level-repository";
 import {
@@ -11,52 +12,53 @@ import {
   updateCourseAction,
 } from "@/app/dashboard/teacher/courses/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { BookOpen } from "lucide-react";
 
 const courseRepository = new PrismaCourseRepository();
 const levelRepository = new PrismaLevelRepository();
 
 export default async function TeacherCoursesPage() {
-  const session = await auth();
+  const [session, t] = await Promise.all([auth(), getTranslations("courses")]);
   const teacherId = session?.user.id ?? "";
 
   const [courses, levels] = await Promise.all([
     listCoursesForTeacher({ courseRepository }, teacherId),
-    listLevels({ levelRepository }),
+    listLevels({ levelRepository }, teacherId),
   ]);
 
   return (
-    <div className="max-w-2xl mx-auto flex flex-col gap-8">
-      <div>
-        <h1 className="text-xl font-semibold">My courses</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">
-          Create and manage the courses you teach.
-        </p>
+    <div className="mx-auto max-w-2xl space-y-6">
+      {/* Page header */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10 text-violet-600">
+            <BookOpen className="h-5 w-5" />
+          </div>
+          <div>
+            <h1 className="text-xl font-semibold">{t("pageTitle")}</h1>
+            <p className="text-sm text-muted-foreground">{t("pageSubtitle")}</p>
+          </div>
+        </div>
+        <AddCourseModal createAction={createCourseAction} levels={levels} />
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base font-medium">Add a course</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {levels.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No levels exist yet — ask an admin to create one first.
-            </p>
-          ) : (
-            <CourseForm action={createCourseAction} levels={levels} submitLabel="Add course" />
-          )}
-        </CardContent>
-      </Card>
+      {levels.length === 0 && (
+        <Alert>
+          <AlertDescription>{t("noLevelsWarning")}</AlertDescription>
+        </Alert>
+      )}
 
+      {/* Courses list */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base font-medium">Existing courses</CardTitle>
+          <CardTitle>{t("existingCourses")}</CardTitle>
         </CardHeader>
         <CardContent>
           {courses.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No courses yet.</p>
+            <p className="text-sm text-muted-foreground">{t("noCourses")}</p>
           ) : (
-            <div>
+            <div className="divide-y">
               {courses.map((course) => (
                 <CourseRow
                   key={course.id}

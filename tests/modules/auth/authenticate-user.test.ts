@@ -16,6 +16,9 @@ const existingUser: UserWithCredentials = {
   email: "ada@example.com",
   role: "TEACHER",
   bio: null,
+  photoUrl: null,
+  coverUrl: null,
+  accentColor: null, paymentDetails: null,
   locale: "en",
   passwordHash: "hashed:password123",
 };

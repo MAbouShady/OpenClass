@@ -14,14 +14,18 @@ export async function updateProfileAction(
   formData: FormData,
 ): Promise<ActionState> {
   const session = await auth();
-  if (!session) {
-    return { error: "You must be signed in." };
-  }
+  if (!session) return { error: "You must be signed in." };
 
   const parsed = updateProfileSchema.safeParse({
     name: formData.get("name"),
     bio: formData.get("bio"),
+    photoUrl: formData.get("photoUrl"),
+    coverUrl: formData.get("coverUrl"),
+    accentColor: formData.get("accentColor"),
+    paymentDetails: formData.get("paymentDetails"),
+    locale: formData.get("locale"),
   });
+
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
   }

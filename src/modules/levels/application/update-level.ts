@@ -23,7 +23,7 @@ export async function updateLevel(
   }
 
   if (name !== existing.name) {
-    const nameOwner = await deps.levelRepository.findByName(name);
+    const nameOwner = await deps.levelRepository.findByName(name, existing.teacherId);
     if (nameOwner && nameOwner.id !== id) {
       return err(new LevelNameTakenError(name));
     }
