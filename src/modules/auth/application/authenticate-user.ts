@@ -40,6 +40,7 @@ export async function authenticateUser(
     bio: existing.bio,
     photoUrl: existing.photoUrl,
     coverUrl: existing.coverUrl,
+    coverOffsetY: existing.coverOffsetY,
     accentColor: existing.accentColor,
     paymentDetails: existing.paymentDetails,
     locale: existing.locale,
