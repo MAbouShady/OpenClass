@@ -223,22 +223,6 @@ export default async function TeacherBookingPage({ params }: PageProps) {
               </section>
             )}
 
-            {/* Payment details */}
-            {cleanPaymentDetails && (
-              <section>
-                <div
-                  className="mb-4 rounded-lg border-s-4 bg-muted/40 px-4 py-2.5"
-                  style={{ borderColor: accent }}
-                >
-                  <h2 className="text-base font-semibold tracking-tight">{t("paymentDetailsLabel")}</h2>
-                </div>
-                <div
-                  className="prose prose-sm dark:prose-invert max-w-none leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: cleanPaymentDetails }}
-                />
-              </section>
-            )}
-
             {/* Courses + booking flow (client component) */}
             <div id="courses">
               <NextIntlClientProvider locale={locale} messages={{ booking: allMessages.booking }}>
@@ -255,6 +239,22 @@ export default async function TeacherBookingPage({ params }: PageProps) {
                 />
               </NextIntlClientProvider>
             </div>
+
+            {/* Payment details */}
+            {cleanPaymentDetails && (
+              <section className="mb-16">
+                <div
+                  className="mb-4 rounded-lg border-s-4 bg-muted/40 px-4 py-2.5"
+                  style={{ borderColor: accent }}
+                >
+                  <h2 className="text-base font-semibold tracking-tight">{t("paymentDetailsLabel")}</h2>
+                </div>
+                <div
+                  className="prose prose-sm dark:prose-invert max-w-none leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: cleanPaymentDetails }}
+                />
+              </section>
+            )}
           </div>
 
           {/* Sidebar CTA */}
