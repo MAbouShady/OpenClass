@@ -57,6 +57,11 @@ function getNavItems(role: Role): NavItem[] {
 
   if (role === "ADMIN" || role === "TEACHER") {
     items.push({
+      labelKey: "levels",
+      href: "/dashboard/teacher/levels",
+      icon: <Layers className="h-4 w-4 shrink-0" />,
+    });
+    items.push({
       labelKey: "courses",
       href: "/dashboard/teacher/courses",
       icon: <BookOpen className="h-4 w-4 shrink-0" />,
@@ -64,11 +69,6 @@ function getNavItems(role: Role): NavItem[] {
   }
 
   if (role === "TEACHER") {
-    items.push({
-      labelKey: "levels",
-      href: "/dashboard/teacher/levels",
-      icon: <Layers className="h-4 w-4 shrink-0" />,
-    });
     items.push({
       labelKey: "students",
       href: "/dashboard/teacher/students",
