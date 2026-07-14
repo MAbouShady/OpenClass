@@ -45,6 +45,7 @@ export default async function TeacherProfilePage() {
               bio: user?.bio ?? null,
               photoUrl: user?.photoUrl ?? null,
               coverUrl: user?.coverUrl ?? null,
+              coverOffsetY: user?.coverOffsetY ?? 50,
               accentColor: user?.accentColor ?? null,
               paymentDetails: user?.paymentDetails ?? null,
               locale: user?.locale ?? "en",

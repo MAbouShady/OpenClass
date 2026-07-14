@@ -10,6 +10,7 @@ export const updateProfileSchema = z.object({
   bio: z.string().max(50000).nullish().transform((v) => v || null),
   photoUrl: nullableString,
   coverUrl: nullableString,
+  coverOffsetY: z.coerce.number().min(0).max(100).default(50),
   accentColor: z
     .string()
     .regex(/^#[0-9a-fA-F]{6}$/)

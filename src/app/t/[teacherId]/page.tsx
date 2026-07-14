@@ -123,6 +123,7 @@ export default async function TeacherBookingPage({ params }: PageProps) {
             alt="Cover"
             fill
             className="object-cover"
+            style={{ objectPosition: `center ${teacher.coverOffsetY ?? 50}%` }}
             priority
             unoptimized
           />

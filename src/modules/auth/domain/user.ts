@@ -8,6 +8,7 @@ export type User = {
   readonly bio: string | null;
   readonly photoUrl: string | null;
   readonly coverUrl: string | null;
+  readonly coverOffsetY: number;
   readonly accentColor: string | null;
   readonly paymentDetails: string | null;
   readonly locale: string;

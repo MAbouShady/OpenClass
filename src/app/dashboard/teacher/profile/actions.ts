@@ -21,6 +21,7 @@ export async function updateProfileAction(
     bio: formData.get("bio"),
     photoUrl: formData.get("photoUrl"),
     coverUrl: formData.get("coverUrl"),
+    coverOffsetY: formData.get("coverOffsetY"),
     accentColor: formData.get("accentColor"),
     paymentDetails: formData.get("paymentDetails"),
     locale: formData.get("locale"),

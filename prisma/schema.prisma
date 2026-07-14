@@ -33,6 +33,7 @@ model User {
   bio               String?
   photoUrl          String?
   coverUrl          String?
+  coverOffsetY      Float            @default(50)
   accentColor       String?
   paymentDetails    String?
   locale            String           @default("en")

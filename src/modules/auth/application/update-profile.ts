@@ -25,6 +25,7 @@ export async function updateProfile(
     bio: user.bio,
     photoUrl: user.photoUrl,
     coverUrl: user.coverUrl,
+    coverOffsetY: user.coverOffsetY,
     accentColor: user.accentColor,
     paymentDetails: user.paymentDetails,
     locale: user.locale,

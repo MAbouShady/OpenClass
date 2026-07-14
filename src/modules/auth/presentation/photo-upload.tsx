@@ -2,24 +2,28 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
-import { Upload, Loader2, Trash2, X, Check } from "lucide-react";
+import { Upload, Loader2, Trash2, X, Check, GripVertical } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 
 type PhotoUploadProps = {
   type: "photo" | "cover";
   currentUrl: string | null;
+  offsetY?: number;
   onUpload: (url: string) => void;
+  onPositionChange?: (y: number) => void;
   onDelete: () => void;
   label: string;
   hint?: string;
   className?: string;
 };
 
-export function PhotoUpload({ type, currentUrl, onUpload, onDelete, label, hint, className }: PhotoUploadProps) {
+export function PhotoUpload({ type, currentUrl, offsetY = 50, onUpload, onPositionChange, onDelete, label, hint, className }: PhotoUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(currentUrl);
   const [confirming, setConfirming] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragRef = useRef<{ startY: number; startOffset: number } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = async (file: File) => {
@@ -51,6 +55,27 @@ export function PhotoUpload({ type, currentUrl, onUpload, onDelete, label, hint,
     onDelete();
   };
 
+  const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (!preview || !onPositionChange || confirming || uploading) return;
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    dragRef.current = { startY: e.clientY, startOffset: offsetY };
+    setIsDragging(true);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (!isDragging || !dragRef.current || !onPositionChange) return;
+    const dy = e.clientY - dragRef.current.startY;
+    const containerH = e.currentTarget.offsetHeight;
+    const newY = Math.min(100, Math.max(0, dragRef.current.startOffset - (dy / containerH) * 100));
+    onPositionChange(newY);
+  };
+
+  const handlePointerUp = () => {
+    setIsDragging(false);
+    dragRef.current = null;
+  };
+
   const isCover = type === "cover";
 
   return (
@@ -60,11 +85,16 @@ export function PhotoUpload({ type, currentUrl, onUpload, onDelete, label, hint,
       <div className={cn("relative", isCover ? "w-full" : "w-24")}>
         <button
           type="button"
-          onClick={() => !confirming && inputRef.current?.click()}
+          onClick={() => !confirming && !isDragging && inputRef.current?.click()}
+          onPointerDown={isCover ? handlePointerDown : undefined}
+          onPointerMove={isCover ? handlePointerMove : undefined}
+          onPointerUp={isCover ? handlePointerUp : undefined}
+          onPointerCancel={isCover ? handlePointerUp : undefined}
           className={cn(
             "relative overflow-hidden border-2 border-dashed border-border bg-muted/30",
             "hover:border-primary/60 hover:bg-muted/50 transition-colors group",
             isCover ? "h-36 w-full rounded-xl" : "h-24 w-24 rounded-full",
+            isCover && preview && !uploading && !confirming && "cursor-ns-resize",
           )}
         >
           {preview ? (
@@ -73,6 +103,7 @@ export function PhotoUpload({ type, currentUrl, onUpload, onDelete, label, hint,
               alt={label}
               fill
               className={cn("object-cover", isCover ? "rounded-xl" : "rounded-full")}
+              style={isCover ? { objectPosition: `center ${offsetY}%` } : undefined}
               unoptimized
             />
           ) : (
@@ -88,9 +119,17 @@ export function PhotoUpload({ type, currentUrl, onUpload, onDelete, label, hint,
             </div>
           )}
 
-          {preview && !uploading && !confirming && (
+          {preview && !uploading && !confirming && !isCover && (
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 rounded-xl">
               <span className="text-xs font-medium text-white">Change</span>
+            </div>
+          )}
+          {preview && !uploading && !confirming && isCover && (
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 rounded-xl pointer-events-none">
+              <div className="flex items-center gap-1.5 text-white">
+                <GripVertical size={14} />
+                <span className="text-xs font-medium">Drag to reposition</span>
+              </div>
             </div>
           )}
         </button>

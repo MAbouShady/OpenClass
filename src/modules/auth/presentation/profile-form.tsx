@@ -27,6 +27,7 @@ type ProfileFormDefaults = {
   readonly bio: string | null;
   readonly photoUrl: string | null;
   readonly coverUrl: string | null;
+  readonly coverOffsetY: number;
   readonly accentColor: string | null;
   readonly paymentDetails: string | null;
   readonly locale: string;
@@ -45,6 +46,7 @@ export function ProfileForm({ action, defaultValues }: ProfileFormProps) {
 
   const [photoUrl, setPhotoUrl] = useState(defaultValues.photoUrl ?? "");
   const [coverUrl, setCoverUrl] = useState(defaultValues.coverUrl ?? "");
+  const [coverOffsetY, setCoverOffsetY] = useState(defaultValues.coverOffsetY);
   const [accentColor, setAccentColor] = useState(defaultValues.accentColor ?? "#6366f1");
   const [bioHtml, setBioHtml] = useState(defaultValues.bio ?? "");
   const [paymentDetailsHtml, setPaymentDetailsHtml] = useState(defaultValues.paymentDetails ?? "");
@@ -60,6 +62,7 @@ export function ProfileForm({ action, defaultValues }: ProfileFormProps) {
     fd.set("paymentDetails", paymentDetailsHtml);
     fd.set("photoUrl", photoUrl);
     fd.set("coverUrl", coverUrl);
+    fd.set("coverOffsetY", String(coverOffsetY));
     fd.set("accentColor", accentColor);
     fd.set("locale", locale);
 
@@ -84,8 +87,10 @@ export function ProfileForm({ action, defaultValues }: ProfileFormProps) {
         <PhotoUpload
           type="cover"
           currentUrl={defaultValues.coverUrl}
+          offsetY={coverOffsetY}
           onUpload={setCoverUrl}
-          onDelete={() => setCoverUrl("")}
+          onPositionChange={setCoverOffsetY}
+          onDelete={() => { setCoverUrl(""); setCoverOffsetY(50); }}
           label={t("coverPhotoLabel")}
           hint={t("coverPhotoHint")}
           className="w-full"
