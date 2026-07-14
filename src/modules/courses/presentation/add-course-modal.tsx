@@ -95,6 +95,18 @@ export function AddCourseModal({ createAction, levels }: AddCourseModalProps) {
               <Input id="modal-course-desc" name="description" />
             </div>
 
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="modal-course-price">{t("priceLabel")}</Label>
+              <Input
+                id="modal-course-price"
+                name="price"
+                type="number"
+                min={0}
+                step={1}
+                placeholder={t("pricePlaceholder")}
+              />
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
                 <Label>{t("sessionTypeLabel")}</Label>

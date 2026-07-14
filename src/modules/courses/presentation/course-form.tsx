@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useActionState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -28,11 +28,17 @@ type CourseFormProps = {
   readonly levels: readonly Level[];
   readonly defaultValues?: CourseFormDefaults;
   readonly submitLabel: string;
+  readonly onSuccess?: () => void;
 };
 
-export function CourseForm({ action, levels, defaultValues, submitLabel }: CourseFormProps) {
+export function CourseForm({ action, levels, defaultValues, submitLabel, onSuccess }: CourseFormProps) {
   const t = useTranslations("courses");
   const [state, formAction, pending] = useActionState(action, {});
+  const prevPending = useRef(false);
+  useEffect(() => {
+    if (prevPending.current && !pending && !state.error) onSuccess?.();
+    prevPending.current = pending;
+  }, [pending, state.error, onSuccess]);
   const [sessionType, setSessionType] = useState(defaultValues?.sessionType ?? "ONLINE");
   const [paymentFrequency, setPaymentFrequency] = useState(defaultValues?.paymentFrequency ?? "MONTHLY");
   const [levelId, setLevelId] = useState(defaultValues?.levelId ?? "");

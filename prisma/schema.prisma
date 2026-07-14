@@ -167,7 +167,7 @@ model Attendance {
   studentId    String
   student      User             @relation(fields: [studentId], references: [id])
   sessionId    String
-  session      ClassSession     @relation(fields: [sessionId], references: [id])
+  session      ClassSession     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   status       AttendanceStatus
   checkInTime  DateTime?
   checkOutTime DateTime?
@@ -181,7 +181,7 @@ model Attendance {
 model Semester {
   id          String       @id @default(cuid())
   courseId    String
-  course      Course       @relation(fields: [courseId], references: [id])
+  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
   startDate   DateTime
   endDate     DateTime
   createdAt   DateTime     @default(now())
@@ -197,7 +197,7 @@ model Enrollment {
   studentId  String
   student    User      @relation(fields: [studentId], references: [id])
   semesterId String
-  semester   Semester  @relation(fields: [semesterId], references: [id])
+  semester   Semester  @relation(fields: [semesterId], references: [id], onDelete: Cascade)
   createdAt  DateTime  @default(now())
   payments   Payment[]
 
@@ -218,7 +218,7 @@ enum PaymentStatus {
 model Payment {
   id           String        @id @default(cuid())
   enrollmentId String
-  enrollment   Enrollment    @relation(fields: [enrollmentId], references: [id])
+  enrollment   Enrollment    @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
   month        DateTime
   method       PaymentMethod
   status       PaymentStatus @default(PENDING)

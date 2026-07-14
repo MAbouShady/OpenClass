@@ -32,6 +32,7 @@ export function CourseRow({ course, levels, updateAction, deleteAction }: Course
           levels={levels}
           defaultValues={course}
           submitLabel={t("saveLabel")}
+          onSuccess={() => setEditing(false)}
         />
         <Button size="sm" variant="ghost" onClick={() => setEditing(false)} className="mt-2">
           {t("cancelLabel")}
