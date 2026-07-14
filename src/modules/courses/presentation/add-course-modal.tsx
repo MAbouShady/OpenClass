@@ -114,7 +114,7 @@ export function AddCourseModal({ createAction, levels }: AddCourseModalProps) {
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {SESSION_TYPES.map((st) => (
-                      <SelectItem key={st} value={st}>{st.charAt(0) + st.slice(1).toLowerCase()}</SelectItem>
+                      <SelectItem key={st} value={st}>{t(st === "ONLINE" ? "sessionOnline" : "sessionOffline")}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -125,7 +125,7 @@ export function AddCourseModal({ createAction, levels }: AddCourseModalProps) {
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {PAYMENT_FREQUENCIES.map((f) => (
-                      <SelectItem key={f} value={f}>{PAYMENT_FREQUENCY_LABELS[f]}</SelectItem>
+                      <SelectItem key={f} value={f}>{t(f === "ONE_TIME" ? "freqOneTime" : f === "MONTHLY" ? "freqMonthly" : "freqPerSemester")}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

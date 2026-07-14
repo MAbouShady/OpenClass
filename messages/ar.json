@@ -146,7 +146,12 @@
     "paymentsLabel": "المدفوعات",
     "deleteConfirmTitle": "حذف هذه الدورة؟",
     "deleteConfirmDesc": "سيؤدي هذا إلى حذف الدورة وجميع جلساتها وفصولها نهائيًا.",
-    "deleteLabel": "حذف"
+    "deleteLabel": "حذف",
+    "sessionOnline": "أونلاين",
+    "sessionOffline": "أوفلاين",
+    "freqOneTime": "مرة واحدة",
+    "freqMonthly": "شهري",
+    "freqPerSemester": "كل فصل"
   },
   "semesters": {
     "pageTitle": "الفصول الدراسية",
@@ -351,6 +356,8 @@
     "enrolledMsg": "تم تسجيل الطالب بنجاح.",
     "noCoursesToEnroll": "الطالب مسجل في جميع الكورسات المتاحة.",
     "searchPlaceholder": "ابحث بالاسم أو التليفون أو الرقم…",
+    "errIdNumberTaken": "رقم الهوية هذا مستخدم بالفعل.",
+    "errEmailTaken": "يوجد مستخدم بهذا البريد الإلكتروني بالفعل.",
     "noSearchResults": "مفيش طلاب بيطابقوا البحث.",
     "rosterTitle": "سجل الطلاب",
     "rosterSubtitle": "الحضور وحالة الدفع لجميع الكورسات."
@@ -397,7 +404,15 @@
     "noId": "مفيش رقم",
     "working": "شوية…",
     "pasteScanPlaceholder": "الصق أو امسح QR كود",
-    "cancelScan": "إلغاء"
+    "cancelScan": "إلغاء",
+    "errInvalidQr": "الـ QR كود ده غلط أو اتعدل عليه.",
+    "errWrongCourse": "الـ QR كود ده لكورس تاني.",
+    "errOnlineScan": "الحصص الأونلاين مش محتاجة QR — سجّل الحضور يدوياً.",
+    "errNotEnrolled": "الطالب ده مش مسجّل في الكورس ده.",
+    "errPaymentRequired": "الطالب ده مش دافع الشهر ده.",
+    "errAlreadyCheckedIn": "الطالب ده سجّل دخوله بالفعل.",
+    "errNotCheckedIn": "الطالب ده لسه مسجّلش دخوله.",
+    "errAlreadyCheckedOut": "الطالب ده سجّل خروجه بالفعل."
   },
   "parentLinks": {
     "pageTitle": "روابط أولياء الأمور",

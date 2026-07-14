@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { createStudent } from "@/modules/students/application/create-student";
 import { updateStudent } from "@/modules/students/application/update-student";
@@ -14,7 +15,7 @@ export async function createStudentAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const session = await auth();
+  const [session, t] = await Promise.all([auth(), getTranslations("students")]);
   if (!session) return { error: "Unauthorized." };
 
   try {
@@ -46,10 +47,10 @@ export async function createStudentAction(
       return { error: msg };
     }
     if (msg.includes("Unique constraint") && msg.includes("email")) {
-      return { error: "A user with that email already exists." };
+      return { error: t("errEmailTaken") };
     }
     if (msg.includes("Unique constraint") && msg.includes("idNumber")) {
-      return { error: "That ID number is already taken." };
+      return { error: t("errIdNumberTaken") };
     }
     return { error: msg };
   }
@@ -59,7 +60,7 @@ export async function updateStudentAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const session = await auth();
+  const [session, t] = await Promise.all([auth(), getTranslations("students")]);
   if (!session) return { error: "Unauthorized." };
 
   try {
@@ -69,6 +70,7 @@ export async function updateStudentAction(
         id: formData.get("id"),
         name: formData.get("name"),
         phone: formData.get("phone"),
+        idNumber: formData.get("idNumber") ? Number(formData.get("idNumber")) : undefined,
         levelId: formData.get("levelId"),
         parentId: formData.get("parentId"),
       },
@@ -77,6 +79,9 @@ export async function updateStudentAction(
     return { message: "Student updated." };
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Failed to update student.";
+    if (msg.includes("Unique constraint") && msg.includes("idNumber")) {
+      return { error: t("errIdNumberTaken") };
+    }
     return { error: msg };
   }
 }

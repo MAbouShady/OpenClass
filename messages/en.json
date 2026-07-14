@@ -146,7 +146,12 @@
     "paymentsLabel": "Payments",
     "deleteConfirmTitle": "Delete this course?",
     "deleteConfirmDesc": "This permanently deletes the course along with all its sessions and semesters.",
-    "deleteLabel": "Delete"
+    "deleteLabel": "Delete",
+    "sessionOnline": "Online",
+    "sessionOffline": "Offline",
+    "freqOneTime": "One-time",
+    "freqMonthly": "Monthly",
+    "freqPerSemester": "Per semester"
   },
   "semesters": {
     "pageTitle": "Semesters",
@@ -351,6 +356,8 @@
     "enrolledMsg": "Student enrolled successfully.",
     "noCoursesToEnroll": "Already enrolled in all available courses.",
     "searchPlaceholder": "Search by name, phone or ID…",
+    "errIdNumberTaken": "That ID number is already taken.",
+    "errEmailTaken": "A user with that email already exists.",
     "noSearchResults": "No students match your search.",
     "rosterTitle": "Roster",
     "rosterSubtitle": "Attendance and payment status across all courses."
@@ -397,7 +404,15 @@
     "noId": "No ID",
     "working": "Working…",
     "pasteScanPlaceholder": "Paste or scan QR code",
-    "cancelScan": "Cancel"
+    "cancelScan": "Cancel",
+    "errInvalidQr": "This QR code is invalid or has been tampered with.",
+    "errWrongCourse": "This QR code belongs to a different course.",
+    "errOnlineScan": "Online sessions do not require a QR scan; mark attendance manually.",
+    "errNotEnrolled": "This student is not enrolled in this course.",
+    "errPaymentRequired": "This student has not paid for this month.",
+    "errAlreadyCheckedIn": "This student has already checked in to this session.",
+    "errNotCheckedIn": "This student has not checked in to this session yet.",
+    "errAlreadyCheckedOut": "This student has already checked out of this session."
   },
   "parentLinks": {
     "pageTitle": "Parent links",

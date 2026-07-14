@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { scanEntry } from "@/modules/attendance/application/scan-entry";
 import { scanExit } from "@/modules/attendance/application/scan-exit";
@@ -13,6 +14,25 @@ import { PrismaEnrollmentRepository } from "@/modules/enrollments/infrastructure
 import { PrismaPaymentRepository } from "@/modules/payments/infrastructure/prisma-payment-repository";
 import { PrismaStudentRepository } from "@/modules/students/infrastructure/prisma-student-repository";
 import type { ActionState } from "@/shared/domain/action-state";
+import type { DomainError } from "@/shared/domain/result";
+
+const ATTENDANCE_ERROR_KEY: Record<string, string> = {
+  INVALID_QR_TOKEN: "errInvalidQr",
+  WRONG_COURSE: "errWrongCourse",
+  ONLINE_SCAN_NOT_ALLOWED: "errOnlineScan",
+  ENROLLMENT_REQUIRED: "errNotEnrolled",
+  PAYMENT_REQUIRED: "errPaymentRequired",
+  ALREADY_CHECKED_IN: "errAlreadyCheckedIn",
+  NOT_CHECKED_IN: "errNotCheckedIn",
+  ALREADY_CHECKED_OUT: "errAlreadyCheckedOut",
+};
+
+async function attendanceError(err: DomainError): Promise<string> {
+  const key = ATTENDANCE_ERROR_KEY[err.code];
+  if (!key) return err.message;
+  const t = await getTranslations("attendance");
+  return t(key as Parameters<typeof t>[0]);
+}
 
 const attendanceRepository = new PrismaAttendanceRepository();
 const classSessionRepository = new PrismaClassSessionRepository();
@@ -55,7 +75,7 @@ export async function scanEntryAction(
     { qrToken, sessionId },
   );
   if (!result.ok) {
-    return { error: result.error.message };
+    return { error: await attendanceError(result.error) };
   }
 
   revalidatePath(`/dashboard/teacher/courses/${courseId}/sessions/${sessionId}/attendance`);
@@ -78,7 +98,7 @@ export async function scanExitAction(
     { qrToken, sessionId },
   );
   if (!result.ok) {
-    return { error: result.error.message };
+    return { error: await attendanceError(result.error) };
   }
 
   revalidatePath(`/dashboard/teacher/courses/${courseId}/sessions/${sessionId}/attendance`);
