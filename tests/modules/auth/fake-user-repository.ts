@@ -32,6 +32,7 @@ export class FakeUserRepository implements UserRepository {
       bio: null,
       photoUrl: null,
       coverUrl: null,
+      coverOffsetY: 50,
       accentColor: null,
       paymentDetails: null,
       ...input,
@@ -56,6 +57,7 @@ export class FakeUserRepository implements UserRepository {
       bio: null,
       photoUrl: null,
       coverUrl: null,
+      coverOffsetY: 50,
       accentColor: null,
       paymentDetails: null,
     } as UserWithCredentials & { phone: string };
