@@ -45,8 +45,10 @@ function isoToDate(iso: string) {
 
 // Convert local "HH:MM" to UTC "HH:MM" using the browser's timezone offset.
 function localHHMMtoUtc(hhmm: string): string {
-  const [h, m] = hhmm.split(":").map(Number);
-  const offsetMin = new Date().getTimezoneOffset(); // negative for UTC+, e.g. -180 for GMT+3
+  const parts = hhmm.split(":");
+  const h = parseInt(parts[0] ?? "0", 10);
+  const m = parseInt(parts[1] ?? "0", 10);
+  const offsetMin = new Date().getTimezoneOffset();
   const totalMin = ((h * 60 + m + offsetMin) % 1440 + 1440) % 1440;
   return `${String(Math.floor(totalMin / 60)).padStart(2, "0")}:${String(totalMin % 60).padStart(2, "0")}`;
 }
