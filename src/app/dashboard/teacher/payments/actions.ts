@@ -38,7 +38,8 @@ export async function confirmCashPaymentAction(
   const session = await auth();
   if (!session) return { error: "Not signed in." };
   const enrollmentId = String(formData.get("enrollmentId") ?? "");
-  const month = String(formData.get("month") ?? "");
+  const monthStr = String(formData.get("month") ?? "");
+  const month = new Date(monthStr);
   const notes = formData.get("notes") ? String(formData.get("notes")) : null;
   const result = await markCashPayment(
     { paymentRepository },
