@@ -31,4 +31,5 @@ export class FakeStudentRepository implements StudentRepository {
   async enrollInSemesters(_studentId: string, _semesterIds: readonly string[]): Promise<void> { throw new Error("not implemented"); }
   async delete(_id: string): Promise<void> { throw new Error("not implemented"); }
   async unenrollFromSemester(_enrollmentId: string): Promise<void> { throw new Error("not implemented"); }
+  async setLevel(_studentId: string, _levelId: string): Promise<void> { throw new Error("not implemented"); }
 }
