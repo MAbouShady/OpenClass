@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Printer } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,6 +29,7 @@ async function generateCards(count: number): Promise<QrCard[]> {
 }
 
 export default function QrGeneratorPage() {
+  const t = useTranslations("qrGeneratorPage");
   const [input, setInput] = useState("");
   const [cards, setCards] = useState<QrCard[]>([]);
   const [loading, setLoading] = useState(false);
@@ -36,7 +38,7 @@ export default function QrGeneratorPage() {
   async function handleGenerate() {
     const count = parseInt(input.trim(), 10);
     if (!Number.isInteger(count) || count < 1 || count > 500) {
-      setError("Enter a number between 1 and 500.");
+      setError(t("errorInvalid"));
       return;
     }
     setError(null);
@@ -70,20 +72,18 @@ export default function QrGeneratorPage() {
       <div className="max-w-4xl mx-auto flex flex-col gap-6">
         <div className="no-print flex flex-col gap-4">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">QR Generator</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Enter how many QR codes to generate. Each gets a unique random ID.
-            </p>
+            <h1 className="text-2xl font-bold tracking-tight">{t("pageTitle")}</h1>
+            <p className="text-sm text-muted-foreground mt-1">{t("pageSubtitle")}</p>
           </div>
 
           <div className="flex flex-col gap-2 max-w-xs">
-            <Label htmlFor="count">Number of QR codes</Label>
+            <Label htmlFor="count">{t("countLabel")}</Label>
             <Input
               id="count"
               type="number"
               min={1}
               max={500}
-              placeholder="e.g. 30"
+              placeholder={t("countPlaceholder")}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
@@ -94,12 +94,12 @@ export default function QrGeneratorPage() {
 
           <div className="flex gap-2">
             <Button onClick={handleGenerate} disabled={loading}>
-              {loading ? "Generating…" : "Generate QR codes"}
+              {loading ? t("generating") : t("generateBtn")}
             </Button>
             {cards.length > 0 && (
               <Button variant="outline" onClick={() => window.print()} className="gap-2">
                 <Printer size={15} />
-                Print / Save PDF
+                {t("printBtn")}
               </Button>
             )}
           </div>

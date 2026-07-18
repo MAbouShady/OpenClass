@@ -470,5 +470,15 @@
     "unlinkLabel": "فصل",
     "unlinkConfirmTitle": "إزالة رابط ولي الأمر؟",
     "unlinkConfirmDesc": "لن يتمكن ولي الأمر من الاطلاع على حضور هذا الطالب ومدفوعاته."
+  },
+  "qrGeneratorPage": {
+    "pageTitle": "مولّد QR",
+    "pageSubtitle": "أدخل عدد رموز QR المطلوب توليدها. كل رمز يحصل على رقم عشوائي فريد.",
+    "countLabel": "عدد رموز QR",
+    "countPlaceholder": "مثال: 30",
+    "errorInvalid": "أدخل رقمًا بين 1 و 500.",
+    "generateBtn": "توليد رموز QR",
+    "generating": "جارٍ التوليد…",
+    "printBtn": "طباعة / حفظ PDF"
   }
 }

@@ -470,5 +470,15 @@
     "unlinkLabel": "Unlink",
     "unlinkConfirmTitle": "Remove this parent link?",
     "unlinkConfirmDesc": "The parent will no longer be able to view this student's attendance and payments."
+  },
+  "qrGeneratorPage": {
+    "pageTitle": "QR Generator",
+    "pageSubtitle": "Enter how many QR codes to generate. Each gets a unique random ID.",
+    "countLabel": "Number of QR codes",
+    "countPlaceholder": "e.g. 30",
+    "errorInvalid": "Enter a number between 1 and 500.",
+    "generateBtn": "Generate QR codes",
+    "generating": "Generating…",
+    "printBtn": "Print / Save PDF"
   }
 }
