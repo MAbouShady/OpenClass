@@ -43,4 +43,8 @@ export class FakePaymentRepository implements PaymentRepository {
     this.payments[index] = updated;
     return updated;
   }
+
+  async findAllForTeacher(_teacherId: string): Promise<never[]> { return []; }
+  async findEnrollmentSummariesForTeacher(_teacherId: string): Promise<never[]> { return []; }
+  async delete(_id: string): Promise<void> { throw new Error("not implemented"); }
 }

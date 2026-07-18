@@ -11,6 +11,7 @@ const existingUser: UserWithCredentials = {
   bio: null,
   photoUrl: null,
   coverUrl: null,
+  coverOffsetY: 50,
   accentColor: null, paymentDetails: null,
   locale: "en",
   passwordHash: "hashed:whatever",
@@ -25,6 +26,7 @@ describe("updateProfile", () => {
       bio: "Mathematician and writer.",
       photoUrl: null,
       coverUrl: null,
+  coverOffsetY: 50,
       accentColor: null, paymentDetails: null,
       locale: "en" as const,
     });
@@ -41,6 +43,7 @@ describe("updateProfile", () => {
       bio: null,
       photoUrl: null,
       coverUrl: null,
+  coverOffsetY: 50,
       accentColor: null, paymentDetails: null,
       locale: "en" as const,
     });
@@ -56,6 +59,7 @@ describe("updateProfile", () => {
       bio: "",
       photoUrl: null,
       coverUrl: null,
+  coverOffsetY: 50,
       accentColor: null, paymentDetails: null,
       locale: "en" as const,
     });

@@ -18,6 +18,7 @@ const existingUser: UserWithCredentials = {
   bio: null,
   photoUrl: null,
   coverUrl: null,
+  coverOffsetY: 50,
   accentColor: null, paymentDetails: null,
   locale: "en",
   passwordHash: "hashed:password123",
