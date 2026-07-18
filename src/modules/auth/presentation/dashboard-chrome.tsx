@@ -6,11 +6,13 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   BookOpen,
+  CreditCard,
   LayoutDashboard,
   Layers,
   Link2,
   Menu,
   QrCode,
+  ScanLine,
   User,
   Users,
   X,
@@ -73,6 +75,16 @@ function getNavItems(role: Role): NavItem[] {
       labelKey: "students",
       href: "/dashboard/teacher/students",
       icon: <Users className="h-4 w-4 shrink-0" />,
+    });
+    items.push({
+      labelKey: "payments",
+      href: "/dashboard/teacher/payments",
+      icon: <CreditCard className="h-4 w-4 shrink-0" />,
+    });
+    items.push({
+      labelKey: "qrGenerator",
+      href: "/dashboard/teacher/qr-generator",
+      icon: <ScanLine className="h-4 w-4 shrink-0" />,
     });
     items.push({
       labelKey: "profile",

@@ -5,12 +5,14 @@ import { PrismaUserRepository } from "@/modules/auth/infrastructure/prisma-user-
 import { enrollStudent } from "@/modules/enrollments/application/enroll-student";
 import { PrismaEnrollmentRepository } from "@/modules/enrollments/infrastructure/prisma-enrollment-repository";
 import { PrismaSemesterRepository } from "@/modules/semesters/infrastructure/prisma-semester-repository";
+import { PrismaCourseRepository } from "@/modules/courses/infrastructure/prisma-course-repository";
 import { PrismaStudentRepository } from "@/modules/students/infrastructure/prisma-student-repository";
 import type { ActionState } from "@/shared/domain/action-state";
 
 const userRepository = new PrismaUserRepository();
 const enrollmentRepository = new PrismaEnrollmentRepository();
 const semesterRepository = new PrismaSemesterRepository();
+const courseRepository = new PrismaCourseRepository();
 const studentRepository = new PrismaStudentRepository();
 
 export type BookingResult = ActionState & { studentIdNumber?: number };
@@ -21,6 +23,15 @@ async function enroll(studentId: string, semesterId: string): Promise<BookingRes
     { studentId, semesterId },
   );
   if (!result.ok) return { error: result.error.message };
+
+  const semester = await semesterRepository.findById(semesterId);
+  if (semester) {
+    const course = await courseRepository.findById(semester.courseId);
+    if (course?.levelId) {
+      await studentRepository.setLevel(studentId, course.levelId);
+    }
+  }
+
   const idNumber = await studentRepository.assignIdNumberIfMissing(studentId);
   return { studentIdNumber: idNumber };
 }

@@ -16,9 +16,12 @@ import {
   MapPin,
   Calendar,
   ChevronRight,
+  ChevronDown,
   ArrowLeft,
   Loader2,
+  Sparkles,
 } from "lucide-react";
+import { CollapsibleSection } from "@/app/t/[teacherId]/collapsible-section";
 import type { Course } from "@/modules/courses/domain/course";
 import type { Level } from "@/modules/levels/domain/level";
 import {
@@ -69,6 +72,14 @@ export function BookingFlow({
 
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>("semester");
+
+  const coursesByLevel = levels
+    .filter((l) => courses.some((c) => c.levelId === l.id))
+    .map((l) => ({ level: l, courses: courses.filter((c) => c.levelId === l.id) }));
+  const singleLevel = coursesByLevel.length === 1;
+  const [selectedLevelId, setSelectedLevelId] = useState<string | null>(
+    singleLevel ? (coursesByLevel[0]?.level.id ?? null) : null,
+  );
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [selectedSemester, setSelectedSemester] = useState<SerializedSemester | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -150,20 +161,97 @@ export function BookingFlow({
   return (
     <>
       {/* Courses section */}
-      <section>
-        <div
-          className="mb-4 rounded-lg border-s-4 bg-muted/40 px-4 py-2.5"
-          style={{ borderColor: accent }}
-        >
-          <h2 className="text-base font-semibold tracking-tight">{t("coursesSection")}</h2>
-        </div>
+      <CollapsibleSection
+        heading={t("coursesSection")}
+        accent={accent}
+        blink
+        listenForOpen="open-courses"
+        collapsedCta={
+          <div className="mt-4">
+            <style>{`
+              @keyframes cta-shimmer {
+                0% { transform: translateX(-100%) skewX(-12deg); }
+                65%, 100% { transform: translateX(250%) skewX(-12deg); }
+              }
+              @keyframes cta-glow {
+                0%, 100% { opacity: 0.5; }
+                50% { opacity: 1; }
+              }
+            `}</style>
 
+            {/* Glow halo */}
+            <div
+              className="absolute -inset-2 rounded-3xl blur-xl pointer-events-none"
+              style={{
+                background: `radial-gradient(ellipse at center, ${accent}40 0%, transparent 70%)`,
+                animation: "cta-glow 2s ease-in-out infinite",
+              }}
+            />
+
+            <button
+              type="button"
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent("open-courses"));
+                document.getElementById("courses")?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+              className="relative w-full overflow-hidden rounded-2xl py-4 font-bold text-base text-white flex items-center justify-center gap-3 transition-all duration-200 hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] select-none"
+              style={{
+                background: `linear-gradient(135deg, ${accent}ee 0%, ${accent} 50%, ${accent}cc 100%)`,
+                boxShadow: `0 8px 32px ${accent}50, 0 2px 8px ${accent}30, inset 0 1px 0 rgba(255,255,255,0.15)`,
+              }}
+            >
+              {/* Shimmer sweep */}
+              <div
+                className="absolute inset-0 w-1/3"
+                style={{
+                  background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent)",
+                  animation: "cta-shimmer 2.8s ease-in-out infinite",
+                }}
+              />
+              <Sparkles size={17} className="shrink-0 opacity-90" />
+              <span className="tracking-wide text-[15px]">{t("bookNow")}</span>
+              <ChevronDown size={18} className="animate-bounce shrink-0" />
+            </button>
+
+          </div>
+        }
+      >
         {courses.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t("noCourses")}</p>
+        ) : selectedLevelId == null ? (
+          /* Level picker */
+          <div className="flex flex-col gap-3">
+            {coursesByLevel.map(({ level, courses: lvCourses }) => (
+              <button
+                key={level.id}
+                type="button"
+                onClick={() => setSelectedLevelId(level.id)}
+                className="flex items-center justify-between rounded-xl border bg-card px-5 py-4 hover:shadow-md transition-shadow text-start"
+              >
+                <div>
+                  <p className="font-semibold text-base">{level.name}</p>
+                  <p className="text-sm text-muted-foreground mt-0.5">
+                    {t("courseCount", { count: lvCourses.length })}
+                  </p>
+                </div>
+                <ChevronRight size={18} className="text-muted-foreground shrink-0" />
+              </button>
+            ))}
+          </div>
         ) : (
+          /* Courses for selected level */
           <div className="flex flex-col gap-4">
-            {courses.map((course) => {
-              const levelName = levels.find((l) => l.id === course.levelId)?.name ?? "—";
+            {!singleLevel && (
+              <button
+                type="button"
+                onClick={() => setSelectedLevelId(null)}
+                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit"
+              >
+                <ArrowLeft size={14} />
+                {t("back")}
+              </button>
+            )}
+            {(coursesByLevel.find((g) => g.level.id === selectedLevelId)?.courses ?? []).map((course) => {
               const isOnline = course.sessionType === "ONLINE";
               const hasSemesters = (semestersByCourse[course.id]?.length ?? 0) > 0;
               const isEnrolled = localEnrolled.has(course.id);
@@ -189,7 +277,6 @@ export function BookingFlow({
                         </p>
                       )}
                       <div className="mt-2 flex flex-wrap items-center gap-2">
-                        <Badge variant="secondary">{levelName}</Badge>
                         <Badge variant="outline" className="flex items-center gap-1">
                           {isOnline ? (
                             <><Monitor size={10} /> {t("onlineBadge")}</>
@@ -220,7 +307,7 @@ export function BookingFlow({
             })}
           </div>
         )}
-      </section>
+      </CollapsibleSection>
 
       {/* Booking dialog */}
       <Dialog open={open} onOpenChange={setOpen}>

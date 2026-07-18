@@ -16,6 +16,8 @@ import { Badge } from "@/components/ui/badge";
 import { BookingFlow } from "@/app/t/[teacherId]/booking-flow";
 import { NextIntlClientProvider } from "next-intl";
 import { BookOpen, Monitor, MapPin, Star } from "lucide-react";
+import { CollapsibleSection } from "@/app/t/[teacherId]/collapsible-section";
+import { BookNowButton } from "@/app/t/[teacherId]/book-now-button";
 
 const userRepository = new PrismaUserRepository();
 const courseRepository = new PrismaCourseRepository();
@@ -210,18 +212,12 @@ export default async function TeacherBookingPage({ params }: PageProps) {
 
             {/* Bio */}
             {cleanBio && (
-              <section>
-                <div
-                  className="mb-4 rounded-lg border-s-4 bg-muted/40 px-4 py-2.5"
-                  style={{ borderColor: accent }}
-                >
-                  <h2 className="text-base font-semibold tracking-tight">{t("aboutSection")}</h2>
-                </div>
+              <CollapsibleSection heading={t("aboutSection")} accent={accent}>
                 <div
                   className="prose prose-sm dark:prose-invert max-w-none leading-relaxed"
                   dangerouslySetInnerHTML={{ __html: cleanBio }}
                 />
-              </section>
+              </CollapsibleSection>
             )}
 
             {/* Courses + booking flow (client component) */}
@@ -243,18 +239,14 @@ export default async function TeacherBookingPage({ params }: PageProps) {
 
             {/* Payment details */}
             {cleanPaymentDetails && (
-              <section className="mb-16">
-                <div
-                  className="mb-4 rounded-lg border-s-4 bg-muted/40 px-4 py-2.5"
-                  style={{ borderColor: accent }}
-                >
-                  <h2 className="text-base font-semibold tracking-tight">{t("paymentDetailsLabel")}</h2>
-                </div>
-                <div
-                  className="prose prose-sm dark:prose-invert max-w-none leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: cleanPaymentDetails }}
-                />
-              </section>
+              <div className="mb-16">
+                <CollapsibleSection heading={t("paymentDetailsLabel")} accent={accent}>
+                  <div
+                    className="prose prose-sm dark:prose-invert max-w-none leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: cleanPaymentDetails }}
+                  />
+                </CollapsibleSection>
+              </div>
             )}
           </div>
 
@@ -297,13 +289,7 @@ export default async function TeacherBookingPage({ params }: PageProps) {
                 <span className="ml-1">{t("teacherBadge")}</span>
               </div>
 
-              <a
-                href="#courses"
-                className="flex w-full items-center justify-center rounded-xl py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                style={{ backgroundColor: accent }}
-              >
-                {t("ctaBook")}
-              </a>
+              <BookNowButton label={t("ctaBook")} accent={accent} />
 
               <p className="text-xs text-muted-foreground leading-snug">
                 {t("ctaNote", { name: teacher.name.split(" ")[0] ?? teacher.name })}

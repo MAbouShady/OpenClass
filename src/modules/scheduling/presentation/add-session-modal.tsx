@@ -67,6 +67,12 @@ export function AddSessionModal({ createAction, courseId, semesters }: AddSessio
 
   function handleAction(formData: FormData) {
     formData.set("semesterId", selectedSemesterId);
+    // datetime-local values are local time strings with no timezone info.
+    // Convert to UTC ISO so the server (which runs in UTC) stores the correct instant.
+    const startRaw = formData.get("startTime") as string | null;
+    const endRaw = formData.get("endTime") as string | null;
+    if (startRaw) formData.set("startTime", new Date(startRaw).toISOString());
+    if (endRaw) formData.set("endTime", new Date(endRaw).toISOString());
     setError(undefined);
     startTransition(async () => {
       const result = await createAction({}, formData);

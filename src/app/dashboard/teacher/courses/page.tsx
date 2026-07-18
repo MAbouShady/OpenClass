@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { listCoursesForTeacher } from "@/modules/courses/application/list-courses-for-teacher";
 import { PrismaCourseRepository } from "@/modules/courses/infrastructure/prisma-course-repository";
-import { CourseRow } from "@/modules/courses/presentation/course-row";
+import { CourseListWithFilter } from "@/modules/courses/presentation/course-list-with-filter";
 import { AddCourseModal } from "@/modules/courses/presentation/add-course-modal";
 import { listLevels } from "@/modules/levels/application/list-levels";
 import { PrismaLevelRepository } from "@/modules/levels/infrastructure/prisma-level-repository";
@@ -55,21 +55,13 @@ export default async function TeacherCoursesPage() {
           <CardTitle>{t("existingCourses")}</CardTitle>
         </CardHeader>
         <CardContent>
-          {courses.length === 0 ? (
-            <p className="text-sm text-muted-foreground">{t("noCourses")}</p>
-          ) : (
-            <div className="divide-y">
-              {courses.map((course) => (
-                <CourseRow
-                  key={course.id}
-                  course={course}
-                  levels={levels}
-                  updateAction={updateCourseAction}
-                  deleteAction={deleteCourseAction}
-                />
-              ))}
-            </div>
-          )}
+          <CourseListWithFilter
+            courses={courses}
+            levels={levels}
+            updateAction={updateCourseAction}
+            deleteAction={deleteCourseAction}
+            noCoursesLabel={t("noCourses")}
+          />
         </CardContent>
       </Card>
     </div>

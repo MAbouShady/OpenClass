@@ -39,6 +39,7 @@ export interface StudentRepository {
   isLinkedToTeacher(studentId: string, teacherId: string): Promise<boolean>;
   linkToTeacher(studentId: string, teacherId: string): Promise<void>;
   assignIdNumberIfMissing(studentId: string): Promise<number>;
+  setLevel(studentId: string, levelId: string): Promise<void>;
   findAllParents(): Promise<ParentOption[]>;
   create(input: CreateStudentInput): Promise<Student>;
   update(id: string, input: UpdateStudentInput): Promise<Student>;

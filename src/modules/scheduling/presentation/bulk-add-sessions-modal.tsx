@@ -43,6 +43,14 @@ function isoToDate(iso: string) {
   return iso.slice(0, 10); // "YYYY-MM-DD"
 }
 
+// Convert local "HH:MM" to UTC "HH:MM" using the browser's timezone offset.
+function localHHMMtoUtc(hhmm: string): string {
+  const [h, m] = hhmm.split(":").map(Number);
+  const offsetMin = new Date().getTimezoneOffset(); // negative for UTC+, e.g. -180 for GMT+3
+  const totalMin = ((h * 60 + m + offsetMin) % 1440 + 1440) % 1440;
+  return `${String(Math.floor(totalMin / 60)).padStart(2, "0")}:${String(totalMin % 60).padStart(2, "0")}`;
+}
+
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, {
     year: "numeric",
@@ -159,8 +167,8 @@ export function BulkAddSessionsModal({ courseId, semesters, bulkCreateAction }: 
     fd.set("days", Array.from(selectedDays).join(","));
     for (const day of selectedDays) {
       const dayTime = times[day] ?? { start: "09:00", end: "10:00" };
-      fd.set(`start_${day}`, dayTime.start);
-      fd.set(`end_${day}`, dayTime.end);
+      fd.set(`start_${day}`, localHHMMtoUtc(dayTime.start));
+      fd.set(`end_${day}`, localHHMMtoUtc(dayTime.end));
     }
 
     setError(null);

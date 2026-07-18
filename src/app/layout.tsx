@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import "./globals.css";
 import { RegisterServiceWorker } from "@/shared/infrastructure/pwa/register-service-worker";
+import { PwaInstallBanner } from "@/shared/infrastructure/pwa/pwa-install-banner";
 import type { Locale } from "@/i18n/locale";
 
 export const metadata: Metadata = {
@@ -23,6 +24,7 @@ export default async function RootLayout({
       <body suppressHydrationWarning>
         <NextIntlClientProvider messages={messages}>
           <RegisterServiceWorker />
+          <PwaInstallBanner />
           {children}
         </NextIntlClientProvider>
       </body>

@@ -169,6 +169,10 @@ export class PrismaStudentRepository implements StudentRepository {
     });
   }
 
+  async setLevel(studentId: string, levelId: string): Promise<void> {
+    await prisma.user.update({ where: { id: studentId }, data: { levelId } as never });
+  }
+
   async assignIdNumberIfMissing(studentId: string): Promise<number> {
     const row = await prisma.user.findUnique({ where: { id: studentId }, select: { idNumber: true } });
     if (row?.idNumber !== null && row?.idNumber !== undefined) return row.idNumber;
