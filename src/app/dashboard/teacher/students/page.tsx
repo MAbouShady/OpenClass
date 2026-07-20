@@ -32,6 +32,7 @@ import { RosterFilterBar } from "@/modules/roster/presentation/roster-filter-bar
 import { RosterRow } from "@/modules/roster/presentation/roster-row";
 import type { StudentRow } from "@/modules/roster/domain/student-row";
 import { markCashPaymentAction } from "@/app/dashboard/teacher/courses/[courseId]/payments/actions";
+import { RosterPagination } from "@/modules/roster/presentation/roster-pagination";
 
 const studentRepository = new PrismaStudentRepository();
 const levelRepository = new PrismaLevelRepository();
@@ -130,6 +131,9 @@ export default async function TeacherStudentsPage({ searchParams }: PageProps) {
     }
   }
 
+  const ROSTER_PAGE_SIZE = 20;
+  const rosterPage = Math.max(1, parseInt(params.rosterPage ?? "1", 10));
+
   const filteredRows = filterStudentRows(rows, {
     courseId: params.courseId,
     semesterId: params.semesterId,
@@ -144,6 +148,10 @@ export default async function TeacherStudentsPage({ searchParams }: PageProps) {
         ? params.paymentStatus
         : undefined,
   });
+
+  const rosterTotalPages = Math.max(1, Math.ceil(filteredRows.length / ROSTER_PAGE_SIZE));
+  const safePage = Math.min(rosterPage, rosterTotalPages);
+  const paginatedRows = filteredRows.slice((safePage - 1) * ROSTER_PAGE_SIZE, safePage * ROSTER_PAGE_SIZE);
 
   const filterCourseOptions = courses.map((c) => ({ value: c.id, label: c.title }));
   const semesterLabelById = new Map(
@@ -203,8 +211,8 @@ export default async function TeacherStudentsPage({ searchParams }: PageProps) {
             {filteredRows.length === 0 ? (
               <p className="text-sm text-muted-foreground">{t("noFilterResults")}</p>
             ) : (
-              <div>
-                {filteredRows.map((row) => (
+              <div className="flex flex-col gap-0">
+                {paginatedRows.map((row) => (
                   <RosterRow
                     key={row.enrollmentId}
                     row={row}
@@ -217,6 +225,12 @@ export default async function TeacherStudentsPage({ searchParams }: PageProps) {
                     unenrollAction={unenrollStudentAction}
                   />
                 ))}
+                <RosterPagination
+                  page={safePage}
+                  totalPages={rosterTotalPages}
+                  total={filteredRows.length}
+                  searchParams={params}
+                />
               </div>
             )}
           </CardContent>

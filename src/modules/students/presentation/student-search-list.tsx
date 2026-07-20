@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { Search } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -36,9 +37,11 @@ export function StudentSearchList({
   enrollAction,
   deleteAction,
 }: Props) {
+  const PAGE_SIZE = 20;
   const t = useTranslations("students");
   const [query, setQuery] = useState("");
   const [levelId, setLevelId] = useState("all");
+  const [page, setPage] = useState(1);
 
   const usedLevelIds = new Set(students.map((s) => s.levelId).filter(Boolean));
   const usedLevels = levels.filter((l) => usedLevelIds.has(l.id));
@@ -53,6 +56,12 @@ export function StudentSearchList({
       (s.idNumber != null && String(s.idNumber).includes(q))
     );
   });
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const paginated = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
+  useEffect(() => { setPage(1); }, [query, levelId]);
 
   return (
     <div className="flex flex-col gap-3">
@@ -88,18 +97,33 @@ export function StudentSearchList({
           {query || levelId !== "all" ? t("noSearchResults") : t("noStudents")}
         </p>
       ) : (
-        filtered.map((student) => (
-          <StudentCard
-            key={student.id}
-            student={student}
-            levels={levels}
-            parents={parents}
-            courseOptions={courseOptions}
-            updateAction={updateAction}
-            enrollAction={enrollAction}
-            deleteAction={deleteAction}
-          />
-        ))
+        <>
+          {paginated.map((student) => (
+            <StudentCard
+              key={student.id}
+              student={student}
+              levels={levels}
+              parents={parents}
+              courseOptions={courseOptions}
+              updateAction={updateAction}
+              enrollAction={enrollAction}
+              deleteAction={deleteAction}
+            />
+          ))}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between pt-2 text-sm text-muted-foreground">
+              <span>{safePage} / {totalPages}</span>
+              <div className="flex gap-1">
+                <Button variant="outline" size="sm" disabled={safePage <= 1} onClick={() => setPage((p) => p - 1)}>
+                  <ChevronLeft size={14} />
+                </Button>
+                <Button variant="outline" size="sm" disabled={safePage >= totalPages} onClick={() => setPage((p) => p + 1)}>
+                  <ChevronRight size={14} />
+                </Button>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
