@@ -7,6 +7,7 @@ import { PrismaEnrollmentRepository } from "@/modules/enrollments/infrastructure
 import { PrismaSemesterRepository } from "@/modules/semesters/infrastructure/prisma-semester-repository";
 import { PrismaCourseRepository } from "@/modules/courses/infrastructure/prisma-course-repository";
 import { PrismaStudentRepository } from "@/modules/students/infrastructure/prisma-student-repository";
+import { PrismaPaymentRepository } from "@/modules/payments/infrastructure/prisma-payment-repository";
 import type { ActionState } from "@/shared/domain/action-state";
 
 const userRepository = new PrismaUserRepository();
@@ -14,8 +15,13 @@ const enrollmentRepository = new PrismaEnrollmentRepository();
 const semesterRepository = new PrismaSemesterRepository();
 const courseRepository = new PrismaCourseRepository();
 const studentRepository = new PrismaStudentRepository();
+const paymentRepository = new PrismaPaymentRepository();
 
-export type BookingResult = ActionState & { studentIdNumber?: number };
+export type BookingResult = ActionState & {
+  studentIdNumber?: number;
+  alreadyEnrolled?: boolean;
+  isPaid?: boolean;
+};
 
 async function enroll(studentId: string, semesterId: string): Promise<BookingResult> {
   const result = await enrollStudent(
@@ -50,6 +56,22 @@ export async function bookAsGuestAction(
   if (teacherId) {
     await studentRepository.linkToTeacher(user.id, teacherId);
   }
+
+  const existing = await enrollmentRepository.findByStudentAndSemester(user.id, semesterId);
+  if (existing) {
+    const idNumber = await studentRepository.assignIdNumberIfMissing(user.id);
+    const [payments, semester] = await Promise.all([
+      paymentRepository.findByEnrollment(existing.id),
+      semesterRepository.findById(semesterId),
+    ]);
+    if (semester) {
+      const course = await courseRepository.findById(semester.courseId);
+      if (course?.levelId) await studentRepository.setLevel(user.id, course.levelId);
+    }
+    const isPaid = payments.some((p) => p.status === "APPROVED");
+    return { alreadyEnrolled: true, isPaid, studentIdNumber: idNumber };
+  }
+
   return enroll(user.id, semesterId);
 }
 

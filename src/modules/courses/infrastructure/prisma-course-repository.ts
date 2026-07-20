@@ -15,6 +15,10 @@ export class PrismaCourseRepository implements CourseRepository {
     return prisma.course.findMany({ where: { teacherId }, orderBy: { createdAt: "desc" } });
   }
 
+  async findActiveByTeacher(teacherId: string): Promise<Course[]> {
+    return prisma.course.findMany({ where: { teacherId, isActive: true }, orderBy: { createdAt: "desc" } });
+  }
+
   async findAll(): Promise<Course[]> {
     return prisma.course.findMany({ orderBy: { createdAt: "desc" } });
   }

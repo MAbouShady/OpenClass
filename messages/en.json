@@ -153,7 +153,11 @@
     "sessionOffline": "Offline",
     "freqOneTime": "One-time",
     "freqMonthly": "Monthly",
-    "freqPerSemester": "Per semester"
+    "freqPerSemester": "Per semester",
+    "isActiveLabel": "Active (visible on public profile)",
+    "inactiveLabel": "Inactive",
+    "shareLinkLabel": "Share link",
+    "shareLinkCopied": "Copied!"
   },
   "semesters": {
     "pageTitle": "Semesters",
@@ -321,7 +325,10 @@
     "studentIdNote": "Save this ID — it will be used to generate your QR code for attendance.",
     "pendingTitle": "Enrollment pending payment",
     "paymentNote": "Your enrollment is not confirmed until your teacher receives and verifies your payment.",
-    "closeBtn": "Close"
+    "closeBtn": "Close",
+    "alreadyEnrolledTitle": "You're already registered!",
+    "alreadyPaid": "Payment confirmed — you're all set ✓",
+    "alreadyUnpaid": "You're registered — please complete your payment"
   },
   "students": {
     "noFilterResults": "No students match these filters.",

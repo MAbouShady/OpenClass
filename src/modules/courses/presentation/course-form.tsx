@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useActionState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -21,6 +22,7 @@ type CourseFormDefaults = {
   readonly sessionType?: string;
   readonly paymentFrequency?: string;
   readonly levelId?: string;
+  readonly isActive?: boolean;
 };
 
 type CourseFormProps = {
@@ -42,6 +44,7 @@ export function CourseForm({ action, levels, defaultValues, submitLabel, onSucce
   const [sessionType, setSessionType] = useState(defaultValues?.sessionType ?? "ONLINE");
   const [paymentFrequency, setPaymentFrequency] = useState(defaultValues?.paymentFrequency ?? "MONTHLY");
   const [levelId, setLevelId] = useState(defaultValues?.levelId ?? "");
+  const [isActive, setIsActive] = useState(defaultValues?.isActive ?? true);
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
@@ -122,6 +125,18 @@ export function CourseForm({ action, levels, defaultValues, submitLabel, onSucce
           </SelectContent>
         </Select>
       </div>
+
+      {defaultValues?.id ? (
+        <div className="flex items-center gap-3">
+          <input type="hidden" name="isActive" value={isActive ? "true" : "false"} />
+          <Checkbox
+            id="isActive"
+            checked={isActive}
+            onCheckedChange={(v) => setIsActive(!!v)}
+          />
+          <Label htmlFor="isActive">{t("isActiveLabel")}</Label>
+        </div>
+      ) : null}
 
       {state.error ? (
         <Alert variant="destructive">

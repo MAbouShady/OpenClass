@@ -12,11 +12,14 @@ export type CreateCourseInput = {
   readonly teacherId: string;
 };
 
-export type UpdateCourseInput = Partial<Omit<CreateCourseInput, "teacherId">>;
+export type UpdateCourseInput = Partial<Omit<CreateCourseInput, "teacherId">> & {
+  readonly isActive?: boolean;
+};
 
 export interface CourseRepository {
   findById(id: string): Promise<Course | null>;
   findByTeacher(teacherId: string): Promise<Course[]>;
+  findActiveByTeacher(teacherId: string): Promise<Course[]>;
   findAll(): Promise<Course[]>;
   create(input: CreateCourseInput): Promise<Course>;
   update(id: string, input: UpdateCourseInput): Promise<Course>;

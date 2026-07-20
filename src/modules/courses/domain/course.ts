@@ -8,6 +8,7 @@ export type Course = {
   readonly price: number | null;
   readonly sessionType: SessionType;
   readonly paymentFrequency: PaymentFrequency;
+  readonly isActive: boolean;
   readonly levelId: string;
   readonly teacherId: string;
 };

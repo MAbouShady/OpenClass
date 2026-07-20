@@ -11,3 +11,10 @@ export function listCoursesForTeacher(
 ): Promise<Course[]> {
   return deps.courseRepository.findByTeacher(teacherId);
 }
+
+export function listActiveCoursesForTeacher(
+  deps: ListCoursesForTeacherDeps,
+  teacherId: string,
+): Promise<Course[]> {
+  return deps.courseRepository.findActiveByTeacher(teacherId);
+}

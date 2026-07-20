@@ -26,18 +26,19 @@ const semesterRepository = new PrismaSemesterRepository();
 const enrollmentRepository = new PrismaEnrollmentRepository();
 
 type PageProps = {
-  readonly params: Promise<{ teacherId: string }>;
+  readonly params: Promise<{ teacherId: string; courseId: string }>;
 };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { teacherId } = await params;
+  const { teacherId, courseId } = await params;
   const teacher = await userRepository.findById(teacherId);
   if (!teacher || teacher.role !== "TEACHER") return {};
+  const allCourses = await listActiveCoursesForTeacher({ courseRepository }, teacherId);
+  const course = allCourses.find((c) => c.id === courseId);
+  if (!course) return {};
   return {
-    title: `${teacher.name} — OpenClass`,
-    description: teacher.bio
-      ? sanitizeHtml(teacher.bio, { allowedTags: [] }).slice(0, 160)
-      : `Book a course with ${teacher.name} on OpenClass.`,
+    title: `${course.title} — ${teacher.name} — OpenClass`,
+    description: course.description ?? `Book ${course.title} with ${teacher.name} on OpenClass.`,
   };
 }
 
@@ -54,8 +55,8 @@ const SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
   allowedIframeHostnames: ["www.youtube.com", "youtube.com", "player.vimeo.com"],
 };
 
-export default async function TeacherBookingPage({ params }: PageProps) {
-  const { teacherId } = await params;
+export default async function TeacherCourseBookingPage({ params }: PageProps) {
+  const { teacherId, courseId } = await params;
   const teacher = await userRepository.findById(teacherId);
 
   if (!teacher || teacher.role !== "TEACHER") notFound();
@@ -63,12 +64,15 @@ export default async function TeacherBookingPage({ params }: PageProps) {
   const locale = (teacher.locale === "ar" ? "ar" : "en") as "ar" | "en";
   const dir = locale === "ar" ? "rtl" : "ltr";
 
-  const [courses, levels, messages, session] = await Promise.all([
+  const [allCourses, levels, messages, session] = await Promise.all([
     listActiveCoursesForTeacher({ courseRepository }, teacherId),
     listLevels({ levelRepository }),
-    import(`../../../../messages/${locale}.json`),
+    import(`../../../../../../messages/${locale}.json`),
     auth(),
   ]);
+
+  const courses = allCourses.filter((c) => c.id === courseId);
+  if (courses.length === 0) notFound();
 
   // Fetch semesters for all courses in parallel
   const semesterLists = await Promise.all(
@@ -86,8 +90,8 @@ export default async function TeacherBookingPage({ params }: PageProps) {
 
   // Build semesterId → courseId map for enrollment lookup
   const semesterToCourse: Record<string, string> = {};
-  for (const [courseId, sems] of Object.entries(semestersByCourse)) {
-    for (const s of sems) semesterToCourse[s.id] = courseId;
+  for (const [cId, sems] of Object.entries(semestersByCourse)) {
+    for (const s of sems) semesterToCourse[s.id] = cId;
   }
 
   // Fetch enrolled course IDs for logged-in student
@@ -95,9 +99,9 @@ export default async function TeacherBookingPage({ params }: PageProps) {
   if (session?.user.id) {
     const enrollments = await enrollmentRepository.findByStudent(session.user.id);
     for (const e of enrollments) {
-      const courseId = semesterToCourse[e.semesterId];
-      if (courseId && !enrolledCourseIds.includes(courseId)) {
-        enrolledCourseIds.push(courseId);
+      const cId = semesterToCourse[e.semesterId];
+      if (cId && !enrolledCourseIds.includes(cId)) {
+        enrolledCourseIds.push(cId);
       }
     }
   }
@@ -233,6 +237,7 @@ export default async function TeacherBookingPage({ params }: PageProps) {
                   isLoggedIn={!!session}
                   enrolledCourseIds={enrolledCourseIds}
                   paymentDetails={teacher.paymentDetails}
+                  autoOpenCourseId={courseId}
                 />
               </NextIntlClientProvider>
             </div>

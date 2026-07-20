@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Link2, Check } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -15,13 +16,23 @@ import type { ActionState } from "@/shared/domain/action-state";
 type CourseRowProps = {
   readonly course: Course;
   readonly levels: readonly Level[];
+  readonly teacherId: string;
   readonly updateAction: (prevState: ActionState, formData: FormData) => Promise<ActionState>;
   readonly deleteAction: (id: string) => Promise<void>;
 };
 
-export function CourseRow({ course, levels, updateAction, deleteAction }: CourseRowProps) {
+export function CourseRow({ course, levels, teacherId, updateAction, deleteAction }: CourseRowProps) {
   const [editing, setEditing] = useState(false);
+  const [copied, setCopied] = useState(false);
   const t = useTranslations("courses");
+
+  function handleCopyLink() {
+    const url = `${window.location.origin}/t/${teacherId}/courses/${course.id}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
   const levelName = levels.find((level) => level.id === course.levelId)?.name ?? "Unknown level";
 
   if (editing) {
@@ -46,6 +57,11 @@ export function CourseRow({ course, levels, updateAction, deleteAction }: Course
       <div className="space-y-1 min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <span className="font-medium truncate">{course.title}</span>
+          {!course.isActive && (
+            <Badge variant="outline" className="text-xs border-destructive/50 text-destructive">
+              {t("inactiveLabel")}
+            </Badge>
+          )}
           <Badge variant="secondary">{levelName}</Badge>
           <Badge variant={course.sessionType === "ONLINE" ? "default" : "outline"}>
             {course.sessionType === "ONLINE" ? "Online" : "Offline"}
@@ -77,6 +93,10 @@ export function CourseRow({ course, levels, updateAction, deleteAction }: Course
         >
           {t("paymentsLabel")}
         </Link>
+        <Button variant="outline" size="sm" onClick={handleCopyLink} className="gap-1.5">
+          {copied ? <Check size={14} className="text-green-600" /> : <Link2 size={14} />}
+          {copied ? t("shareLinkCopied") : t("shareLinkLabel")}
+        </Button>
         <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
           {t("editLabel")}
         </Button>

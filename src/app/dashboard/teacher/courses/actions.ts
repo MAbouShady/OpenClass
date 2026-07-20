@@ -57,6 +57,7 @@ export async function updateCourseAction(
     return { error: "You must be signed in." };
   }
 
+  const isActiveRaw = formData.get("isActive");
   const parsed = updateCourseSchema.safeParse({
     id: formData.get("id"),
     title: formData.get("title"),
@@ -65,6 +66,7 @@ export async function updateCourseAction(
     sessionType: formData.get("sessionType"),
     paymentFrequency: formData.get("paymentFrequency"),
     levelId: formData.get("levelId"),
+    isActive: isActiveRaw !== null ? isActiveRaw === "true" : undefined,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input." };

@@ -21,6 +21,7 @@ export type CreateCourseSchemaInput = z.infer<typeof createCourseSchema>;
 
 export const updateCourseSchema = createCourseSchema.omit({ teacherId: true }).extend({
   id: z.string().min(1),
+  isActive: z.boolean().optional(),
 });
 
 export type UpdateCourseSchemaInput = z.infer<typeof updateCourseSchema>;

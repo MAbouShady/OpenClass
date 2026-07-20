@@ -128,6 +128,7 @@ model Course {
   price            Int?
   sessionType      SessionType
   paymentFrequency PaymentFrequency @default(MONTHLY)
+  isActive         Boolean          @default(true)
   levelId          String
   level       Level          @relation(fields: [levelId], references: [id])
   teacherId   String

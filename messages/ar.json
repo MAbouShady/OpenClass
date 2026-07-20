@@ -153,7 +153,11 @@
     "sessionOffline": "أوفلاين",
     "freqOneTime": "مرة واحدة",
     "freqMonthly": "شهري",
-    "freqPerSemester": "كل فصل"
+    "freqPerSemester": "كل فصل",
+    "isActiveLabel": "مفعّلة (تظهر في الملف الشخصي العام)",
+    "inactiveLabel": "غير مفعّلة",
+    "shareLinkLabel": "مشاركة الرابط",
+    "shareLinkCopied": "تم النسخ!"
   },
   "semesters": {
     "pageTitle": "الفصول الدراسية",
@@ -321,7 +325,10 @@
     "studentIdNote": "احتفظ بالرقم ده — هيتستخدم لإنشاء QR كود الحضور بتاعك.",
     "pendingTitle": "التسجيل معلّق لحين الدفع",
     "paymentNote": "تسجيلك مش هيتأكد غير لما المدرّس يستلم الدفعة ويتحقق منها.",
-    "closeBtn": "إغلاق"
+    "closeBtn": "إغلاق",
+    "alreadyEnrolledTitle": "أنت مسجّل بالفعل!",
+    "alreadyPaid": "تم تأكيد الدفع — كل شيء تمام ✓",
+    "alreadyUnpaid": "أنت مسجّل — يرجى إتمام الدفع"
   },
   "students": {
     "noFilterResults": "لا يوجد طلاب يطابقون هذه الفلاتر.",

@@ -40,6 +40,7 @@ const COURSE = {
   sessionType: "OFFLINE" as const,
   paymentFrequency: "MONTHLY" as const,
   price: null,
+  isActive: true,
   levelId: "level-1",
   teacherId: "teacher-1",
 };

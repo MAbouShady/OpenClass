@@ -10,12 +10,13 @@ import type { ActionState } from "@/shared/domain/action-state";
 type Props = {
   courses: readonly Course[];
   levels: readonly Level[];
+  teacherId: string;
   updateAction: (prevState: ActionState, formData: FormData) => Promise<ActionState>;
   deleteAction: (id: string) => Promise<void>;
   noCoursesLabel: string;
 };
 
-export function CourseListWithFilter({ courses, levels, updateAction, deleteAction, noCoursesLabel }: Props) {
+export function CourseListWithFilter({ courses, levels, teacherId, updateAction, deleteAction, noCoursesLabel }: Props) {
   const [levelId, setLevelId] = useState("all");
 
   const visible = levelId === "all" ? courses : courses.filter((c) => c.levelId === levelId);
@@ -48,6 +49,7 @@ export function CourseListWithFilter({ courses, levels, updateAction, deleteActi
               key={course.id}
               course={course}
               levels={levels}
+              teacherId={teacherId}
               updateAction={updateAction}
               deleteAction={deleteAction}
             />

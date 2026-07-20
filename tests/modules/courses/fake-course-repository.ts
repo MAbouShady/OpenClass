@@ -21,12 +21,16 @@ export class FakeCourseRepository implements CourseRepository {
     return this.courses.filter((course) => course.teacherId === teacherId);
   }
 
+  async findActiveByTeacher(teacherId: string): Promise<Course[]> {
+    return this.courses.filter((course) => course.teacherId === teacherId && course.isActive);
+  }
+
   async findAll(): Promise<Course[]> {
     return this.courses;
   }
 
   async create(input: CreateCourseInput): Promise<Course> {
-    const course: Course = { id: `course-${this.nextId++}`, ...input };
+    const course: Course = { id: `course-${this.nextId++}`, isActive: true, ...input };
     this.courses.push(course);
     return course;
   }

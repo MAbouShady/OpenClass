@@ -58,6 +58,7 @@ export default async function TeacherCoursesPage() {
           <CourseListWithFilter
             courses={courses}
             levels={levels}
+            teacherId={teacherId}
             updateAction={updateCourseAction}
             deleteAction={deleteCourseAction}
             noCoursesLabel={t("noCourses")}

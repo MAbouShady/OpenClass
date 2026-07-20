@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -46,9 +46,10 @@ type Props = {
   isLoggedIn: boolean;
   enrolledCourseIds: readonly string[];
   paymentDetails: string | null;
+  autoOpenCourseId?: string;
 };
 
-type Step = "semester" | "guest" | "confirm" | "success";
+type Step = "semester" | "guest" | "confirm" | "success" | "already-enrolled";
 
 function fmt(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, {
@@ -67,6 +68,7 @@ export function BookingFlow({
   isLoggedIn,
   enrolledCourseIds,
   paymentDetails,
+  autoOpenCourseId,
 }: Props) {
   const t = useTranslations("booking");
 
@@ -84,6 +86,8 @@ export function BookingFlow({
   const [selectedSemester, setSelectedSemester] = useState<SerializedSemester | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [studentIdNumber, setStudentIdNumber] = useState<number | null>(null);
+  const [isPaid, setIsPaid] = useState<boolean | null>(null);
+  const [phoneValue, setPhoneValue] = useState("");
   const [localEnrolled, setLocalEnrolled] = useState<Set<string>>(new Set(enrolledCourseIds));
   const [copied, setCopied] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -92,6 +96,7 @@ export function BookingFlow({
     setSelectedCourse(course);
     setError(null);
     setStudentIdNumber(null);
+    setPhoneValue("");
     setOpen(true);
     const courseSemesters = semestersByCourse[course.id] ?? [];
     if (courseSemesters.length === 1) {
@@ -102,6 +107,19 @@ export function BookingFlow({
       setStep("semester");
     }
   };
+
+  const autoOpened = useRef(false);
+  useEffect(() => {
+    if (!autoOpenCourseId || autoOpened.current) return;
+    const course = courses.find((c) => c.id === autoOpenCourseId);
+    if (!course) return;
+    const hasSemesters = (semestersByCourse[course.id]?.length ?? 0) > 0;
+    if (!hasSemesters) return;
+    autoOpened.current = true;
+    window.dispatchEvent(new CustomEvent("open-courses"));
+    openBooking(course);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const close = () => setOpen(false);
 
@@ -120,7 +138,12 @@ export function BookingFlow({
 
     startTransition(async () => {
       const result = await bookAsGuestAction({}, fd);
-      if (result.error) {
+      if (result.alreadyEnrolled) {
+        setStudentIdNumber(result.studentIdNumber ?? null);
+        setIsPaid(result.isPaid ?? false);
+        if (selectedCourse) setLocalEnrolled((prev) => new Set([...prev, selectedCourse.id]));
+        setStep("already-enrolled");
+      } else if (result.error) {
         setError(result.error);
       } else if (result.studentIdNumber != null) {
         setStudentIdNumber(result.studentIdNumber);
@@ -165,6 +188,7 @@ export function BookingFlow({
         heading={t("coursesSection")}
         accent={accent}
         blink
+        defaultOpen={!!autoOpenCourseId}
         listenForOpen="open-courses"
         collapsedCta={
           <div className="mt-4">
@@ -378,7 +402,20 @@ export function BookingFlow({
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="phone">{t("phoneLabel")}</Label>
-                  <Input id="phone" name="phone" type="tel" required autoComplete="tel" />
+                  <Input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  required
+                  autoComplete="tel"
+                  value={phoneValue}
+                  onChange={(e) => {
+                    const normalized = e.target.value
+                      .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+                      .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06f0));
+                    setPhoneValue(normalized);
+                  }}
+                />
                 </div>
 
                 {error && (
@@ -444,6 +481,67 @@ export function BookingFlow({
                 </Button>
               </div>
             </>
+          )}
+
+          {/* Step: already enrolled */}
+          {step === "already-enrolled" && selectedCourse && (
+            <div className="flex flex-col items-center gap-4 py-2 text-center">
+              <div
+                className="flex h-16 w-16 items-center justify-center rounded-full"
+                style={{ backgroundColor: isPaid ? `${accent}22` : "#f59e0b22" }}
+              >
+                <CheckCircle2 size={32} style={{ color: isPaid ? accent : "#f59e0b" }} />
+              </div>
+
+              <div>
+                <h2 className="text-xl font-bold">{t("alreadyEnrolledTitle")}</h2>
+                <p className="mt-1 text-sm text-muted-foreground">{selectedCourse.title}</p>
+              </div>
+
+              {studentIdNumber != null && (
+                <div className="w-full rounded-xl border-2 bg-muted/30 p-4" style={{ borderColor: accent + "44" }}>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    {t("studentIdLabel")}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <code className="flex-1 rounded-lg bg-background px-3 py-2 text-sm font-mono border">
+                      #{studentIdNumber}
+                    </code>
+                    <Button variant="outline" size="icon" onClick={copyId} title={t("copyId")}>
+                      {copied ? <Check size={14} style={{ color: accent }} /> : <Copy size={14} />}
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {isPaid ? (
+                <div className="w-full rounded-xl border-2 p-4" style={{ borderColor: accent + "66", backgroundColor: `${accent}11` }}>
+                  <p className="font-semibold" style={{ color: accent }}>{t("alreadyPaid")}</p>
+                </div>
+              ) : (
+                <div className="w-full rounded-xl border-2 bg-amber-50 dark:bg-amber-950/20 p-4 border-amber-300 dark:border-amber-700">
+                  <p className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-1">{t("alreadyUnpaid")}</p>
+                  {selectedCourse.price != null && (
+                    <p className="text-base font-bold text-amber-900 dark:text-amber-200 mb-1">
+                      {selectedCourse.paymentFrequency === "MONTHLY"
+                        ? t("pricePerMonth", { price: selectedCourse.price })
+                        : t("pricePerSession", { price: selectedCourse.price })}
+                    </p>
+                  )}
+                  <p className="text-sm text-amber-700 dark:text-amber-400">{t("paymentNote")}</p>
+                  {paymentDetails && (
+                    <div
+                      className="mt-3 pt-3 border-t border-amber-200 dark:border-amber-800 prose prose-sm dark:prose-invert max-w-none text-amber-900 dark:text-amber-200"
+                      dangerouslySetInnerHTML={{ __html: paymentDetails }}
+                    />
+                  )}
+                </div>
+              )}
+
+              <Button variant="outline" className="w-full" onClick={close}>
+                {t("closeBtn")}
+              </Button>
+            </div>
           )}
 
           {/* Step: success */}
