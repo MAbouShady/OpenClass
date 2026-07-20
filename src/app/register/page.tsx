@@ -7,6 +7,8 @@ import { LinkText } from "@/components/common/link-text";
 import { registerAction } from "@/app/register/actions";
 
 export default async function RegisterPage() {
+  if (process.env.REGISTRATION_ENABLED !== "true") redirect("/login");
+
   const session = await auth();
   if (session?.user.id) redirect(`/dashboard/${session.user.role.toLowerCase()}`);
 
