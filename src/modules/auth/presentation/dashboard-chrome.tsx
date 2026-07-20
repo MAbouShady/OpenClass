@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   BookOpen,
+  ClipboardList,
   CreditCard,
   LayoutDashboard,
   Layers,
@@ -75,6 +76,11 @@ function getNavItems(role: Role): NavItem[] {
       labelKey: "students",
       href: "/dashboard/teacher/students",
       icon: <Users className="h-4 w-4 shrink-0" />,
+    });
+    items.push({
+      labelKey: "roster",
+      href: "/dashboard/teacher/roster",
+      icon: <ClipboardList className="h-4 w-4 shrink-0" />,
     });
     items.push({
       labelKey: "payments",
