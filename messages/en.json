@@ -488,5 +488,29 @@
     "generateBtn": "Generate QR codes",
     "generating": "Generating…",
     "printBtn": "Print / Save PDF"
+  },
+  "parentPortal": {
+    "title": "Parent Portal",
+    "subtitle": "Track your student's progress",
+    "idLabel": "Student ID",
+    "idHint": "Enter the numeric ID on your student's card",
+    "idPlaceholder": "e.g. 10042",
+    "searchBtn": "Search",
+    "notFound": "No student found with ID {id}. Please check and try again.",
+    "studentIdLabel": "Student ID: {id}",
+    "noEnrollments": "No course enrollments found.",
+    "noSessions": "No sessions scheduled yet.",
+    "attended": "{present} / {total} sessions attended",
+    "online": "Online",
+    "offline": "Offline",
+    "paid": "Paid",
+    "pending": "Pending",
+    "unpaid": "Unpaid",
+    "dateCol": "Date",
+    "checkInCol": "Check-in",
+    "checkOutCol": "Check-out",
+    "statusCol": "Status",
+    "present": "Present",
+    "absent": "Absent"
   }
 }
