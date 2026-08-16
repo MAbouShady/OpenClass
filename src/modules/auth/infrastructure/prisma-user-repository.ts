@@ -1,6 +1,7 @@
 import { prisma } from "@/shared/infrastructure/prisma/client";
 import type {
   CreateUserInput,
+  CreateSecretaryInput,
   UpdateProfileInput,
   UserRepository,
 } from "@/modules/auth/domain/user-repository";
@@ -80,5 +81,31 @@ export class PrismaUserRepository implements UserRepository {
       },
     });
     return toUser(user);
+  }
+
+  async findSecretariesByTeacherId(teacherId: string): Promise<User[]> {
+    const users = await prisma.user.findMany({
+      where: { secretaryOfId: teacherId, role: "SECRETARY" },
+      orderBy: { createdAt: "asc" },
+    });
+    return users.map(toUser);
+  }
+
+  async createSecretary(input: CreateSecretaryInput): Promise<User> {
+    const user = await prisma.user.create({
+      data: {
+        name: input.name,
+        email: input.email,
+        passwordHash: input.passwordHash,
+        role: "SECRETARY",
+        secretaryOfId: input.teacherId,
+        locale: "en",
+      },
+    });
+    return toUser(user);
+  }
+
+  async deleteById(id: string): Promise<void> {
+    await prisma.user.delete({ where: { id } });
   }
 }

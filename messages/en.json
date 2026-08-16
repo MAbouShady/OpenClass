@@ -31,7 +31,8 @@
     "payments": "Payments",
     "qrGenerator": "QR Generator",
     "profile": "Profile",
-    "qrCodes": "QR Codes"
+    "qrCodes": "QR Codes",
+    "secretaries": "Secretaries"
   },
   "home": {
     "tagline": "Project scaffold is up and running.",
@@ -512,5 +513,27 @@
     "statusCol": "Status",
     "present": "Present",
     "absent": "Absent"
+  },
+  "secretary": {
+    "pageTitle": "Secretary Dashboard",
+    "teacherLabel": "Teacher",
+    "noCourses": "No active courses assigned.",
+    "noSessions": "No sessions yet.",
+    "scanBtn": "Scan QR"
+  },
+  "secretaries": {
+    "pageTitle": "Secretaries",
+    "pageSubtitle": "Manage secretary accounts for your courses.",
+    "addTitle": "Add Secretary",
+    "listTitle": "Your Secretaries",
+    "noSecretaries": "No secretaries yet.",
+    "nameLabel": "Full name",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "creating": "Creating…",
+    "createBtn": "Create Secretary",
+    "deleteLabel": "Delete",
+    "deleteConfirmTitle": "Delete Secretary",
+    "deleteConfirmDesc": "This will permanently delete this secretary account."
   }
 }

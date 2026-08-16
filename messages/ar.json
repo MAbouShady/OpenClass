@@ -31,7 +31,8 @@
     "payments": "المدفوعات",
     "qrGenerator": "مولّد QR",
     "profile": "الملف الشخصي",
-    "qrCodes": "رموز QR"
+    "qrCodes": "رموز QR",
+    "secretaries": "السكرتيرات"
   },
   "home": {
     "tagline": "المشروع الأساسي يعمل الآن.",
@@ -512,5 +513,27 @@
     "generateBtn": "توليد رموز QR",
     "generating": "جارٍ التوليد…",
     "printBtn": "طباعة / حفظ PDF"
+  },
+  "secretary": {
+    "pageTitle": "لوحة السكرتير",
+    "teacherLabel": "المعلم",
+    "noCourses": "لا توجد دورات نشطة.",
+    "noSessions": "لا توجد جلسات بعد.",
+    "scanBtn": "مسح QR"
+  },
+  "secretaries": {
+    "pageTitle": "السكرتيرات",
+    "pageSubtitle": "إدارة حسابات السكرتيرات لدوراتك.",
+    "addTitle": "إضافة سكرتير",
+    "listTitle": "سكرتيراتك",
+    "noSecretaries": "لا يوجد سكرتيرات بعد.",
+    "nameLabel": "الاسم الكامل",
+    "emailLabel": "البريد الإلكتروني",
+    "passwordLabel": "كلمة المرور",
+    "creating": "جاري الإنشاء…",
+    "createBtn": "إنشاء سكرتير",
+    "deleteLabel": "حذف",
+    "deleteConfirmTitle": "حذف السكرتير",
+    "deleteConfirmDesc": "سيؤدي هذا إلى حذف حساب السكرتير نهائياً."
   }
 }

@@ -21,6 +21,13 @@ export type UpdateProfileInput = {
   readonly locale: string;
 };
 
+export type CreateSecretaryInput = {
+  readonly name: string;
+  readonly email: string;
+  readonly passwordHash: string;
+  readonly teacherId: string;
+};
+
 export interface UserRepository {
   findByEmail(email: string): Promise<UserWithCredentials | null>;
   findByPhone(phone: string): Promise<UserWithCredentials | null>;
@@ -28,4 +35,7 @@ export interface UserRepository {
   create(input: CreateUserInput): Promise<UserWithCredentials>;
   findOrCreateByPhone(phone: string, name: string): Promise<User>;
   updateProfile(id: string, input: UpdateProfileInput): Promise<User>;
+  findSecretariesByTeacherId(teacherId: string): Promise<User[]>;
+  createSecretary(input: CreateSecretaryInput): Promise<User>;
+  deleteById(id: string): Promise<void>;
 }

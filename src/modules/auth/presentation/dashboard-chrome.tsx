@@ -27,6 +27,7 @@ import { NotificationOptInButton } from "@/modules/notifications/presentation/no
 import { LanguageSwitcher } from "@/i18n/language-switcher";
 import { signOutAction } from "@/app/dashboard/actions";
 import { cn } from "@/shared/lib/utils";
+import { Shield } from "lucide-react";
 import type { Role } from "@/modules/auth/domain/role";
 import type { Locale } from "@/i18n/locale";
 
@@ -91,6 +92,11 @@ function getNavItems(role: Role): NavItem[] {
       labelKey: "qrGenerator",
       href: "/dashboard/teacher/qr-generator",
       icon: <ScanLine className="h-4 w-4 shrink-0" />,
+    });
+    items.push({
+      labelKey: "secretaries",
+      href: "/dashboard/teacher/secretaries",
+      icon: <Shield className="h-4 w-4 shrink-0" />,
     });
     items.push({
       labelKey: "profile",

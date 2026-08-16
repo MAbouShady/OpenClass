@@ -60,16 +60,16 @@ type Labels = {
 };
 
 function fmtDate(d: Date, locale: string) {
-  return new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(d);
+  return new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: "Africa/Cairo" }).format(d);
 }
 
 function fmtTime(d: Date | null, locale: string) {
   if (!d) return null;
-  return new Intl.DateTimeFormat(locale, { timeStyle: "short" }).format(d);
+  return new Intl.DateTimeFormat(locale, { timeStyle: "short", timeZone: "Africa/Cairo" }).format(d);
 }
 
 function fmtMonth(d: Date, locale: string) {
-  return new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(d);
+  return new Intl.DateTimeFormat(locale, { month: "long", year: "numeric", timeZone: "Africa/Cairo" }).format(d);
 }
 
 function AttendanceStatusIcon({ status }: { status: "PRESENT" | "ABSENT" | null }) {

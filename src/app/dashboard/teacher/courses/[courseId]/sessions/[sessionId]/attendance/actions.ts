@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
+import { prisma } from "@/shared/infrastructure/prisma/client";
 import { scanEntry } from "@/modules/attendance/application/scan-entry";
 import { scanExit } from "@/modules/attendance/application/scan-exit";
 import { manualMarkAttendance } from "@/modules/attendance/application/manual-mark-attendance";
@@ -48,7 +49,18 @@ async function canManage(courseId: string): Promise<boolean> {
   if (session.user.role === "ADMIN") return true;
 
   const course = await courseRepository.findById(courseId);
-  return course?.teacherId === session.user.id;
+  if (!course) return false;
+  if (course.teacherId === session.user.id) return true;
+
+  if (session.user.role === "SECRETARY") {
+    const secUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { secretaryOfId: true },
+    });
+    return secUser?.secretaryOfId === course.teacherId;
+  }
+
+  return false;
 }
 
 export async function scanEntryAction(

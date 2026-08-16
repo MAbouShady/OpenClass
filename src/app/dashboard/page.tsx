@@ -7,6 +7,7 @@ const ROLE_HOME: Record<Role, string> = {
   TEACHER: "/dashboard/teacher",
   STUDENT: "/dashboard/student",
   PARENT: "/dashboard/parent",
+  SECRETARY: "/dashboard/secretary",
 };
 
 export default async function DashboardIndexPage() {

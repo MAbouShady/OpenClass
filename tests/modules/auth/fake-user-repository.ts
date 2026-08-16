@@ -1,6 +1,7 @@
 import type { User, UserWithCredentials } from "@/modules/auth/domain/user";
 import type {
   CreateUserInput,
+  CreateSecretaryInput,
   UpdateProfileInput,
   UserRepository,
 } from "@/modules/auth/domain/user-repository";
@@ -72,5 +73,32 @@ export class FakeUserRepository implements UserRepository {
     const updated = { ...existing, ...input };
     this.users[index] = updated;
     return updated;
+  }
+
+  async findSecretariesByTeacherId(_teacherId: string): Promise<User[]> {
+    return [];
+  }
+
+  async createSecretary(input: CreateSecretaryInput): Promise<User> {
+    const user: UserWithCredentials = {
+      id: `user-${this.nextId++}`,
+      name: input.name,
+      email: input.email,
+      passwordHash: input.passwordHash,
+      role: "SECRETARY",
+      bio: null,
+      photoUrl: null,
+      coverUrl: null,
+      coverOffsetY: 50,
+      accentColor: null,
+      paymentDetails: null,
+      locale: "en",
+    };
+    this.users.push(user);
+    return user;
+  }
+
+  async deleteById(id: string): Promise<void> {
+    this.users = this.users.filter((u) => u.id !== id);
   }
 }

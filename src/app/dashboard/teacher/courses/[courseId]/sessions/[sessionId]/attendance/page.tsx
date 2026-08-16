@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { getTranslations } from "next-intl/server";
+import { prisma } from "@/shared/infrastructure/prisma/client";
 import { PrismaCourseRepository } from "@/modules/courses/infrastructure/prisma-course-repository";
 import { PrismaClassSessionRepository } from "@/modules/scheduling/infrastructure/prisma-class-session-repository";
 import { listSemestersForCourse } from "@/modules/semesters/application/list-semesters-for-course";
@@ -32,7 +33,18 @@ export default async function SessionAttendancePage({ params }: PageProps) {
   const classSession = await classSessionRepository.findById(sessionId);
 
   if (!course || !classSession || classSession.courseId !== courseId) notFound();
-  if (session?.user.role !== "ADMIN" && course.teacherId !== session?.user.id) notFound();
+
+  const role = session?.user.role;
+  const userId = session?.user.id ?? "";
+  let authorized = role === "ADMIN" || course.teacherId === userId;
+  if (!authorized && role === "SECRETARY") {
+    const secUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { secretaryOfId: true },
+    });
+    authorized = secUser?.secretaryOfId === course.teacherId;
+  }
+  if (!authorized) notFound();
 
   const semesters = await listSemestersForCourse({ semesterRepository }, courseId);
   const enrollmentLists = await Promise.all(
