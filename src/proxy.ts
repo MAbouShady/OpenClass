@@ -8,7 +8,7 @@ const { auth } = NextAuth(authConfig);
 
 const ROUTE_ROLES: Record<string, readonly Role[]> = {
   "/dashboard/admin": ["ADMIN"],
-  "/dashboard/teacher": ["ADMIN", "TEACHER"],
+  "/dashboard/teacher": ["ADMIN", "TEACHER", "SECRETARY"],
   "/dashboard/student": ["STUDENT"],
   "/dashboard/parent": ["PARENT"],
 };
