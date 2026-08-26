@@ -16,6 +16,7 @@ import {
   ScanLine,
   User,
   Users,
+  Video,
   X,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -69,6 +70,11 @@ function getNavItems(role: Role): NavItem[] {
       labelKey: "courses",
       href: "/dashboard/teacher/courses",
       icon: <BookOpen className="h-4 w-4 shrink-0" />,
+    });
+    items.push({
+      labelKey: "recordedCourses",
+      href: "/dashboard/teacher/recorded-courses",
+      icon: <Video className="h-4 w-4 shrink-0" />,
     });
   }
 
@@ -140,10 +146,7 @@ type NavListProps = {
 
 function NavList({ navItems, pathname, t, onNavigate }: NavListProps) {
   return (
-    <nav
-      className="flex flex-1 flex-col gap-0.5 overflow-y-auto p-3"
-      aria-label="Main navigation"
-    >
+    <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto p-3" aria-label="Main navigation">
       {navItems.map((item) => {
         const isActive = pathname === item.href;
         return (
@@ -183,10 +186,7 @@ function UserFooter({ name, email, initials }: UserFooterProps) {
           {initials}
         </AvatarFallback>
       </Avatar>
-      <p
-        className="min-w-0 flex-1 truncate text-xs text-sidebar-foreground/50"
-        title={label}
-      >
+      <p className="min-w-0 flex-1 truncate text-xs text-sidebar-foreground/50" title={label}>
         {label}
       </p>
     </div>

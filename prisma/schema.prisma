@@ -57,6 +57,8 @@ model User {
   studentLinks      TeacherStudent[] @relation("StudentOf")
   pushSubscriptions PushSubscription[]
   levels            Level[]            @relation("TeacherLevels")
+  uploadedVideos    VideoAsset[]
+  lessonProgress    LessonProgress[]
 }
 
 model PushSubscription {
@@ -141,6 +143,7 @@ model Course {
   updatedAt   DateTime       @updatedAt
   sessions    ClassSession[]
   semesters   Semester[]
+  recordedVideos RecordedVideo[]
 
   @@index([teacherId])
   @@index([levelId])
@@ -237,4 +240,87 @@ model Payment {
 
   @@unique([enrollmentId, month])
   @@index([enrollmentId])
+}
+
+// ── Recorded courses (video lessons attached to existing courses) ────────────
+
+enum RecordedVideoStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum VideoProcessingStatus {
+  UPLOADING
+  PENDING
+  PROCESSING
+  READY
+  FAILED
+}
+
+/// A raw uploaded video plus everything the processing pipeline derives from it.
+/// Storage keys point at the *private* media root, never at a public URL.
+model VideoAsset {
+  id                  String                @id @default(cuid())
+  originalFilename    String
+  originalKey         String
+  mimeType            String
+  sizeBytes           BigInt
+  durationSeconds     Int?
+  width               Int?
+  height              Int?
+  hlsPrefix           String?
+  thumbnailKey        String?
+  processingStatus    VideoProcessingStatus @default(UPLOADING)
+  processingError     String?
+  processingStartedAt DateTime?
+  processedAt         DateTime?
+  attempts            Int                   @default(0)
+  uploadedById        String
+  uploadedBy          User                  @relation(fields: [uploadedById], references: [id])
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  recordedVideo       RecordedVideo?
+
+  @@index([processingStatus])
+  @@index([uploadedById])
+}
+
+/// A recorded lesson. Belongs to exactly one existing Course — recorded videos
+/// never duplicate the Course entity, they hang off it.
+model RecordedVideo {
+  id           String              @id @default(cuid())
+  courseId     String
+  course       Course              @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title        String
+  description  String?
+  videoAssetId String?             @unique
+  videoAsset   VideoAsset?         @relation(fields: [videoAssetId], references: [id], onDelete: SetNull)
+  position     Int
+  status       RecordedVideoStatus @default(DRAFT)
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  progress     LessonProgress[]
+
+  @@index([courseId, position])
+  @@index([status])
+}
+
+/// Server-owned watch progress. The client proposes a position; the server
+/// decides watched time, percentage and completion.
+model LessonProgress {
+  id                  String        @id @default(cuid())
+  userId              String
+  user                User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recordedVideoId     String
+  recordedVideo       RecordedVideo @relation(fields: [recordedVideoId], references: [id], onDelete: Cascade)
+  watchedSeconds      Int           @default(0)
+  lastPositionSeconds Int           @default(0)
+  progressPercent     Int           @default(0)
+  completed           Boolean       @default(false)
+  completedAt         DateTime?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  @@unique([userId, recordedVideoId])
+  @@index([recordedVideoId])
 }

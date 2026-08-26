@@ -1,3 +1,6 @@
 .next
 node_modules
 src/generated
+
+# private media storage: HLS segments are .ts (transport streams), not TypeScript
+storage/

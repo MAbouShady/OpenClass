@@ -51,3 +51,6 @@ next-env.d.ts
 AGENTS.md
 CLAUDE.md
 
+
+# private media storage (original videos + generated HLS)
+/storage/

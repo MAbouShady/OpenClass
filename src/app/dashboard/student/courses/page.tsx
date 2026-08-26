@@ -13,8 +13,12 @@ import { PrismaPaymentRepository } from "@/modules/payments/infrastructure/prism
 import { PaymentStatusChip } from "@/modules/payments/presentation/payment-status-chip";
 import { SubmitPaymentForm } from "@/modules/payments/presentation/submit-payment-form";
 import { enrollAction, submitPaymentAction } from "./actions";
+import Link from "next/link";
+import { BookOpen, PlayCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
+import { PageHeader } from "@/components/common/page-header";
 
 const courseRepository = new PrismaCourseRepository();
 const levelRepository = new PrismaLevelRepository();
@@ -59,10 +63,12 @@ export default async function StudentCoursesPage() {
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold">Browse courses</h1>
-        <p className="text-sm text-muted-foreground">Enroll in a semester to join a course.</p>
-      </div>
+      <PageHeader
+        icon={<BookOpen className="h-5 w-5" />}
+        title="Browse courses"
+        subtitle="Enroll in a semester to join a course."
+        tone="violet"
+      />
 
       {coursesWithSemesters.length === 0 ? (
         <p className="text-sm text-muted-foreground">No courses available yet.</p>
@@ -83,6 +89,16 @@ export default async function StudentCoursesPage() {
 
                 {course.description ? (
                   <p className="mb-4 text-sm text-muted-foreground">{course.description}</p>
+                ) : null}
+
+                {semesterRows.some((row) => row.enrollment) ? (
+                  <Link
+                    href="/student-portal"
+                    className={`${buttonVariants({ variant: "outline", size: "sm" })} mb-4 gap-1.5`}
+                  >
+                    <PlayCircle className="h-4 w-4" />
+                    Recorded lessons
+                  </Link>
                 ) : null}
 
                 {semesterRows.length === 0 ? (

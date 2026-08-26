@@ -48,6 +48,8 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "src/generated/**",
+    // Generated HLS segments are .ts files — MPEG transport streams, not TypeScript.
+    "storage/**",
   ]),
 ]);
 
