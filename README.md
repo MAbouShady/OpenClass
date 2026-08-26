@@ -24,15 +24,18 @@ Built with Next.js 15, Prisma, PostgreSQL, and next-intl (Arabic/English).
 ### Prerequisites
 
 - Node.js 20+
-- PostgreSQL database
-- `.env` file with `DATABASE_URL` and `NEXTAUTH_SECRET` (see `.env.example`)
-- **FFmpeg and FFprobe** on `PATH` (required only for recorded courses — see below)
+- PostgreSQL 12+ — the SECRETARY migration uses `ALTER TYPE ... ADD VALUE`
+- `.env` file (copy `.env.example`; every value is validated at build time)
+- **FFmpeg and FFprobe** on `PATH` (required only for recorded courses)
+
+Deploying to an existing installation? See [Deploying to a running
+system](#deploying-to-a-running-system).
 
 ### First-time setup
 
 ```bash
 cp .env.example .env
-# fill in DATABASE_URL and NEXTAUTH_SECRET in .env
+# fill in DATABASE_URL and AUTH_SECRET in .env
 
 bash scripts/setup.sh
 npm run dev
@@ -248,7 +251,8 @@ Each video produces an H.264/AAC HLS ladder (360p / 480p / 720p / 1080p, never u
 - [ ] `MEDIA_ROOT` points at persistent storage **outside** `public/`, writable by the app user
 - [ ] FFmpeg + FFprobe installed on nodes where `VIDEO_WORKER_ENABLED` is not `false`
 - [ ] `VIDEO_SECRET` set (falls back to `AUTH_SECRET`)
-- [ ] `npx prisma migrate deploy` run for the `add_recorded_videos` migration
+- [ ] `npx prisma migrate deploy` run — see [Deploying to a running
+      system](#deploying-to-a-running-system) for the full sequence
 - [ ] Reverse proxy allows request bodies of at least 16 MiB (the chunk size ceiling) and
       does not buffer `/api/video/*` responses
 - [ ] Web server does **not** serve `MEDIA_ROOT` directly
@@ -260,13 +264,132 @@ Each video produces an H.264/AAC HLS ladder (360p / 480p / 720p / 1080p, never u
 
 ---
 
+## Deploying to a running system
+
+### 1. Back up
+
+The SECRETARY migration alters the `Role` enum, which cannot be rolled back by
+a plain `DROP`.
+
+```bash
+pg_dump "$DATABASE_URL" -Fc -f ~/openclass-$(date +%F-%H%M).dump
+```
+
+### 2. Install FFmpeg
+
+Required on any node where `VIDEO_WORKER_ENABLED` is not `false`.
+
+```bash
+sudo apt-get update && sudo apt-get install -y ffmpeg   # Debian/Ubuntu
+brew install ffmpeg                                     # macOS
+ffmpeg -version && ffprobe -version
+```
+
+### 3. Add the new environment variables
+
+See `.env.example` for the full list with notes. At minimum, decide `MEDIA_ROOT`
+and set `VIDEO_SECRET`:
+
+```bash
+MEDIA_ROOT="/var/lib/openclass/media"
+VIDEO_SECRET="$(openssl rand -base64 32)"
+```
+
+```bash
+sudo mkdir -p /var/lib/openclass/media
+sudo chown -R "$(whoami)" /var/lib/openclass/media
+```
+
+`MEDIA_ROOT` must be **outside `public/`** and on storage that survives a
+redeploy — it holds both the original uploads and the generated HLS.
+
+### 4. Deploy
+
+```bash
+cd /path/to/OpenClass
+git pull origin main
+npm ci
+npx prisma generate
+npx prisma migrate status     # review what is pending before applying
+npx prisma migrate deploy
+npm run build
+pm2 restart openclass         # or: sudo systemctl restart openclass
+```
+
+> `npm run build` validates the environment (`src/shared/config/env.ts` parses
+> at import time), so a missing variable fails the **build**, not the boot. Set
+> them before building.
+
+### 5. Verify
+
+```bash
+npx prisma migrate status                                   # up to date
+curl -s -o /dev/null -w '%{http_code}\n' https://HOST/student-portal   # 200
+```
+
+Then sign in as a teacher → **Recorded courses** → upload a short clip and
+confirm it reaches **Ready**. Processing runs in the background; the request
+returns immediately.
+
+### If the database was set up with `prisma db push`
+
+`migrate deploy` expects a migration history. If `migrate status` reports every
+migration as pending against a database that already has the tables, baseline
+the pre-existing ones first, then apply only the new:
+
+```bash
+for m in $(ls prisma/migrations | grep -v migration_lock | grep -v '^202608'); do
+  npx prisma migrate resolve --applied "$m"
+done
+npx prisma migrate deploy
+```
+
+### Reverse proxy
+
+Uploads arrive in 16 MiB chunks and video is streamed, so buffering must be off
+for the streaming route:
+
+```nginx
+client_max_body_size 20m;
+
+location /api/video/ {
+    proxy_buffering off;
+    proxy_pass http://127.0.0.1:3000;
+}
+```
+
+Do **not** add a `location` block that serves `MEDIA_ROOT` directly — every byte
+is meant to go through the authorized route handler.
+
+### Rollback
+
+The migrations only add tables and columns, so reverting the code alone is safe
+and leaves the database harmlessly ahead:
+
+```bash
+git revert <commit> && npm ci && npm run build && pm2 restart openclass
+```
+
+Restore the dump only if you need the schema back as well.
+
+### Requirements
+
+- Node.js 20+
+- PostgreSQL **12 or newer** (`ALTER TYPE ... ADD VALUE` is used by the
+  SECRETARY migration)
+- FFmpeg + FFprobe on transcoding nodes
+- Persistent writable storage for `MEDIA_ROOT`
+
 ## Environment Variables
 
 | Variable | Description |
 |---|---|
 | `DATABASE_URL` | PostgreSQL connection string |
-| `NEXTAUTH_SECRET` | Secret for NextAuth session signing |
-| `NEXTAUTH_URL` | Base URL of the app (e.g. `http://localhost:3000`) |
+| `AUTH_SECRET` | Secret for NextAuth session signing (min 32 chars) |
+| `NEXT_PUBLIC_APP_URL` | Base URL of the app (e.g. `http://localhost:3000`) |
+| `QR_SECRET` | HMAC key for attendance QR tokens (min 32 chars) |
+| `NEXT_PUBLIC_VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT` | Web push credentials |
+| `REGISTRATION_ENABLED` | `"true"` to allow self-registration |
 | `MEDIA_ROOT` | Private media root for original videos and generated HLS. Must be outside `public/`. Default `./storage/media` |
 | `VIDEO_SECRET` | HMAC key for playback tokens. Defaults to `AUTH_SECRET` |
 | `FFMPEG_PATH` / `FFPROBE_PATH` | Binary paths. Default `ffmpeg` / `ffprobe` |
@@ -275,7 +398,9 @@ Each video produces an H.264/AAC HLS ladder (360p / 480p / 720p / 1080p, never u
 | `LESSON_COMPLETION_THRESHOLD` | Percentage that marks a lesson complete. Default 92 |
 | `VIDEO_WORKER_ENABLED` | Set to `false` on nodes that should not transcode |
 
-See `.env.example` for the full list.
+All values are parsed and validated by `src/shared/config/env.ts` at import
+time, so a missing or malformed one fails `npm run build` rather than surfacing
+at runtime. See `.env.example` for the annotated list.
 
 ---
 
