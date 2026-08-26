@@ -4,6 +4,8 @@ import { getTranslations } from "next-intl/server";
 import { Card, CardContent } from "@/components/ui/card";
 import { PrismaPaymentRepository } from "@/modules/payments/infrastructure/prisma-payment-repository";
 import { PaymentList } from "@/app/dashboard/teacher/payments/payment-list";
+import { PageHeader } from "@/components/common/page-header";
+import { CreditCard } from "lucide-react";
 
 const paymentRepository = new PrismaPaymentRepository();
 
@@ -18,10 +20,12 @@ export default async function PaymentsPage() {
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">{t("pageTitle")}</h1>
-        <p className="text-sm text-muted-foreground mt-1">{t("pageSubtitle")}</p>
-      </div>
+      <PageHeader
+        icon={<CreditCard className="h-5 w-5" />}
+        title={t("pageTitle")}
+        subtitle={t("pageSubtitle")}
+        tone="amber"
+      />
       <Card>
         <CardContent className="pt-6">
           <PaymentList enrollments={enrollments} />

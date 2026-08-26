@@ -7,6 +7,7 @@ import { AddParentLinkModal } from "@/modules/family/presentation/add-parent-lin
 import { createParentLinkAction, deleteParentLinkAction } from "./actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link2 } from "lucide-react";
+import { PageHeader } from "@/components/common/page-header";
 
 const parentLinkRepository = new PrismaParentLinkRepository();
 const userRepository = new PrismaUserRepository();
@@ -32,20 +33,14 @@ export default async function ParentLinksAdminPage() {
   );
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      {/* Page header */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
-            <Link2 className="h-5 w-5" />
-          </div>
-          <div>
-            <h1 className="text-xl font-semibold">{t("pageTitle")}</h1>
-            <p className="text-sm text-muted-foreground">{t("pageSubtitle")}</p>
-          </div>
-        </div>
-        <AddParentLinkModal createAction={createParentLinkAction} />
-      </div>
+    <div className="mx-auto max-w-4xl space-y-6">
+      <PageHeader
+        icon={<Link2 className="h-5 w-5" />}
+        title={t("pageTitle")}
+        subtitle={t("pageSubtitle")}
+        tone="emerald"
+        actions={<AddParentLinkModal createAction={createParentLinkAction} />}
+      />
 
       {/* Links list */}
       <Card>

@@ -4,7 +4,8 @@ import { getTranslations } from "next-intl/server";
 import { prisma } from "@/shared/infrastructure/prisma/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LinkButton } from "@/components/common/link-button";
-import { ScanLine } from "lucide-react";
+import { ScanLine, Shield } from "lucide-react";
+import { PageHeader } from "@/components/common/page-header";
 
 export default async function SecretaryDashboardPage() {
   const session = await auth();
@@ -36,13 +37,13 @@ export default async function SecretaryDashboardPage() {
   const fmt = new Intl.DateTimeFormat("ar-EG", { dateStyle: "medium", timeStyle: "short" });
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-xl font-semibold">{t("pageTitle")}</h1>
-        <p className="text-sm text-muted-foreground">
-          {t("teacherLabel")}: {teacherName}
-        </p>
-      </div>
+    <div className="mx-auto max-w-4xl space-y-6">
+      <PageHeader
+        icon={<Shield className="h-5 w-5" />}
+        title={t("pageTitle")}
+        subtitle={`${t("teacherLabel")}: ${teacherName}`}
+        tone="violet"
+      />
 
       {courses.length === 0 ? (
         <Card>

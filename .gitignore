@@ -54,3 +54,6 @@ CLAUDE.md
 
 # private media storage (original videos + generated HLS)
 /storage/
+
+# task/spec briefs, not for repo
+/video_task.md

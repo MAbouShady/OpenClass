@@ -6,6 +6,8 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PageHeader } from "@/components/common/page-header";
+import { ScanLine } from "lucide-react";
 
 type QrCard = { id: number; dataUrl: string };
 
@@ -69,12 +71,14 @@ export default function QrGeneratorPage() {
         }
       `}</style>
 
-      <div className="max-w-4xl mx-auto flex flex-col gap-6">
+      <div className="mx-auto flex max-w-5xl flex-col gap-6">
         <div className="no-print flex flex-col gap-4">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">{t("pageTitle")}</h1>
-            <p className="text-sm text-muted-foreground mt-1">{t("pageSubtitle")}</p>
-          </div>
+          <PageHeader
+            icon={<ScanLine className="h-5 w-5" />}
+            title={t("pageTitle")}
+            subtitle={t("pageSubtitle")}
+            tone="sky"
+          />
 
           <div className="flex flex-col gap-2 max-w-xs">
             <Label htmlFor="count">{t("countLabel")}</Label>

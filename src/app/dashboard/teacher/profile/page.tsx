@@ -7,6 +7,8 @@ import { updateProfileAction } from "@/app/dashboard/teacher/profile/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getTranslations } from "next-intl/server";
 import { ExternalLink } from "lucide-react";
+import { PageHeader } from "@/components/common/page-header";
+import { User } from "lucide-react";
 
 const userRepository = new PrismaUserRepository();
 
@@ -15,25 +17,28 @@ export default async function TeacherProfilePage() {
   const user = session ? await userRepository.findById(session.user.id) : null;
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-8 pb-16">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{t("pageTitle")}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{t("pageSubtitle")}</p>
-        </div>
-        {session && (
-          <a
-            href={`/t/${session.user.id}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-muted transition-colors"
-          >
-            <ExternalLink size={14} />
-            {t("previewLabel")}
-          </a>
-        )}
-      </div>
+    <div className="mx-auto flex max-w-4xl flex-col gap-8 pb-16">
+      <PageHeader
+        icon={<User className="h-5 w-5" />}
+        title={t("pageTitle")}
+        subtitle={t("pageSubtitle")}
+        tone="slate"
+        actions={
+          <>
+            {session && (
+              <a
+                href={`/t/${session.user.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-muted transition-colors"
+              >
+                <ExternalLink size={14} />
+                {t("previewLabel")}
+              </a>
+            )}
+          </>
+        }
+      />
 
       {/* Profile editor */}
       <Card>

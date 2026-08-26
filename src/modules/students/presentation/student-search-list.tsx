@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -12,113 +11,120 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { StudentCard } from "@/modules/students/presentation/student-card";
+import { DataShell, ResultCount, Toolbar } from "@/components/common/data-shell";
+import { EmptyState } from "@/components/common/empty-state";
+import { SearchInput } from "@/components/common/search-input";
+import { StudentTable } from "@/modules/students/presentation/student-table";
 import type { StudentWithCourses } from "@/modules/students/domain/student";
 import type { Level } from "@/modules/levels/domain/level";
 import type { CourseOption, ParentOption } from "@/modules/students/domain/student-repository";
 import type { ActionState } from "@/shared/domain/action-state";
 
+const PAGE_SIZE = 20;
+const ALL = "all";
+
 type Props = {
-  students: readonly StudentWithCourses[];
-  levels: readonly Level[];
-  parents: readonly ParentOption[];
-  courseOptions: readonly CourseOption[];
-  updateAction: (prevState: ActionState, formData: FormData) => Promise<ActionState>;
-  enrollAction: (prevState: ActionState, formData: FormData) => Promise<ActionState>;
-  deleteAction: (id: string) => Promise<ActionState>;
+  readonly students: readonly StudentWithCourses[];
+  readonly levels: readonly Level[];
+  readonly parents: readonly ParentOption[];
+  readonly courseOptions: readonly CourseOption[];
+  readonly updateAction: (prevState: ActionState, formData: FormData) => Promise<ActionState>;
+  readonly enrollAction: (prevState: ActionState, formData: FormData) => Promise<ActionState>;
+  readonly deleteAction: (id: string) => Promise<ActionState>;
 };
 
-export function StudentSearchList({
-  students,
-  levels,
-  parents,
-  courseOptions,
-  updateAction,
-  enrollAction,
-  deleteAction,
-}: Props) {
-  const PAGE_SIZE = 20;
+export function StudentSearchList({ students, levels, ...actions }: Props) {
   const t = useTranslations("students");
   const [query, setQuery] = useState("");
-  const [levelId, setLevelId] = useState("all");
+  const [levelId, setLevelId] = useState(ALL);
   const [page, setPage] = useState(1);
+  const [filterKey, setFilterKey] = useState(`${ALL}:`);
+
+  // Changing a filter resets paging during render, rather than from an effect
+  // that would render the wrong page first and then correct it.
+  const nextFilterKey = `${levelId}:${query}`;
+  if (filterKey !== nextFilterKey) {
+    setFilterKey(nextFilterKey);
+    setPage(1);
+  }
 
   const usedLevelIds = new Set(students.map((s) => s.levelId).filter(Boolean));
-  const usedLevels = levels.filter((l) => usedLevelIds.has(l.id));
+  const usedLevels = levels.filter((level) => usedLevelIds.has(level.id));
 
-  const filtered = students.filter((s) => {
-    if (levelId !== "all" && s.levelId !== levelId) return false;
-    if (!query.trim()) return true;
-    const q = query.toLowerCase();
-    return (
-      s.name.toLowerCase().includes(q) ||
-      (s.phone?.toLowerCase().includes(q) ?? false) ||
-      (s.idNumber != null && String(s.idNumber).includes(q))
-    );
-  });
+  const filtered = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    return students.filter((student) => {
+      if (levelId !== ALL && student.levelId !== levelId) return false;
+      if (!needle) return true;
+      return (
+        student.name.toLowerCase().includes(needle) ||
+        (student.phone?.toLowerCase().includes(needle) ?? false) ||
+        (student.idNumber !== null && String(student.idNumber).includes(needle))
+      );
+    });
+  }, [students, query, levelId]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
   const paginated = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
-  useEffect(() => { setPage(1); }, [query, levelId]);
-
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex gap-2">
-        <div className="relative flex-1">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder={t("searchPlaceholder")}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="pl-8"
-          />
-        </div>
+      <Toolbar>
+        <SearchInput value={query} onChange={setQuery} placeholder={t("searchPlaceholder")} />
         {usedLevels.length > 0 && (
           <Select value={levelId} onValueChange={setLevelId}>
-            <SelectTrigger className="w-40 shrink-0">
+            <SelectTrigger className="h-9 sm:w-44">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t("allLevels")}</SelectItem>
-              {usedLevels.map((l) => (
-                <SelectItem key={l.id} value={l.id}>
-                  {l.name}
+              <SelectItem value={ALL}>{t("allLevels")}</SelectItem>
+              {usedLevels.map((level) => (
+                <SelectItem key={level.id} value={level.id}>
+                  {level.name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         )}
-      </div>
+      </Toolbar>
+
+      <ResultCount shown={filtered.length} total={students.length} label={t("pageTitle")} />
 
       {filtered.length === 0 ? (
-        <p className="py-4 text-sm text-muted-foreground text-center">
-          {query || levelId !== "all" ? t("noSearchResults") : t("noStudents")}
-        </p>
+        <EmptyState
+          icon={<Users className="h-5 w-5" />}
+          title={query || levelId !== ALL ? t("noSearchResults") : t("noStudents")}
+        />
       ) : (
         <>
-          {paginated.map((student) => (
-            <StudentCard
-              key={student.id}
-              student={student}
-              levels={levels}
-              parents={parents}
-              courseOptions={courseOptions}
-              updateAction={updateAction}
-              enrollAction={enrollAction}
-              deleteAction={deleteAction}
-            />
-          ))}
+          <DataShell>
+            <StudentTable students={paginated} levels={levels} {...actions} />
+          </DataShell>
+
           {totalPages > 1 && (
-            <div className="flex items-center justify-between pt-2 text-sm text-muted-foreground">
-              <span>{safePage} / {totalPages}</span>
+            <div className="flex items-center justify-between pt-1 text-sm text-muted-foreground">
+              <span className="tabular-nums">
+                {safePage} / {totalPages}
+              </span>
               <div className="flex gap-1">
-                <Button variant="outline" size="sm" disabled={safePage <= 1} onClick={() => setPage((p) => p - 1)}>
-                  <ChevronLeft size={14} />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={safePage <= 1}
+                  onClick={() => setPage((current) => current - 1)}
+                  aria-label="Previous page"
+                >
+                  <ChevronLeft className="h-3.5 w-3.5 rtl:rotate-180" />
                 </Button>
-                <Button variant="outline" size="sm" disabled={safePage >= totalPages} onClick={() => setPage((p) => p + 1)}>
-                  <ChevronRight size={14} />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={safePage >= totalPages}
+                  onClick={() => setPage((current) => current + 1)}
+                  aria-label="Next page"
+                >
+                  <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" />
                 </Button>
               </div>
             </div>

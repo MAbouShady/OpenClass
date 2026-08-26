@@ -19,7 +19,11 @@ type ConfirmDeleteDialogProps = {
   readonly description: string;
   readonly onConfirm: () => void | Promise<void>;
   readonly confirmLabel?: string;
-  readonly children: React.ReactNode;
+  /** Trigger element. Omit when driving the dialog with `open`/`onOpenChange`. */
+  readonly children?: React.ReactNode;
+  /** Controlled mode, for opening from a dropdown item that unmounts its own trigger. */
+  readonly open?: boolean;
+  readonly onOpenChange?: (open: boolean) => void;
 };
 
 export function ConfirmDeleteDialog({
@@ -28,10 +32,19 @@ export function ConfirmDeleteDialog({
   onConfirm,
   confirmLabel,
   children,
+  open: controlledOpen,
+  onOpenChange,
 }: ConfirmDeleteDialogProps) {
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const t = useTranslations("common");
+
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : uncontrolledOpen;
+  const setOpen = (next: boolean) => {
+    if (!isControlled) setUncontrolledOpen(next);
+    onOpenChange?.(next);
+  };
 
   async function handleConfirm() {
     setPending(true);
@@ -45,7 +58,7 @@ export function ConfirmDeleteDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      {children ? <DialogTrigger asChild>{children}</DialogTrigger> : null}
       <DialogContent className="max-w-sm">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>

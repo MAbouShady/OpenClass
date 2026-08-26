@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/common/page-header";
 import { getTranslations } from "next-intl/server";
 import { listLevels } from "@/modules/levels/application/list-levels";
 import { PrismaLevelRepository } from "@/modules/levels/infrastructure/prisma-level-repository";
@@ -45,20 +46,15 @@ export default async function LevelsAdminPage() {
   const tree = buildTree(levels);
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="mx-auto max-w-4xl space-y-6">
       {/* Page header */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-600">
-            <Layers className="h-5 w-5" />
-          </div>
-          <div>
-            <h1 className="text-xl font-semibold">{t("pageTitle")}</h1>
-            <p className="text-sm text-muted-foreground">{t("pageSubtitle")}</p>
-          </div>
-        </div>
-        <AddLevelModal createAction={createLevelAction} />
-      </div>
+      <PageHeader
+        icon={<Layers className="h-5 w-5" />}
+        title={t("pageTitle")}
+        subtitle={t("pageSubtitle")}
+        tone="indigo"
+        actions={<AddLevelModal createAction={createLevelAction} />}
+      />
 
       {/* Stepper — root items only */}
       {tree.length > 0 && (

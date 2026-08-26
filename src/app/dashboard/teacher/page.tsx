@@ -9,22 +9,14 @@ import { normalizeToMonthStart } from "@/modules/payments/domain/month";
 import { PrismaPaymentRepository } from "@/modules/payments/infrastructure/prisma-payment-repository";
 import { LinkButton } from "@/components/common/link-button";
 import { Card, CardContent } from "@/components/ui/card";
+import { PageHeader } from "@/components/common/page-header";
+import { StatCard } from "@/components/common/stat-card";
+import { BookOpen, CreditCard, LayoutDashboard, Users } from "lucide-react";
 
 const courseRepository = new PrismaCourseRepository();
 const semesterRepository = new PrismaSemesterRepository();
 const enrollmentRepository = new PrismaEnrollmentRepository();
 const paymentRepository = new PrismaPaymentRepository();
-
-function StatCard({ label, value }: { readonly label: string; readonly value: number }) {
-  return (
-    <Card>
-      <CardContent className="p-6">
-        <p className="text-3xl font-bold">{value}</p>
-        <p className="text-sm text-muted-foreground mt-1">{label}</p>
-      </CardContent>
-    </Card>
-  );
-}
 
 export default async function TeacherDashboardPage() {
   const session = await auth();
@@ -54,21 +46,37 @@ export default async function TeacherDashboardPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold">{t("teacherTitle")}</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">
-          {t("signedInAs", { email: session?.user.email ?? "" })}
-        </p>
+    <div className="mx-auto flex max-w-6xl flex-col gap-6">
+      <PageHeader
+        icon={<LayoutDashboard className="h-5 w-5" />}
+        title={t("teacherTitle")}
+        subtitle={t("signedInAs", { email: session?.user.email ?? "" })}
+        tone="violet"
+      />
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <StatCard
+          label={t("statCourses")}
+          value={courses.length}
+          icon={<BookOpen className="h-5 w-5" />}
+          tone="violet"
+        />
+        <StatCard
+          label={t("statStudents")}
+          value={studentIds.size}
+          icon={<Users className="h-5 w-5" />}
+          tone="emerald"
+        />
+        <StatCard
+          label={t("statPendingPayments")}
+          value={pendingPayments}
+          icon={<CreditCard className="h-5 w-5" />}
+          tone="amber"
+          emphasis
+        />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard label={t("statCourses")} value={courses.length} />
-        <StatCard label={t("statStudents")} value={studentIds.size} />
-        <StatCard label={t("statPendingPayments")} value={pendingPayments} />
-      </div>
-
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3">
         <LinkButton href="/dashboard/teacher/courses" variant="outline">
           {t("manageCourses")}
         </LinkButton>

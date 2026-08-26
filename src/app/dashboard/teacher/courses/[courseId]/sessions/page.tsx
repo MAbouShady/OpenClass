@@ -15,6 +15,7 @@ import { createSessionAction, deleteSessionAction, bulkCreateSessionsAction } fr
 import { Clock } from "lucide-react";
 import type { ClassSession } from "@/modules/scheduling/domain/class-session";
 import type { Semester } from "@/modules/semesters/domain/semester";
+import { PageHeader } from "@/components/common/page-header";
 
 const classSessionRepository = new PrismaClassSessionRepository();
 const courseRepository = new PrismaCourseRepository();
@@ -85,37 +86,31 @@ export default async function CourseSessionsPage({ params }: PageProps) {
   const { groups, ungrouped } = groupBySemester(sessions, semesters);
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      {/* Page header */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600">
-            <Clock className="h-5 w-5" />
-          </div>
-          <div>
-            <h1 className="text-xl font-semibold">
-              {t("pageTitle")} — {course.title}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {semesters.length === 0
-                ? "Create a semester first to add sessions."
-                : "Schedule class meeting times for this course."}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <BulkAddSessionsModal
-            courseId={courseId}
-            semesters={serializedSemesters}
-            bulkCreateAction={bulkCreateSessionsAction}
-          />
-          <AddSessionModal
-            createAction={createSessionAction}
-            courseId={courseId}
-            semesters={serializedSemesters}
-          />
-        </div>
-      </div>
+    <div className="mx-auto max-w-5xl space-y-6">
+      <PageHeader
+        icon={<Clock className="h-5 w-5" />}
+        title={`${t("pageTitle")} — ${course.title}`}
+        subtitle={
+          semesters.length === 0
+            ? "Create a semester first to add sessions."
+            : "Schedule class meeting times for this course."
+        }
+        tone="amber"
+        actions={
+          <>
+            <BulkAddSessionsModal
+              courseId={courseId}
+              semesters={serializedSemesters}
+              bulkCreateAction={bulkCreateSessionsAction}
+            />
+            <AddSessionModal
+              createAction={createSessionAction}
+              courseId={courseId}
+              semesters={serializedSemesters}
+            />
+          </>
+        }
+      />
 
       {sessions.length === 0 ? (
         <Card>
@@ -130,7 +125,9 @@ export default async function CourseSessionsPage({ params }: PageProps) {
             <Card key={semester.id}>
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                  <span>{fmtDate(semester.startDate)} — {fmtDate(semester.endDate)}</span>
+                  <span>
+                    {fmtDate(semester.startDate)} — {fmtDate(semester.endDate)}
+                  </span>
                   <Badge variant="secondary" className="text-xs font-normal">
                     {semSessions.length} session{semSessions.length !== 1 ? "s" : ""}
                   </Badge>

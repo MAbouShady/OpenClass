@@ -12,6 +12,8 @@ import { PrismaAttendanceRepository } from "@/modules/attendance/infrastructure/
 import { PrismaPaymentRepository } from "@/modules/payments/infrastructure/prisma-payment-repository";
 import { CourseSummaryList } from "@/modules/roster/presentation/course-summary-list";
 import { Card, CardContent } from "@/components/ui/card";
+import { PageHeader } from "@/components/common/page-header";
+import { Users } from "lucide-react";
 
 const parentLinkRepository = new PrismaParentLinkRepository();
 const userRepository = new PrismaUserRepository();
@@ -49,10 +51,12 @@ export default async function ParentDashboardPage() {
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold">{t("parentTitle")}</h1>
-        <p className="text-sm text-muted-foreground">{t("parentTagline")}</p>
-      </div>
+      <PageHeader
+        icon={<Users className="h-5 w-5" />}
+        title={t("parentTitle")}
+        subtitle={t("parentTagline")}
+        tone="emerald"
+      />
 
       {children.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t("noChildrenLinked")}</p>

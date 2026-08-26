@@ -7,6 +7,8 @@ import { PrismaCourseRepository } from "@/modules/courses/infrastructure/prisma-
 import { generateQrToken } from "@/modules/qr/domain/qr-token";
 import { QrCodeImage } from "@/modules/qr/presentation/qr-code-image";
 import { Card, CardContent } from "@/components/ui/card";
+import { PageHeader } from "@/components/common/page-header";
+import { QrCode } from "lucide-react";
 
 const enrollmentRepository = new PrismaEnrollmentRepository();
 const semesterRepository = new PrismaSemesterRepository();
@@ -36,12 +38,12 @@ export default async function StudentQrCodesPage() {
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold">My QR codes</h1>
-        <p className="text-sm text-muted-foreground">
-          Show this code to your teacher to check in and out of offline sessions.
-        </p>
-      </div>
+      <PageHeader
+        icon={<QrCode className="h-5 w-5" />}
+        title="My QR codes"
+        subtitle="Show this code to your teacher to check in and out of offline sessions."
+        tone="sky"
+      />
 
       {cards.length === 0 ? (
         <p className="text-sm text-muted-foreground">Enroll in a course to get your QR code.</p>

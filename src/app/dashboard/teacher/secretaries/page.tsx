@@ -7,6 +7,7 @@ import { Shield } from "lucide-react";
 import { SecretaryRow } from "./secretary-row";
 import { AddSecretaryForm } from "./add-secretary-form";
 import { createSecretaryAction, deleteSecretaryAction } from "./actions";
+import { PageHeader } from "@/components/common/page-header";
 
 const userRepository = new PrismaUserRepository();
 
@@ -21,16 +22,13 @@ export default async function TeacherSecretariesPage() {
   ]);
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10 text-violet-600">
-          <Shield className="h-5 w-5" />
-        </div>
-        <div>
-          <h1 className="text-xl font-semibold">{t("pageTitle")}</h1>
-          <p className="text-sm text-muted-foreground">{t("pageSubtitle")}</p>
-        </div>
-      </div>
+    <div className="mx-auto max-w-4xl space-y-6">
+      <PageHeader
+        icon={<Shield className="h-5 w-5" />}
+        title={t("pageTitle")}
+        subtitle={t("pageSubtitle")}
+        tone="violet"
+      />
 
       <Card>
         <CardHeader>

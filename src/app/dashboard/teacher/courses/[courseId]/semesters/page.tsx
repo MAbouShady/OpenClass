@@ -9,6 +9,7 @@ import { PrismaCourseRepository } from "@/modules/courses/infrastructure/prisma-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createSemesterAction, deleteSemesterAction } from "./actions";
 import { CalendarDays } from "lucide-react";
+import { PageHeader } from "@/components/common/page-header";
 
 const semesterRepository = new PrismaSemesterRepository();
 const courseRepository = new PrismaCourseRepository();
@@ -29,24 +30,14 @@ export default async function CourseSemestersPage({ params }: PageProps) {
   const boundDelete = deleteSemesterAction.bind(null, courseId);
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      {/* Page header */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-500/10 text-sky-600">
-            <CalendarDays className="h-5 w-5" />
-          </div>
-          <div>
-            <h1 className="text-xl font-semibold">
-              {t("pageTitle")} — {course.title}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Create enrollment periods students can book into.
-            </p>
-          </div>
-        </div>
-        <AddSemesterModal createAction={createSemesterAction} courseId={courseId} />
-      </div>
+    <div className="mx-auto max-w-4xl space-y-6">
+      <PageHeader
+        icon={<CalendarDays className="h-5 w-5" />}
+        title={`${t("pageTitle")} — ${course.title}`}
+        subtitle="Create enrollment periods students can book into."
+        tone="sky"
+        actions={<AddSemesterModal createAction={createSemesterAction} courseId={courseId} />}
+      />
 
       {/* Semesters list */}
       <Card>

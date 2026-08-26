@@ -5,7 +5,8 @@ import { listLevels } from "@/modules/levels/application/list-levels";
 import { PrismaLevelRepository } from "@/modules/levels/infrastructure/prisma-level-repository";
 import { AddStudentModal } from "@/modules/students/presentation/add-student-modal";
 import { StudentSearchList } from "@/modules/students/presentation/student-search-list";
-import { Card, CardContent } from "@/components/ui/card";
+import { Users } from "lucide-react";
+import { PageHeader } from "@/components/common/page-header";
 import { getTranslations } from "next-intl/server";
 import {
   createStudentAction,
@@ -43,40 +44,38 @@ export default async function TeacherStudentsPage() {
 
   const courseOptions = courses.map((c) => {
     const semesters = semestersByCourse.get(c.id) ?? [];
-    const latest = semesters.slice().sort(
-      (a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime(),
-    )[0];
+    const latest = semesters
+      .slice()
+      .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())[0];
     return { id: c.id, title: c.title, latestSemesterId: latest?.id ?? null };
   });
 
   return (
-    <div className="max-w-4xl mx-auto flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold">{t("pageTitle")}</h1>
-          <p className="text-sm text-muted-foreground">{t("pageSubtitle")}</p>
-        </div>
-        <AddStudentModal
-          createAction={createStudentAction}
-          levels={levels}
-          parents={parents}
-          courseOptions={courseOptions}
-        />
-      </div>
-
-      <Card>
-        <CardContent className="px-6 py-4">
-          <StudentSearchList
-            students={students}
+    <div className="mx-auto flex max-w-6xl flex-col gap-6">
+      <PageHeader
+        icon={<Users className="h-5 w-5" />}
+        title={t("pageTitle")}
+        subtitle={t("pageSubtitle")}
+        tone="emerald"
+        actions={
+          <AddStudentModal
+            createAction={createStudentAction}
             levels={levels}
             parents={parents}
             courseOptions={courseOptions}
-            updateAction={updateStudentAction}
-            enrollAction={enrollStudentAction}
-            deleteAction={deleteStudentAction}
           />
-        </CardContent>
-      </Card>
+        }
+      />
+
+      <StudentSearchList
+        students={students}
+        levels={levels}
+        parents={parents}
+        courseOptions={courseOptions}
+        updateAction={updateStudentAction}
+        enrollAction={enrollStudentAction}
+        deleteAction={deleteStudentAction}
+      />
     </div>
   );
 }

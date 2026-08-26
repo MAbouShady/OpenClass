@@ -21,6 +21,11 @@ import { getTranslations } from "next-intl/server";
 import type { StudentRow } from "@/modules/roster/domain/student-row";
 import { markCashPaymentAction } from "@/app/dashboard/teacher/courses/[courseId]/payments/actions";
 import { unenrollStudentAction } from "@/app/dashboard/teacher/students/actions";
+import { PageHeader } from "@/components/common/page-header";
+import { ClipboardList } from "lucide-react";
+import { DataShell } from "@/components/common/data-shell";
+import { EmptyState } from "@/components/common/empty-state";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const studentRepository = new PrismaStudentRepository();
 const courseRepository = new PrismaCourseRepository();
@@ -41,10 +46,11 @@ export default async function TeacherRosterPage({ searchParams }: PageProps) {
   const teacherId = session?.user.id ?? "";
   const currentMonth = normalizeToMonthStart(new Date());
 
-  const [students, courses, t] = await Promise.all([
+  const [students, courses, t, tRoster] = await Promise.all([
     listStudentsForTeacher({ studentRepository }, teacherId),
     listCoursesForTeacher({ courseRepository }, teacherId),
     getTranslations("students"),
+    getTranslations("roster"),
   ]);
 
   const allSemesters = await Promise.all(
@@ -125,14 +131,19 @@ export default async function TeacherRosterPage({ searchParams }: PageProps) {
 
   const rosterTotalPages = Math.max(1, Math.ceil(filteredRows.length / ROSTER_PAGE_SIZE));
   const safePage = Math.min(rosterPage, rosterTotalPages);
-  const paginatedRows = filteredRows.slice((safePage - 1) * ROSTER_PAGE_SIZE, safePage * ROSTER_PAGE_SIZE);
+  const paginatedRows = filteredRows.slice(
+    (safePage - 1) * ROSTER_PAGE_SIZE,
+    safePage * ROSTER_PAGE_SIZE,
+  );
 
   const filterCourseOptions = courses.map((c) => ({ value: c.id, label: c.title }));
   const semesterLabelById = new Map(
-    allSemesters.flat().map((s) => [
-      s.id,
-      `${s.startDate.toLocaleDateString(undefined, { month: "short", year: "numeric" })} — ${s.endDate.toLocaleDateString(undefined, { month: "short", year: "numeric" })}`,
-    ]),
+    allSemesters
+      .flat()
+      .map((s) => [
+        s.id,
+        `${s.startDate.toLocaleDateString(undefined, { month: "short", year: "numeric" })} — ${s.endDate.toLocaleDateString(undefined, { month: "short", year: "numeric" })}`,
+      ]),
   );
   const semesterOptions = Array.from(new Set(rows.map((r) => r.semesterId))).map((id) => ({
     value: id,
@@ -141,42 +152,57 @@ export default async function TeacherRosterPage({ searchParams }: PageProps) {
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold">{t("rosterTitle")}</h1>
-        <p className="text-sm text-muted-foreground">{t("rosterSubtitle")}</p>
-      </div>
+      <PageHeader
+        icon={<ClipboardList className="h-5 w-5" />}
+        title={t("rosterTitle")}
+        subtitle={t("rosterSubtitle")}
+        tone="emerald"
+      />
 
       <RosterFilterBar courseOptions={filterCourseOptions} semesterOptions={semesterOptions} />
 
-      <Card>
-        <CardContent className="p-6">
-          {filteredRows.length === 0 ? (
-            <p className="text-sm text-muted-foreground">{t("noFilterResults")}</p>
-          ) : (
-            <div className="flex flex-col gap-0">
-              {paginatedRows.map((row) => (
-                <RosterRow
-                  key={row.enrollmentId}
-                  row={row}
-                  markCashAction={markCashPaymentAction.bind(
-                    null,
-                    row.courseId,
-                    row.enrollmentId,
-                    currentMonth.toISOString(),
-                  )}
-                  unenrollAction={unenrollStudentAction}
-                />
-              ))}
-              <RosterPagination
-                page={safePage}
-                totalPages={rosterTotalPages}
-                total={filteredRows.length}
-                searchParams={params}
-              />
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {filteredRows.length === 0 ? (
+        <EmptyState icon={<ClipboardList className="h-5 w-5" />} title={t("noFilterResults")} />
+      ) : (
+        <>
+          <DataShell>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{tRoster("colStudent")}</TableHead>
+                  <TableHead>{tRoster("colCourse")}</TableHead>
+                  <TableHead>{tRoster("colType")}</TableHead>
+                  <TableHead>{tRoster("colAttendance")}</TableHead>
+                  <TableHead>{tRoster("colPayment")}</TableHead>
+                  <TableHead className="text-end">{tRoster("colActions")}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {paginatedRows.map((row) => (
+                  <RosterRow
+                    key={row.enrollmentId}
+                    row={row}
+                    markCashAction={markCashPaymentAction.bind(
+                      null,
+                      row.courseId,
+                      row.enrollmentId,
+                      currentMonth.toISOString(),
+                    )}
+                    unenrollAction={unenrollStudentAction}
+                  />
+                ))}
+              </TableBody>
+            </Table>
+          </DataShell>
+
+          <RosterPagination
+            page={safePage}
+            totalPages={rosterTotalPages}
+            total={filteredRows.length}
+            searchParams={params}
+          />
+        </>
+      )}
     </div>
   );
 }
