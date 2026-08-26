@@ -10,7 +10,10 @@ import type { Student, StudentWithCourses } from "@/modules/students/domain/stud
 async function generateUniqueIdNumber(): Promise<number> {
   for (let i = 0; i < 20; i++) {
     const candidate = 100000 + Math.floor(Math.random() * 900000);
-    const exists = await prisma.user.findFirst({ where: { idNumber: candidate }, select: { id: true } });
+    const exists = await prisma.user.findFirst({
+      where: { idNumber: candidate },
+      select: { id: true },
+    });
     if (!exists) return candidate;
   }
   throw new Error("Could not generate a unique student ID after 20 attempts.");
@@ -174,7 +177,10 @@ export class PrismaStudentRepository implements StudentRepository {
   }
 
   async assignIdNumberIfMissing(studentId: string): Promise<number> {
-    const row = await prisma.user.findUnique({ where: { id: studentId }, select: { idNumber: true } });
+    const row = await prisma.user.findUnique({
+      where: { id: studentId },
+      select: { idNumber: true },
+    });
     if (row?.idNumber !== null && row?.idNumber !== undefined) return row.idNumber;
     const nextId = await generateUniqueIdNumber();
     await prisma.user.update({ where: { id: studentId }, data: { idNumber: nextId } as never });
@@ -273,7 +279,10 @@ export class PrismaStudentRepository implements StudentRepository {
   }
 
   async delete(id: string): Promise<void> {
-    const teacherCourses = await prisma.course.findMany({ where: { teacherId: id }, select: { title: true } });
+    const teacherCourses = await prisma.course.findMany({
+      where: { teacherId: id },
+      select: { title: true },
+    });
     if (teacherCourses.length > 0) {
       const titles = teacherCourses.map((c) => c.title).join("، ");
       throw new Error(`لا يمكن حذفه — لا زال مدرّسًا في: ${titles}`);

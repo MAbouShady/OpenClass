@@ -50,9 +50,7 @@ export function ProfileForm({ action, defaultValues }: ProfileFormProps) {
   const [accentColor, setAccentColor] = useState(defaultValues.accentColor ?? "#6366f1");
   const [bioHtml, setBioHtml] = useState(defaultValues.bio ?? "");
   const [paymentDetailsHtml, setPaymentDetailsHtml] = useState(defaultValues.paymentDetails ?? "");
-  const [locale, setLocale] = useState<"en" | "ar">(
-    defaultValues.locale === "ar" ? "ar" : "en",
-  );
+  const [locale, setLocale] = useState<"en" | "ar">(defaultValues.locale === "ar" ? "ar" : "en");
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -90,7 +88,10 @@ export function ProfileForm({ action, defaultValues }: ProfileFormProps) {
           offsetY={coverOffsetY}
           onUpload={setCoverUrl}
           onPositionChange={setCoverOffsetY}
-          onDelete={() => { setCoverUrl(""); setCoverOffsetY(50); }}
+          onDelete={() => {
+            setCoverUrl("");
+            setCoverOffsetY(50);
+          }}
           label={t("coverPhotoLabel")}
           hint={t("coverPhotoHint")}
           className="w-full"
@@ -153,7 +154,10 @@ export function ProfileForm({ action, defaultValues }: ProfileFormProps) {
               title={color}
             />
           ))}
-          <label className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-2 border-dashed border-border hover:border-primary transition-colors" title="Custom color">
+          <label
+            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-2 border-dashed border-border hover:border-primary transition-colors"
+            title="Custom color"
+          >
             <span className="text-[10px] font-bold text-muted-foreground">+</span>
             <input
               type="color"
@@ -188,9 +192,7 @@ export function ProfileForm({ action, defaultValues }: ProfileFormProps) {
               <span dir={lang === "ar" ? "rtl" : "ltr"}>
                 {lang === "en" ? "English" : "العربية"}
               </span>
-              {lang === "ar" && (
-                <span className="text-[10px] text-muted-foreground">(RTL)</span>
-              )}
+              {lang === "ar" && <span className="text-[10px] text-muted-foreground">(RTL)</span>}
             </button>
           ))}
         </div>

@@ -29,11 +29,16 @@ export function RegisterForm({ action }: RegisterFormProps) {
       </div>
       <div className="space-y-2">
         <Label htmlFor="password">{t("password")}</Label>
-        <Input id="password" name="password" type="password" required minLength={8} autoComplete="new-password" />
+        <Input
+          id="password"
+          name="password"
+          type="password"
+          required
+          minLength={8}
+          autoComplete="new-password"
+        />
       </div>
-      {state.error ? (
-        <p className="text-sm text-destructive">{state.error}</p>
-      ) : null}
+      {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
       <Button type="submit" size="lg" disabled={pending} className="w-full">
         {pending ? tAuth("creatingAccount") : tAuth("createAccountButton")}
       </Button>

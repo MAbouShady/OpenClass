@@ -3,11 +3,7 @@
 import { useState } from "react";
 import { Bell, BellOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { saveSubscriptionAction } from "@/app/dashboard/actions";
 
 function urlBase64ToUint8Array(base64Url: string): ArrayBuffer {
@@ -52,18 +48,11 @@ export function NotificationOptInButton() {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={handleClick}
-          disabled={pending || enabled}
-        >
+        <Button size="icon" variant="ghost" onClick={handleClick} disabled={pending || enabled}>
           {enabled ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
         </Button>
       </TooltipTrigger>
-      <TooltipContent>
-        {enabled ? "Notifications enabled" : "Enable notifications"}
-      </TooltipContent>
+      <TooltipContent>{enabled ? "Notifications enabled" : "Enable notifications"}</TooltipContent>
     </Tooltip>
   );
 }

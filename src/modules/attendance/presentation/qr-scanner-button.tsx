@@ -29,9 +29,7 @@ export function QrScannerButton({ onScan, label }: Props) {
 
     BrowserMultiFormatReader.listVideoInputDevices()
       .then((devices) => {
-        const backCamera = devices.find((d) =>
-          /back|rear|environment/i.test(d.label),
-        );
+        const backCamera = devices.find((d) => /back|rear|environment/i.test(d.label));
         const deviceId = backCamera?.deviceId ?? devices[0]?.deviceId;
 
         if (!deviceId && devices.length === 0) {
@@ -39,18 +37,14 @@ export function QrScannerButton({ onScan, label }: Props) {
           return;
         }
 
-        return reader.decodeFromVideoDevice(
-          deviceId,
-          videoRef.current!,
-          (result, err) => {
-            if (result) {
-              onScan(result.getText());
-              setOpen(false);
-            } else if (err && !(err.message?.includes("No MultiFormat"))) {
-              // ignore continuous "not found" errors
-            }
-          },
-        );
+        return reader.decodeFromVideoDevice(deviceId, videoRef.current!, (result, err) => {
+          if (result) {
+            onScan(result.getText());
+            setOpen(false);
+          } else if (err && !err.message?.includes("No MultiFormat")) {
+            // ignore continuous "not found" errors
+          }
+        });
       })
       .then((controls) => {
         if (controls) controlsRef.current = controls;
@@ -87,12 +81,7 @@ export function QrScannerButton({ onScan, label }: Props) {
             <p className="text-sm text-destructive text-center py-6">{error}</p>
           ) : (
             <div className="relative overflow-hidden rounded-xl bg-black aspect-square">
-              <video
-                ref={videoRef}
-                className="w-full h-full object-cover"
-                muted
-                playsInline
-              />
+              <video ref={videoRef} className="w-full h-full object-cover" muted playsInline />
               {/* Scanning overlay */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div className="w-48 h-48 border-2 border-white/70 rounded-xl relative">

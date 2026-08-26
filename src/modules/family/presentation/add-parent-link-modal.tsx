@@ -4,12 +4,7 @@ import { useState, useTransition, useRef } from "react";
 import { useTranslations } from "next-intl";
 
 import { Plus } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -62,23 +57,12 @@ export function AddParentLinkModal({ createAction }: AddParentLinkModalProps) {
           <form ref={formRef} action={handleAction} className="flex flex-col gap-4 pt-1">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="modal-parent-email">{t("parentEmailLabel")}</Label>
-              <Input
-                id="modal-parent-email"
-                name="parentEmail"
-                type="email"
-                required
-                autoFocus
-              />
+              <Input id="modal-parent-email" name="parentEmail" type="email" required autoFocus />
             </div>
 
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="modal-student-email">{t("studentEmailLabel")}</Label>
-              <Input
-                id="modal-student-email"
-                name="studentEmail"
-                type="email"
-                required
-              />
+              <Input id="modal-student-email" name="studentEmail" type="email" required />
             </div>
 
             {error ? (

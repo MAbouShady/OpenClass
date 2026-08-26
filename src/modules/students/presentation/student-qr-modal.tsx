@@ -3,12 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { QrCode, Download } from "lucide-react";
 import { useTranslations } from "next-intl";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
 type StudentQrModalProps = {
@@ -20,9 +15,7 @@ const QR_SIZE = 256;
 const PADDING = 16;
 const ID_HEIGHT = 44;
 
-async function buildCard(
-  idNumber: number,
-): Promise<{ dataUrl: string; canvasDataUrl: string }> {
+async function buildCard(idNumber: number): Promise<{ dataUrl: string; canvasDataUrl: string }> {
   const QRCode = (await import("qrcode")).default;
   const dataUrl = await QRCode.toDataURL(String(idNumber), { width: QR_SIZE, margin: 2 });
 
@@ -45,11 +38,7 @@ async function buildCard(
   ctx.font = "bold 22px monospace";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText(
-    `#${idNumber}`,
-    canvas.width / 2,
-    PADDING + QR_SIZE + PADDING + ID_HEIGHT / 2,
-  );
+  ctx.fillText(`#${idNumber}`, canvas.width / 2, PADDING + QR_SIZE + PADDING + ID_HEIGHT / 2);
 
   return { dataUrl, canvasDataUrl: canvas.toDataURL("image/png") };
 }
@@ -97,7 +86,9 @@ export function StudentQrModal({ studentName, idNumber }: StudentQrModalProps) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>{t("qrTitle")} — {studentName}</DialogTitle>
+            <DialogTitle>
+              {t("qrTitle")} — {studentName}
+            </DialogTitle>
           </DialogHeader>
 
           {card === null ? (

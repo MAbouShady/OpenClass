@@ -22,6 +22,12 @@ export async function createLevel(
     return err(new LevelNameTakenError(name));
   }
 
-  const level = await deps.levelRepository.create({ name, order, description, parentLevelId, teacherId });
+  const level = await deps.levelRepository.create({
+    name,
+    order,
+    description,
+    parentLevelId,
+    teacherId,
+  });
   return ok(level);
 }

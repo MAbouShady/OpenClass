@@ -3,12 +3,7 @@
 import { useActionState, useState } from "react";
 import { BookPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -79,7 +74,9 @@ export function EnrollStudentModal({
       <Dialog open={open} onOpenChange={handleOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>{t("enrollTitle")} — {studentName}</DialogTitle>
+            <DialogTitle>
+              {t("enrollTitle")} — {studentName}
+            </DialogTitle>
           </DialogHeader>
 
           {state.message ? (
@@ -95,7 +92,9 @@ export function EnrollStudentModal({
             <div className="flex flex-col gap-3">
               <p className="text-sm text-muted-foreground">{t("noCoursesToEnroll")}</p>
               <div className="flex justify-end">
-                <Button variant="outline" onClick={() => handleOpen(false)}>{tCommon("close")}</Button>
+                <Button variant="outline" onClick={() => handleOpen(false)}>
+                  {tCommon("close")}
+                </Button>
               </div>
             </div>
           ) : (
@@ -103,10 +102,7 @@ export function EnrollStudentModal({
               <div className="flex flex-col gap-2 rounded-md border p-3">
                 {available.map((c) => (
                   <label key={c.id} className="flex items-center gap-2 cursor-pointer text-sm">
-                    <Checkbox
-                      checked={selected.has(c.id)}
-                      onCheckedChange={() => toggle(c.id)}
-                    />
+                    <Checkbox checked={selected.has(c.id)} onCheckedChange={() => toggle(c.id)} />
                     {c.title}
                   </label>
                 ))}
@@ -119,7 +115,12 @@ export function EnrollStudentModal({
               ) : null}
 
               <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={() => handleOpen(false)} disabled={pending}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => handleOpen(false)}
+                  disabled={pending}
+                >
                   {tCommon("cancel")}
                 </Button>
                 <Button type="submit" disabled={pending || selected.size === 0}>

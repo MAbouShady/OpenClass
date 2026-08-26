@@ -32,11 +32,7 @@ function QuickActionCard({
           <h3 className="font-semibold leading-snug">{title}</h3>
           <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
         </div>
-        <LinkButton
-          href={href}
-          variant="outline"
-          className="self-start gap-1.5 text-xs"
-        >
+        <LinkButton href={href} variant="outline" className="self-start gap-1.5 text-xs">
           {cta}
           <ChevronRight className="h-3.5 w-3.5" />
         </LinkButton>
@@ -66,9 +62,7 @@ export default async function AdminDashboardPage() {
             <h1 className="text-xl font-semibold">
               {tAdmin("welcomeTitle")}, {greeting}
             </h1>
-            <p className="mt-0.5 text-sm text-muted-foreground">
-              {tAdmin("welcomeSubtitle")}
-            </p>
+            <p className="mt-0.5 text-sm text-muted-foreground">{tAdmin("welcomeSubtitle")}</p>
             <p className="mt-1 text-xs text-muted-foreground/60">
               {t("signedInAs", { email: session?.user.email ?? "" })}
             </p>

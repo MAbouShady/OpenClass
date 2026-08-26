@@ -16,9 +16,7 @@ type AttendanceRowProps = {
 };
 
 function formatTime(date: Date | null): string | null {
-  return date
-    ? new Intl.DateTimeFormat("ar-EG", { timeStyle: "short" }).format(date)
-    : null;
+  return date ? new Intl.DateTimeFormat("ar-EG", { timeStyle: "short" }).format(date) : null;
 }
 
 export function AttendanceRow({

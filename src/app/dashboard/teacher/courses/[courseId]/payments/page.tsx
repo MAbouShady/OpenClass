@@ -63,10 +63,14 @@ export default async function CoursePaymentsPage({ params }: PageProps) {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">{t("pageTitle")} — {course.title}</h1>
+        <h1 className="text-2xl font-bold">
+          {t("pageTitle")} — {course.title}
+        </h1>
         <p className="text-muted-foreground">
           {t("currentMonth")}:{" "}
-          {new Intl.DateTimeFormat("ar-EG", { month: "long", year: "numeric" }).format(currentMonth)}
+          {new Intl.DateTimeFormat("ar-EG", { month: "long", year: "numeric" }).format(
+            currentMonth,
+          )}
         </p>
       </div>
 

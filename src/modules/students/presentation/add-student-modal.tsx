@@ -4,12 +4,7 @@ import { useState, useTransition, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Copy, Check } from "lucide-react";
 import { useTranslations } from "next-intl";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,7 +34,12 @@ type AddStudentModalProps = {
   readonly courseOptions: readonly CourseOption[];
 };
 
-export function AddStudentModal({ createAction, levels, parents, courseOptions }: AddStudentModalProps) {
+export function AddStudentModal({
+  createAction,
+  levels,
+  parents,
+  courseOptions,
+}: AddStudentModalProps) {
   const t = useTranslations("students");
   const tCommon = useTranslations("common");
   const router = useRouter();
@@ -108,7 +108,9 @@ export function AddStudentModal({ createAction, levels, parents, courseOptions }
   }
 
   const tempPassword = state.message?.match(/Password: (.+)$/)?.[1];
-  const connectedStudent = state.message?.startsWith("connected:") ? state.message.slice("connected:".length) : null;
+  const connectedStudent = state.message?.startsWith("connected:")
+    ? state.message.slice("connected:".length)
+    : null;
 
   return (
     <>
@@ -131,7 +133,13 @@ export function AddStudentModal({ createAction, levels, parents, courseOptions }
                 </AlertDescription>
               </Alert>
               <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => { reset(); formRef.current?.reset(); }}>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    reset();
+                    formRef.current?.reset();
+                  }}
+                >
                   {tCommon("addAnother")}
                 </Button>
                 <Button onClick={() => handleOpenChange(false)}>{tCommon("done")}</Button>
@@ -140,18 +148,32 @@ export function AddStudentModal({ createAction, levels, parents, courseOptions }
           ) : tempPassword ? (
             <div className="flex flex-col gap-3">
               <Alert>
-                <AlertDescription className="text-sm">
-                  {t("createdMsg")}
-                </AlertDescription>
+                <AlertDescription className="text-sm">{t("createdMsg")}</AlertDescription>
               </Alert>
               <div className="flex items-center gap-2 rounded-md border bg-muted px-3 py-2">
                 <code className="flex-1 text-sm font-mono">{tempPassword}</code>
-                <Button type="button" size="sm" variant="ghost" onClick={copyPassword} className="h-7 px-2">
-                  {copied ? <Check className="h-3.5 w-3.5 text-green-600" /> : <Copy className="h-3.5 w-3.5" />}
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={copyPassword}
+                  className="h-7 px-2"
+                >
+                  {copied ? (
+                    <Check className="h-3.5 w-3.5 text-green-600" />
+                  ) : (
+                    <Copy className="h-3.5 w-3.5" />
+                  )}
                 </Button>
               </div>
               <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => { reset(); formRef.current?.reset(); }}>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    reset();
+                    formRef.current?.reset();
+                  }}
+                >
                   {tCommon("addAnother")}
                 </Button>
                 <Button onClick={() => handleOpenChange(false)}>{tCommon("done")}</Button>
@@ -166,7 +188,13 @@ export function AddStudentModal({ createAction, levels, parents, courseOptions }
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="s-idnumber">{t("idNumberLabel")}</Label>
-                  <Input id="s-idnumber" name="idNumber" type="number" min="1" placeholder={t("idNumberPlaceholder")} />
+                  <Input
+                    id="s-idnumber"
+                    name="idNumber"
+                    type="number"
+                    min="1"
+                    placeholder={t("idNumberPlaceholder")}
+                  />
                 </div>
               </div>
 
@@ -179,11 +207,15 @@ export function AddStudentModal({ createAction, levels, parents, courseOptions }
                 <div className="flex flex-col gap-1.5">
                   <Label>{t("levelLabel")}</Label>
                   <Select value={levelId} onValueChange={setLevelId}>
-                    <SelectTrigger><SelectValue placeholder={tCommon("none")} /></SelectTrigger>
+                    <SelectTrigger>
+                      <SelectValue placeholder={tCommon("none")} />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none">{tCommon("none")}</SelectItem>
                       {levels.map((l) => (
-                        <SelectItem key={l.id} value={l.id}>{l.name}</SelectItem>
+                        <SelectItem key={l.id} value={l.id}>
+                          {l.name}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -191,11 +223,15 @@ export function AddStudentModal({ createAction, levels, parents, courseOptions }
                 <div className="flex flex-col gap-1.5">
                   <Label>{t("parentLabel")}</Label>
                   <Select value={parentId} onValueChange={setParentId}>
-                    <SelectTrigger><SelectValue placeholder={tCommon("none")} /></SelectTrigger>
+                    <SelectTrigger>
+                      <SelectValue placeholder={tCommon("none")} />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none">{tCommon("none")}</SelectItem>
                       {parents.map((p) => (
-                        <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                        <SelectItem key={p.id} value={p.id}>
+                          {p.name}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -213,7 +249,9 @@ export function AddStudentModal({ createAction, levels, parents, courseOptions }
                           onCheckedChange={() => toggleCourse(c.id)}
                           disabled={c.latestSemesterId === null}
                         />
-                        <span className={c.latestSemesterId === null ? "text-muted-foreground" : ""}>
+                        <span
+                          className={c.latestSemesterId === null ? "text-muted-foreground" : ""}
+                        >
                           {c.title}
                           {c.latestSemesterId === null ? " (no semester)" : ""}
                         </span>
@@ -232,7 +270,12 @@ export function AddStudentModal({ createAction, levels, parents, courseOptions }
               ) : null}
 
               <div className="flex justify-end gap-2 pt-1">
-                <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isPending}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => handleOpenChange(false)}
+                  disabled={isPending}
+                >
                   {tCommon("cancel")}
                 </Button>
                 <Button type="submit" disabled={isPending}>

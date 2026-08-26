@@ -28,12 +28,7 @@ export function ScanForm({ label, action }: ScanFormProps) {
   return (
     <form ref={formRef} action={formAction}>
       <div className="flex gap-2">
-        <Input
-          ref={inputRef}
-          name="qrToken"
-          placeholder={t("pasteScanPlaceholder")}
-          required
-        />
+        <Input ref={inputRef} name="qrToken" placeholder={t("pasteScanPlaceholder")} required />
         <QrScannerButton onScan={handleScan} label={label} />
         <Button type="submit" disabled={pending}>
           {pending ? t("working") : label}

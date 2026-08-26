@@ -32,7 +32,7 @@ export function SubmitPaymentForm({ action }: SubmitPaymentFormProps) {
       fd.append("type", "payment");
 
       const res = await fetch("/api/upload", { method: "POST", body: fd });
-      const json = await res.json() as { url?: string; error?: string };
+      const json = (await res.json()) as { url?: string; error?: string };
 
       if (!res.ok || json.error) {
         setUploadError(json.error ?? "Upload failed.");
@@ -98,9 +98,7 @@ export function SubmitPaymentForm({ action }: SubmitPaymentFormProps) {
         </div>
       )}
 
-      {uploadError ? (
-        <p className="text-sm text-destructive">{uploadError}</p>
-      ) : null}
+      {uploadError ? <p className="text-sm text-destructive">{uploadError}</p> : null}
 
       <div>
         <Button type="submit" size="sm" disabled={pending || !proofUrl || uploading}>

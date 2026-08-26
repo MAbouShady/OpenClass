@@ -24,9 +24,7 @@ export function EnrollButton({ semesterId, enrolled, action }: EnrollButtonProps
       <Button type="submit" size="sm" disabled={pending}>
         {pending ? "Enrolling…" : "Enroll"}
       </Button>
-      {state.error ? (
-        <p className="mt-1 text-sm text-destructive">{state.error}</p>
-      ) : null}
+      {state.error ? <p className="mt-1 text-sm text-destructive">{state.error}</p> : null}
     </form>
   );
 }

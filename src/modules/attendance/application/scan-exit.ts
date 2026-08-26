@@ -26,10 +26,7 @@ export async function scanExit(
 ): Promise<
   Result<
     Attendance,
-    | InvalidQrTokenError
-    | SessionNotFoundError
-    | NotCheckedInError
-    | AlreadyCheckedOutError
+    InvalidQrTokenError | SessionNotFoundError | NotCheckedInError | AlreadyCheckedOutError
   >
 > {
   const { qrToken, sessionId } = scanExitSchema.parse(input);

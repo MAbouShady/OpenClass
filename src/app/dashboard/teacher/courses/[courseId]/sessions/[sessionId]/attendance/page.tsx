@@ -68,8 +68,20 @@ export default async function SessionAttendancePage({ params }: PageProps) {
         status: attendance?.status ?? ("UNMARKED" as const),
         checkInTime: attendance?.checkInTime ?? null,
         checkOutTime: attendance?.checkOutTime ?? null,
-        markPresentAction: markAttendanceAction.bind(null, courseId, sessionId, enrollment.studentId, "PRESENT"),
-        markAbsentAction: markAttendanceAction.bind(null, courseId, sessionId, enrollment.studentId, "ABSENT"),
+        markPresentAction: markAttendanceAction.bind(
+          null,
+          courseId,
+          sessionId,
+          enrollment.studentId,
+          "PRESENT",
+        ),
+        markAbsentAction: markAttendanceAction.bind(
+          null,
+          courseId,
+          sessionId,
+          enrollment.studentId,
+          "ABSENT",
+        ),
       };
     }),
   );
@@ -80,7 +92,9 @@ export default async function SessionAttendancePage({ params }: PageProps) {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">{t("pageTitle")} — {course.title}</h1>
+        <h1 className="text-2xl font-bold">
+          {t("pageTitle")} — {course.title}
+        </h1>
         <p className="text-muted-foreground">
           {new Intl.DateTimeFormat("ar-EG", { dateStyle: "medium", timeStyle: "short" }).format(
             classSession.startTime,

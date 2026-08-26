@@ -3,12 +3,7 @@
 import { useState, useTransition, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,7 +16,10 @@ import {
 } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { SESSION_TYPES } from "@/modules/courses/domain/session-type";
-import { PAYMENT_FREQUENCIES, PAYMENT_FREQUENCY_LABELS } from "@/modules/courses/domain/payment-frequency";
+import {
+  PAYMENT_FREQUENCIES,
+  PAYMENT_FREQUENCY_LABELS,
+} from "@/modules/courses/domain/payment-frequency";
 import type { Level } from "@/modules/levels/domain/level";
 import type { ActionState } from "@/shared/domain/action-state";
 
@@ -111,10 +109,14 @@ export function AddCourseModal({ createAction, levels }: AddCourseModalProps) {
               <div className="flex flex-col gap-1.5">
                 <Label>{t("sessionTypeLabel")}</Label>
                 <Select value={sessionType} onValueChange={setSessionType}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     {SESSION_TYPES.map((st) => (
-                      <SelectItem key={st} value={st}>{t(st === "ONLINE" ? "sessionOnline" : "sessionOffline")}</SelectItem>
+                      <SelectItem key={st} value={st}>
+                        {t(st === "ONLINE" ? "sessionOnline" : "sessionOffline")}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -122,10 +124,20 @@ export function AddCourseModal({ createAction, levels }: AddCourseModalProps) {
               <div className="flex flex-col gap-1.5">
                 <Label>{t("paymentFrequencyLabel")}</Label>
                 <Select value={paymentFrequency} onValueChange={setPaymentFrequency}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     {PAYMENT_FREQUENCIES.map((f) => (
-                      <SelectItem key={f} value={f}>{t(f === "ONE_TIME" ? "freqOneTime" : f === "MONTHLY" ? "freqMonthly" : "freqPerSemester")}</SelectItem>
+                      <SelectItem key={f} value={f}>
+                        {t(
+                          f === "ONE_TIME"
+                            ? "freqOneTime"
+                            : f === "MONTHLY"
+                              ? "freqMonthly"
+                              : "freqPerSemester",
+                        )}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

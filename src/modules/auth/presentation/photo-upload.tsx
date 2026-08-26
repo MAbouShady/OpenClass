@@ -17,7 +17,17 @@ type PhotoUploadProps = {
   className?: string;
 };
 
-export function PhotoUpload({ type, currentUrl, offsetY = 50, onUpload, onPositionChange, onDelete, label, hint, className }: PhotoUploadProps) {
+export function PhotoUpload({
+  type,
+  currentUrl,
+  offsetY = 50,
+  onUpload,
+  onPositionChange,
+  onDelete,
+  label,
+  hint,
+  className,
+}: PhotoUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(currentUrl);
@@ -108,8 +118,13 @@ export function PhotoUpload({ type, currentUrl, offsetY = 50, onUpload, onPositi
             />
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-1 p-2">
-              <Upload size={18} className="text-muted-foreground group-hover:text-primary transition-colors" />
-              <span className="text-xs text-muted-foreground text-center leading-tight">Upload</span>
+              <Upload
+                size={18}
+                className="text-muted-foreground group-hover:text-primary transition-colors"
+              />
+              <span className="text-xs text-muted-foreground text-center leading-tight">
+                Upload
+              </span>
             </div>
           )}
 
@@ -138,7 +153,10 @@ export function PhotoUpload({ type, currentUrl, offsetY = 50, onUpload, onPositi
         {preview && !uploading && !confirming && (
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); setConfirming(true); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setConfirming(true);
+            }}
             className={cn(
               "absolute flex items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-md",
               "hover:bg-destructive/90 transition-colors",
@@ -152,10 +170,12 @@ export function PhotoUpload({ type, currentUrl, offsetY = 50, onUpload, onPositi
 
         {/* Inline confirmation overlay */}
         {confirming && (
-          <div className={cn(
-            "absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/70 z-10",
-            isCover ? "rounded-xl" : "rounded-full",
-          )}>
+          <div
+            className={cn(
+              "absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/70 z-10",
+              isCover ? "rounded-xl" : "rounded-full",
+            )}
+          >
             <p className="text-xs font-semibold text-white">Remove photo?</p>
             <div className="flex gap-2">
               <button

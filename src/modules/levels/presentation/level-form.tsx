@@ -39,7 +39,11 @@ export function LevelForm({ action, defaultValues, submitLabel }: LevelFormProps
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="description">Description (optional)</Label>
-        <Input id="description" name="description" defaultValue={defaultValues?.description ?? ""} />
+        <Input
+          id="description"
+          name="description"
+          defaultValue={defaultValues?.description ?? ""}
+        />
       </div>
 
       {state.error ? (

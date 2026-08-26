@@ -39,7 +39,10 @@ export function AttendanceStudentList({ rows }: Props) {
   return (
     <div className="space-y-3">
       <div className="relative">
-        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <Search
+          size={14}
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+        />
         <Input
           placeholder={t("searchPlaceholder")}
           value={query}

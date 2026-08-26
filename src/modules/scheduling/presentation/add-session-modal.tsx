@@ -3,12 +3,7 @@
 import { useState, useTransition, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -51,9 +46,7 @@ export function AddSessionModal({ createAction, courseId, semesters }: AddSessio
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
-  const [selectedSemesterId, setSelectedSemesterId] = useState<string>(
-    semesters[0]?.id ?? "",
-  );
+  const [selectedSemesterId, setSelectedSemesterId] = useState<string>(semesters[0]?.id ?? "");
   const formRef = useRef<HTMLFormElement>(null);
   const t = useTranslations("sessions");
   const tCommon = useTranslations("common");

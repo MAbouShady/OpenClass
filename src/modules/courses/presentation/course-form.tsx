@@ -7,9 +7,18 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { SESSION_TYPES } from "@/modules/courses/domain/session-type";
-import { PAYMENT_FREQUENCIES, PAYMENT_FREQUENCY_LABELS } from "@/modules/courses/domain/payment-frequency";
+import {
+  PAYMENT_FREQUENCIES,
+  PAYMENT_FREQUENCY_LABELS,
+} from "@/modules/courses/domain/payment-frequency";
 import type { Level } from "@/modules/levels/domain/level";
 import type { ActionState } from "@/shared/domain/action-state";
 import { useTranslations } from "next-intl";
@@ -33,7 +42,13 @@ type CourseFormProps = {
   readonly onSuccess?: () => void;
 };
 
-export function CourseForm({ action, levels, defaultValues, submitLabel, onSuccess }: CourseFormProps) {
+export function CourseForm({
+  action,
+  levels,
+  defaultValues,
+  submitLabel,
+  onSuccess,
+}: CourseFormProps) {
   const t = useTranslations("courses");
   const [state, formAction, pending] = useActionState(action, {});
   const prevPending = useRef(false);
@@ -42,7 +57,9 @@ export function CourseForm({ action, levels, defaultValues, submitLabel, onSucce
     prevPending.current = pending;
   }, [pending, state.error, onSuccess]);
   const [sessionType, setSessionType] = useState(defaultValues?.sessionType ?? "ONLINE");
-  const [paymentFrequency, setPaymentFrequency] = useState(defaultValues?.paymentFrequency ?? "MONTHLY");
+  const [paymentFrequency, setPaymentFrequency] = useState(
+    defaultValues?.paymentFrequency ?? "MONTHLY",
+  );
   const [levelId, setLevelId] = useState(defaultValues?.levelId ?? "");
   const [isActive, setIsActive] = useState(defaultValues?.isActive ?? true);
 
@@ -52,12 +69,7 @@ export function CourseForm({ action, levels, defaultValues, submitLabel, onSucce
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="title">{t("titleLabel")}</Label>
-        <Input
-          id="title"
-          name="title"
-          defaultValue={defaultValues?.title}
-          required
-        />
+        <Input id="title" name="title" defaultValue={defaultValues?.title} required />
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -87,10 +99,14 @@ export function CourseForm({ action, levels, defaultValues, submitLabel, onSucce
           <Label>{t("sessionTypeLabel")}</Label>
           <input type="hidden" name="sessionType" value={sessionType} />
           <Select value={sessionType} onValueChange={setSessionType}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               {SESSION_TYPES.map((st) => (
-                <SelectItem key={st} value={st}>{t(st === "ONLINE" ? "sessionOnline" : "sessionOffline")}</SelectItem>
+                <SelectItem key={st} value={st}>
+                  {t(st === "ONLINE" ? "sessionOnline" : "sessionOffline")}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -99,10 +115,20 @@ export function CourseForm({ action, levels, defaultValues, submitLabel, onSucce
           <Label>{t("paymentFrequencyLabel")}</Label>
           <input type="hidden" name="paymentFrequency" value={paymentFrequency} />
           <Select value={paymentFrequency} onValueChange={setPaymentFrequency}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               {PAYMENT_FREQUENCIES.map((f) => (
-                <SelectItem key={f} value={f}>{t(f === "ONE_TIME" ? "freqOneTime" : f === "MONTHLY" ? "freqMonthly" : "freqPerSemester")}</SelectItem>
+                <SelectItem key={f} value={f}>
+                  {t(
+                    f === "ONE_TIME"
+                      ? "freqOneTime"
+                      : f === "MONTHLY"
+                        ? "freqMonthly"
+                        : "freqPerSemester",
+                  )}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -129,11 +155,7 @@ export function CourseForm({ action, levels, defaultValues, submitLabel, onSucce
       {defaultValues?.id ? (
         <div className="flex items-center gap-3">
           <input type="hidden" name="isActive" value={isActive ? "true" : "false"} />
-          <Checkbox
-            id="isActive"
-            checked={isActive}
-            onCheckedChange={(v) => setIsActive(!!v)}
-          />
+          <Checkbox id="isActive" checked={isActive} onCheckedChange={(v) => setIsActive(!!v)} />
           <Label htmlFor="isActive">{t("isActiveLabel")}</Label>
         </div>
       ) : null}

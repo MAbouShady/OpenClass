@@ -34,9 +34,7 @@ export function EnrollmentPaymentRow({
         {studentIdNumber != null && (
           <span className="text-xs text-muted-foreground">#{studentIdNumber}</span>
         )}
-        {state.error ? (
-          <p className="text-sm text-destructive">{state.error}</p>
-        ) : null}
+        {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
       </div>
       <div className="flex items-center gap-2">
         <PaymentStatusChip status={status} />
@@ -49,7 +47,9 @@ export function EnrollmentPaymentRow({
         ) : null}
         {status === "PENDING" && pendingPaymentId ? (
           <form action={approveAction.bind(null, pendingPaymentId)}>
-            <Button type="submit" size="sm">{t("approve")}</Button>
+            <Button type="submit" size="sm">
+              {t("approve")}
+            </Button>
           </form>
         ) : null}
       </div>

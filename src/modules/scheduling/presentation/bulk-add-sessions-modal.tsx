@@ -26,7 +26,7 @@ import type { ActionState } from "@/shared/domain/action-state";
 type SerializedSemester = {
   readonly id: string;
   readonly startDate: string; // ISO
-  readonly endDate: string;   // ISO
+  readonly endDate: string; // ISO
 };
 
 const DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
@@ -49,7 +49,7 @@ function localHHMMtoUtc(hhmm: string): string {
   const h = parseInt(parts[0] ?? "0", 10);
   const m = parseInt(parts[1] ?? "0", 10);
   const offsetMin = new Date().getTimezoneOffset();
-  const totalMin = ((h * 60 + m + offsetMin) % 1440 + 1440) % 1440;
+  const totalMin = (((h * 60 + m + offsetMin) % 1440) + 1440) % 1440;
   return `${String(Math.floor(totalMin / 60)).padStart(2, "0")}:${String(totalMin % 60).padStart(2, "0")}`;
 }
 
@@ -87,8 +87,10 @@ export function BulkAddSessionsModal({ courseId, semesters, bulkCreateAction }: 
   const [resultMsg, setResultMsg] = useState<string | null>(null);
 
   const [semesterId, setSemesterId] = useState<string>(semesters[0]?.id ?? "");
-  const [fromDate, setFromDate] = useState(() => semesters[0] ? isoToDate(semesters[0].startDate) : "");
-  const [toDate, setToDate] = useState(() => semesters[0] ? isoToDate(semesters[0].endDate) : "");
+  const [fromDate, setFromDate] = useState(() =>
+    semesters[0] ? isoToDate(semesters[0].startDate) : "",
+  );
+  const [toDate, setToDate] = useState(() => (semesters[0] ? isoToDate(semesters[0].endDate) : ""));
   const [selectedDays, setSelectedDays] = useState<Set<number>>(new Set());
   const [times, setTimes] = useState<Record<number, DayTimes>>({});
 
@@ -120,9 +122,7 @@ export function BulkAddSessionsModal({ courseId, semesters, bulkCreateAction }: 
       }
       return next;
     });
-    setTimes((prev) =>
-      prev[day] ? prev : { ...prev, [day]: { start: "09:00", end: "10:00" } },
-    );
+    setTimes((prev) => (prev[day] ? prev : { ...prev, [day]: { start: "09:00", end: "10:00" } }));
     setResultMsg(null);
   };
 
@@ -146,17 +146,31 @@ export function BulkAddSessionsModal({ courseId, semesters, bulkCreateAction }: 
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!semesterId) { setError(t("errorSelectSemester")); return; }
-    if (selectedDays.size === 0) { setError(t("errorSelectDay")); return; }
-    if (!fromDate || !toDate) { setError(t("errorSetDateRange")); return; }
-    if (preview === 0) { setError(t("errorNoSessions")); return; }
+    if (!semesterId) {
+      setError(t("errorSelectSemester"));
+      return;
+    }
+    if (selectedDays.size === 0) {
+      setError(t("errorSelectDay"));
+      return;
+    }
+    if (!fromDate || !toDate) {
+      setError(t("errorSetDateRange"));
+      return;
+    }
+    if (preview === 0) {
+      setError(t("errorNoSessions"));
+      return;
+    }
 
     // Validate dates are within semester bounds
     if (selectedSemester) {
       const semStart = isoToDate(selectedSemester.startDate);
       const semEnd = isoToDate(selectedSemester.endDate);
       if (fromDate < semStart || toDate > semEnd) {
-        setError(`Dates must be within semester: ${fmtDate(selectedSemester.startDate)} — ${fmtDate(selectedSemester.endDate)}`);
+        setError(
+          `Dates must be within semester: ${fmtDate(selectedSemester.startDate)} — ${fmtDate(selectedSemester.endDate)}`,
+        );
         return;
       }
     }
@@ -198,7 +212,13 @@ export function BulkAddSessionsModal({ courseId, semesters, bulkCreateAction }: 
   }
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        setOpen(v);
+        if (!v) reset();
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant="outline" className="gap-2">
           <CalendarDays size={15} />
@@ -315,15 +335,11 @@ export function BulkAddSessionsModal({ courseId, semesters, bulkCreateAction }: 
           {preview > 0 && !resultMsg && (
             <p className="text-sm text-muted-foreground">
               {t("previewSessions", { count: preview })}
-              {preview === 500 && (
-                <span className="text-amber-600 ms-1">(capped at 500)</span>
-              )}
+              {preview === 500 && <span className="text-amber-600 ms-1">(capped at 500)</span>}
             </p>
           )}
 
-          {resultMsg && (
-            <p className="text-sm text-emerald-600 font-medium">{resultMsg}</p>
-          )}
+          {resultMsg && <p className="text-sm text-emerald-600 font-medium">{resultMsg}</p>}
 
           {error && (
             <Alert variant="destructive">
@@ -335,7 +351,10 @@ export function BulkAddSessionsModal({ courseId, semesters, bulkCreateAction }: 
             <Button
               type="button"
               variant="outline"
-              onClick={() => { setOpen(false); reset(); }}
+              onClick={() => {
+                setOpen(false);
+                reset();
+              }}
             >
               {resultMsg ? tCommon("close") : tCommon("cancel")}
             </Button>

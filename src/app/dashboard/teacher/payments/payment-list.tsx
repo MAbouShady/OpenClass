@@ -8,13 +8,22 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   approvePaymentAction,
   confirmCashPaymentAction,
   deletePaymentAction,
 } from "@/app/dashboard/teacher/payments/actions";
-import type { EnrollmentPaymentSummary, PaymentRow } from "@/modules/payments/domain/payment-repository";
+import type {
+  EnrollmentPaymentSummary,
+  PaymentRow,
+} from "@/modules/payments/domain/payment-repository";
 
 type Filter = "ALL" | "UNPAID" | "PENDING" | "APPROVED";
 
@@ -40,8 +49,7 @@ function latestStatus(e: EnrollmentPaymentSummary): "APPROVED" | "PENDING" | "UN
   }
   const p = new Date(e.latestPayment.month);
   const now = new Date();
-  const isCurrentMonth =
-    p.getFullYear() === now.getFullYear() && p.getMonth() === now.getMonth();
+  const isCurrentMonth = p.getFullYear() === now.getFullYear() && p.getMonth() === now.getMonth();
   return isCurrentMonth ? e.latestPayment.status : "UNPAID";
 }
 
@@ -152,7 +160,10 @@ export function PaymentList({ enrollments }: Props) {
       {/* Search + selects */}
       <div className="flex flex-wrap gap-2">
         <div className="relative flex-1 min-w-40">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Search
+            size={14}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+          />
           <Input
             placeholder={t("searchPlaceholder")}
             value={search}
@@ -168,7 +179,9 @@ export function PaymentList({ enrollments }: Props) {
             <SelectContent>
               <SelectItem value="all">{t("allLevels")}</SelectItem>
               {uniqueLevels.map((l) => (
-                <SelectItem key={l.id} value={l.id}>{l.name}</SelectItem>
+                <SelectItem key={l.id} value={l.id}>
+                  {l.name}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -181,7 +194,9 @@ export function PaymentList({ enrollments }: Props) {
             <SelectContent>
               <SelectItem value="all">{t("allCourses")}</SelectItem>
               {uniqueCourses.map((c) => (
-                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                <SelectItem key={c.id} value={c.id}>
+                  {c.name}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -223,7 +238,10 @@ export function PaymentList({ enrollments }: Props) {
             const isConfirming = confirmingId === enrollment.enrollmentId;
 
             return (
-              <div key={enrollment.enrollmentId} className="rounded-xl border bg-card overflow-hidden">
+              <div
+                key={enrollment.enrollmentId}
+                className="rounded-xl border bg-card overflow-hidden"
+              >
                 {/* Summary row */}
                 <button
                   type="button"
@@ -253,8 +271,15 @@ export function PaymentList({ enrollments }: Props) {
                     {enrollment.coursePrice != null && (
                       <span className="text-xs font-medium">{enrollment.coursePrice} LE</span>
                     )}
-                    <Badge className="text-xs text-white shrink-0" style={{ backgroundColor: statusColor(status) }}>
-                      {status === "APPROVED" ? t("statusApproved") : status === "PENDING" ? t("statusPending") : t("statusUnpaid")}
+                    <Badge
+                      className="text-xs text-white shrink-0"
+                      style={{ backgroundColor: statusColor(status) }}
+                    >
+                      {status === "APPROVED"
+                        ? t("statusApproved")
+                        : status === "PENDING"
+                          ? t("statusPending")
+                          : t("statusUnpaid")}
                     </Badge>
                     <ChevronDown
                       size={14}
@@ -272,39 +297,79 @@ export function PaymentList({ enrollments }: Props) {
                     ) : (
                       <div className="flex flex-col gap-2">
                         {enrollment.allPayments.map((p: PaymentRow) => (
-                          <div key={p.id} className="flex flex-wrap items-center gap-3 rounded-lg bg-muted/30 px-3 py-2">
+                          <div
+                            key={p.id}
+                            className="flex flex-wrap items-center gap-3 rounded-lg bg-muted/30 px-3 py-2"
+                          >
                             <span className="text-sm font-medium min-w-24">
-                              {new Date(p.month).toLocaleDateString(undefined, { year: "numeric", month: "long" })}
+                              {new Date(p.month).toLocaleDateString(undefined, {
+                                year: "numeric",
+                                month: "long",
+                              })}
                             </span>
                             <Badge variant="outline" className="text-xs">
                               {p.method === "ONLINE" ? t("methodOnline") : t("methodCash")}
                             </Badge>
-                            <Badge className="text-xs text-white" style={{ backgroundColor: statusColor(p.status) }}>
+                            <Badge
+                              className="text-xs text-white"
+                              style={{ backgroundColor: statusColor(p.status) }}
+                            >
                               {p.status === "APPROVED" ? t("statusApproved") : t("statusPending")}
                             </Badge>
                             {p.proofUrl && (
-                              <a href={p.proofUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline underline-offset-2">
+                              <a
+                                href={p.proofUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-primary underline underline-offset-2"
+                              >
                                 {t("viewProof")}
                               </a>
                             )}
-                            {p.notes && <span className="text-xs text-muted-foreground italic flex-1">{p.notes}</span>}
+                            {p.notes && (
+                              <span className="text-xs text-muted-foreground italic flex-1">
+                                {p.notes}
+                              </span>
+                            )}
                             <div className="flex items-center gap-1.5 ms-auto">
                               {p.status === "PENDING" && (
-                                <Button size="sm" disabled={isPending && actingId === p.id} onClick={() => handleApprove(p.id)} className="h-7 text-xs">
-                                  {isPending && actingId === p.id ? t("approving") : t("approveBtn")}
+                                <Button
+                                  size="sm"
+                                  disabled={isPending && actingId === p.id}
+                                  onClick={() => handleApprove(p.id)}
+                                  className="h-7 text-xs"
+                                >
+                                  {isPending && actingId === p.id
+                                    ? t("approving")
+                                    : t("approveBtn")}
                                 </Button>
                               )}
                               {deletingId === p.id ? (
                                 <>
-                                  <Button size="sm" variant="destructive" disabled={isPending && actingId === p.id} onClick={() => handleDelete(p.id)} className="h-7 text-xs">
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    disabled={isPending && actingId === p.id}
+                                    onClick={() => handleDelete(p.id)}
+                                    className="h-7 text-xs"
+                                  >
                                     {t("deleteConfirmBtn")}
                                   </Button>
-                                  <Button size="sm" variant="ghost" onClick={() => setDeletingId(null)} className="h-7 text-xs">
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => setDeletingId(null)}
+                                    className="h-7 text-xs"
+                                  >
                                     {t("cancelBtn")}
                                   </Button>
                                 </>
                               ) : (
-                                <button type="button" onClick={() => setDeletingId(p.id)} className="text-muted-foreground hover:text-destructive transition-colors p-1">
+                                <button
+                                  type="button"
+                                  onClick={() => setDeletingId(p.id)}
+                                  className="text-muted-foreground hover:text-destructive transition-colors p-1"
+                                >
                                   <Trash2 size={14} />
                                 </button>
                               )}
@@ -315,9 +380,14 @@ export function PaymentList({ enrollments }: Props) {
                     )}
 
                     {/* Add payment form */}
-                    {canAddPayment(enrollment) && (
-                      !isConfirming ? (
-                        <Button size="sm" variant="outline" onClick={() => openConfirm(enrollment.enrollmentId)} className="self-start">
+                    {canAddPayment(enrollment) &&
+                      (!isConfirming ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => openConfirm(enrollment.enrollmentId)}
+                          className="self-start"
+                        >
                           {t("confirmPaymentBtn")}
                         </Button>
                       ) : (
@@ -334,21 +404,39 @@ export function PaymentList({ enrollments }: Props) {
                             </div>
                             <div className="flex flex-col gap-1 flex-1 min-w-36">
                               <Label className="text-xs">{t("notesOptional")}</Label>
-                              <Input value={confirmNotes} onChange={(e) => setConfirmNotes(e.target.value)} placeholder={t("notesPlaceholder")} className="h-9 text-sm" />
+                              <Input
+                                value={confirmNotes}
+                                onChange={(e) => setConfirmNotes(e.target.value)}
+                                placeholder={t("notesPlaceholder")}
+                                className="h-9 text-sm"
+                              />
                             </div>
                             <div className="flex gap-2">
-                              <Button size="sm" disabled={isPending && actingId === enrollment.enrollmentId} onClick={() => handleConfirmCash(enrollment.enrollmentId)} className="h-9">
-                                {isPending && actingId === enrollment.enrollmentId ? t("confirming") : t("confirmBtn")}
+                              <Button
+                                size="sm"
+                                disabled={isPending && actingId === enrollment.enrollmentId}
+                                onClick={() => handleConfirmCash(enrollment.enrollmentId)}
+                                className="h-9"
+                              >
+                                {isPending && actingId === enrollment.enrollmentId
+                                  ? t("confirming")
+                                  : t("confirmBtn")}
                               </Button>
-                              <Button size="sm" variant="ghost" onClick={() => setConfirmingId(null)} className="h-9">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => setConfirmingId(null)}
+                                className="h-9"
+                              >
                                 {t("cancelBtn")}
                               </Button>
                             </div>
                           </div>
-                          {confirmError && <p className="text-xs text-destructive">{confirmError}</p>}
+                          {confirmError && (
+                            <p className="text-xs text-destructive">{confirmError}</p>
+                          )}
                         </div>
-                      )
-                    )}
+                      ))}
                   </div>
                 )}
               </div>

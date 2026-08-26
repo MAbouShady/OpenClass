@@ -62,11 +62,11 @@ export async function scanEntry(
   const semesters = await deps.semesterRepository.findByCourse(session.courseId);
   let enrollment = null;
   for (const semester of semesters) {
-    const found = await deps.enrollmentRepository.findByStudentAndSemester(
-      student.id,
-      semester.id,
-    );
-    if (found) { enrollment = found; break; }
+    const found = await deps.enrollmentRepository.findByStudentAndSemester(student.id, semester.id);
+    if (found) {
+      enrollment = found;
+      break;
+    }
   }
   if (!enrollment) return err(new EnrollmentRequiredError());
 

@@ -76,7 +76,20 @@ export class PrismaPaymentRepository implements PaymentRepository {
       where: { semester: { course: { teacherId } } },
       include: {
         student: { select: { name: true, idNumber: true } },
-        semester: { include: { course: { select: { id: true, title: true, price: true, paymentFrequency: true, levelId: true, level: { select: { name: true } } } } } },
+        semester: {
+          include: {
+            course: {
+              select: {
+                id: true,
+                title: true,
+                price: true,
+                paymentFrequency: true,
+                levelId: true,
+                level: { select: { name: true } },
+              },
+            },
+          },
+        },
         payments: { orderBy: { month: "desc" } },
       },
       orderBy: { createdAt: "desc" },
@@ -98,7 +111,8 @@ export class PrismaPaymentRepository implements PaymentRepository {
         courseId: enrollment.semester.course.id,
         courseName: enrollment.semester.course.title,
         coursePrice: enrollment.semester.course.price,
-        paymentFrequency: enrollment.semester.course.paymentFrequency as "ONE_TIME" | "MONTHLY" | "PER_SEMESTER" | null,
+        paymentFrequency: enrollment.semester.course.paymentFrequency as
+          "ONE_TIME" | "MONTHLY" | "PER_SEMESTER" | null,
         levelId: enrollment.semester.course.levelId,
         levelName: enrollment.semester.course.level.name,
         latestPayment: payments[0] ?? null,

@@ -35,7 +35,11 @@ export function RosterPagination({ page, totalPages, total, searchParams }: Prop
             <ChevronLeft size={14} />
           </Link>
         ) : (
-          <span className={buttonVariants({ variant: "outline", size: "sm" }) + " pointer-events-none opacity-40"}>
+          <span
+            className={
+              buttonVariants({ variant: "outline", size: "sm" }) + " pointer-events-none opacity-40"
+            }
+          >
             <ChevronLeft size={14} />
           </span>
         )}
@@ -47,7 +51,11 @@ export function RosterPagination({ page, totalPages, total, searchParams }: Prop
             <ChevronRight size={14} />
           </Link>
         ) : (
-          <span className={buttonVariants({ variant: "outline", size: "sm" }) + " pointer-events-none opacity-40"}>
+          <span
+            className={
+              buttonVariants({ variant: "outline", size: "sm" }) + " pointer-events-none opacity-40"
+            }
+          >
             <ChevronRight size={14} />
           </span>
         )}

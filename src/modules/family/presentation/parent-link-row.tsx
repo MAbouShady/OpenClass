@@ -32,7 +32,12 @@ export function ParentLinkRow({ id, parentEmail, studentEmail, deleteAction }: P
         onConfirm={() => deleteAction(id)}
         confirmLabel={t("unlinkLabel")}
       >
-        <Button type="button" size="sm" variant="outline" className="shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30">
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          className="shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30"
+        >
           {t("unlinkLabel")}
         </Button>
       </ConfirmDeleteDialog>

@@ -12,7 +12,12 @@ export const createCourseSchema = z.object({
     .transform((value) => (value ? value : null)),
   sessionType: z.enum(SESSION_TYPES),
   paymentFrequency: z.enum(PAYMENT_FREQUENCIES).default("MONTHLY"),
-  price: z.coerce.number().int().min(0).nullish().transform((v) => v ?? null),
+  price: z.coerce
+    .number()
+    .int()
+    .min(0)
+    .nullish()
+    .transform((v) => v ?? null),
   levelId: z.string().min(1),
   teacherId: z.string().min(1),
 });

@@ -36,7 +36,12 @@ export function SessionRow({ session, deleteAction }: SessionRowProps) {
           onConfirm={() => deleteAction(session.id)}
           confirmLabel={t("deleteLabel")}
         >
-          <Button type="button" size="sm" variant="outline" className="text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30">
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30"
+          >
             {t("deleteLabel")}
           </Button>
         </ConfirmDeleteDialog>

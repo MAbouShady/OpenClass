@@ -3,12 +3,7 @@
 import { useState, useTransition } from "react";
 import { Pencil } from "lucide-react";
 import { useTranslations } from "next-intl";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,7 +27,12 @@ type EditStudentModalProps = {
   readonly updateAction: (prevState: ActionState, formData: FormData) => Promise<ActionState>;
 };
 
-export function EditStudentModal({ student, levels, parents, updateAction }: EditStudentModalProps) {
+export function EditStudentModal({
+  student,
+  levels,
+  parents,
+  updateAction,
+}: EditStudentModalProps) {
   const t = useTranslations("students");
   const tCommon = useTranslations("common");
   const [open, setOpen] = useState(false);
@@ -96,11 +96,15 @@ export function EditStudentModal({ student, levels, parents, updateAction }: Edi
               <div className="flex flex-col gap-1.5">
                 <Label>{t("levelLabel")}</Label>
                 <Select value={levelId} onValueChange={setLevelId}>
-                  <SelectTrigger><SelectValue placeholder={tCommon("none")} /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue placeholder={tCommon("none")} />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">{tCommon("none")}</SelectItem>
                     {levels.map((l) => (
-                      <SelectItem key={l.id} value={l.id}>{l.name}</SelectItem>
+                      <SelectItem key={l.id} value={l.id}>
+                        {l.name}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -108,11 +112,15 @@ export function EditStudentModal({ student, levels, parents, updateAction }: Edi
               <div className="flex flex-col gap-1.5">
                 <Label>{t("parentLabel")}</Label>
                 <Select value={parentId} onValueChange={setParentId}>
-                  <SelectTrigger><SelectValue placeholder={tCommon("none")} /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue placeholder={tCommon("none")} />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">{tCommon("none")}</SelectItem>
                     {parents.map((p) => (
-                      <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.name}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -126,7 +134,12 @@ export function EditStudentModal({ student, levels, parents, updateAction }: Edi
             ) : null}
 
             <div className="flex justify-end gap-2 pt-1">
-              <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={isPending}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+                disabled={isPending}
+              >
                 {tCommon("cancel")}
               </Button>
               <Button type="submit" disabled={isPending}>

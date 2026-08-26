@@ -23,9 +23,7 @@ export async function AuthLayout({ title, description, children, footer }: AuthL
         <p className="text-xl font-bold tracking-tight">{tCommon("appName")}</p>
 
         <div>
-          <h1 className="text-3xl font-semibold leading-snug mb-8">
-            {t("heroHeadline")}
-          </h1>
+          <h1 className="text-3xl font-semibold leading-snug mb-8">{t("heroHeadline")}</h1>
           <ul className="space-y-3">
             {features.map((feature) => (
               <li key={feature} className="flex items-start gap-2 text-base">
@@ -48,9 +46,7 @@ export async function AuthLayout({ title, description, children, footer }: AuthL
 
         <div className="w-full max-w-[400px]">
           {/* App name shown only on mobile (left panel hidden) */}
-          <p className="mb-2 text-lg font-bold text-primary md:hidden">
-            {tCommon("appName")}
-          </p>
+          <p className="mb-2 text-lg font-bold text-primary md:hidden">{tCommon("appName")}</p>
 
           <h2 className="text-3xl font-semibold tracking-tight">{title}</h2>
           <p className="mt-2 mb-8 text-sm text-muted-foreground">{description}</p>

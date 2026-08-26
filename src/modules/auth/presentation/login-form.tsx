@@ -25,7 +25,13 @@ export function LoginForm({ action }: LoginFormProps) {
       </div>
       <div className="space-y-2">
         <Label htmlFor="password">{t("password")}</Label>
-        <Input id="password" name="password" type="password" required autoComplete="current-password" />
+        <Input
+          id="password"
+          name="password"
+          type="password"
+          required
+          autoComplete="current-password"
+        />
       </div>
       {state.error ? (
         <Alert variant="destructive">

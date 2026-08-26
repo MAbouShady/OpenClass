@@ -174,9 +174,7 @@ export function LevelRow({ level, updateAction, deleteAction, createAction }: Le
       {isGroup && expanded && (
         <div className="pb-3 space-y-0">
           {sortedChildren.length === 0 ? (
-            <p className="ms-8 ps-4 text-xs text-muted-foreground py-2">
-              {t("noSubLevels")}
-            </p>
+            <p className="ms-8 ps-4 text-xs text-muted-foreground py-2">{t("noSubLevels")}</p>
           ) : (
             sortedChildren.map((child) => (
               <SubLevelRow

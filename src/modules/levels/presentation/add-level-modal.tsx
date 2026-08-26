@@ -3,12 +3,7 @@
 import { useState, useTransition, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -71,16 +66,12 @@ export function AddLevelModal({ createAction, parentId, parentName }: AddLevelMo
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>
-              {isSubLevel
-                ? `${t("addSubLevelModalTitle")} "${parentName}"`
-                : t("addModalTitle")}
+              {isSubLevel ? `${t("addSubLevelModalTitle")} "${parentName}"` : t("addModalTitle")}
             </DialogTitle>
           </DialogHeader>
 
           <form ref={formRef} action={handleAction} className="flex flex-col gap-4 pt-1">
-            {parentId && (
-              <input type="hidden" name="parentLevelId" value={parentId} />
-            )}
+            {parentId && <input type="hidden" name="parentLevelId" value={parentId} />}
 
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="modal-level-name">{t("nameLabel")}</Label>

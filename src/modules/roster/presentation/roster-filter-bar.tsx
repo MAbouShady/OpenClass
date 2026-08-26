@@ -46,48 +46,76 @@ export function RosterFilterBar({ courseOptions, semesterOptions }: RosterFilter
   return (
     <div className="flex flex-wrap gap-2">
       <div className="flex flex-col gap-1">
-        <Select value={searchParams.get("courseId") ?? ""} onValueChange={(val) => setParam("courseId", val)}>
-          <SelectTrigger className="w-44"><SelectValue placeholder={t("allCourses")} /></SelectTrigger>
+        <Select
+          value={searchParams.get("courseId") ?? ""}
+          onValueChange={(val) => setParam("courseId", val)}
+        >
+          <SelectTrigger className="w-44">
+            <SelectValue placeholder={t("allCourses")} />
+          </SelectTrigger>
           <SelectContent>
             <SelectItem value="">{t("allCourses")}</SelectItem>
             {courseOptions.map((o) => (
-              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+              <SelectItem key={o.value} value={o.value}>
+                {o.label}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
 
       <div className="flex flex-col gap-1">
-        <Select value={searchParams.get("semesterId") ?? ""} onValueChange={(val) => setParam("semesterId", val)}>
-          <SelectTrigger className="w-44"><SelectValue placeholder={t("allSemesters")} /></SelectTrigger>
+        <Select
+          value={searchParams.get("semesterId") ?? ""}
+          onValueChange={(val) => setParam("semesterId", val)}
+        >
+          <SelectTrigger className="w-44">
+            <SelectValue placeholder={t("allSemesters")} />
+          </SelectTrigger>
           <SelectContent>
             <SelectItem value="">{t("allSemesters")}</SelectItem>
             {semesterOptions.map((o) => (
-              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+              <SelectItem key={o.value} value={o.value}>
+                {o.label}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
 
       <div className="flex flex-col gap-1">
-        <Select value={searchParams.get("sessionType") ?? ""} onValueChange={(val) => setParam("sessionType", val)}>
-          <SelectTrigger className="w-44"><SelectValue placeholder={t("allTypes")} /></SelectTrigger>
+        <Select
+          value={searchParams.get("sessionType") ?? ""}
+          onValueChange={(val) => setParam("sessionType", val)}
+        >
+          <SelectTrigger className="w-44">
+            <SelectValue placeholder={t("allTypes")} />
+          </SelectTrigger>
           <SelectContent>
             <SelectItem value="">{t("allTypes")}</SelectItem>
             {sessionTypeOptions.map((o) => (
-              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+              <SelectItem key={o.value} value={o.value}>
+                {o.label}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
 
       <div className="flex flex-col gap-1">
-        <Select value={searchParams.get("paymentStatus") ?? ""} onValueChange={(val) => setParam("paymentStatus", val)}>
-          <SelectTrigger className="w-44"><SelectValue placeholder={t("allStatuses")} /></SelectTrigger>
+        <Select
+          value={searchParams.get("paymentStatus") ?? ""}
+          onValueChange={(val) => setParam("paymentStatus", val)}
+        >
+          <SelectTrigger className="w-44">
+            <SelectValue placeholder={t("allStatuses")} />
+          </SelectTrigger>
           <SelectContent>
             <SelectItem value="">{t("allStatuses")}</SelectItem>
             {paymentStatusOptions.map((o) => (
-              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+              <SelectItem key={o.value} value={o.value}>
+                {o.label}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
