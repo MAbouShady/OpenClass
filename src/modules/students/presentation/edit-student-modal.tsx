@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { cn } from "@/shared/lib/utils";
 import type { Level } from "@/modules/levels/domain/level";
 import type { ParentOption } from "@/modules/students/domain/student-repository";
 import type { StudentWithCourses } from "@/modules/students/domain/student";
@@ -25,6 +26,9 @@ type EditStudentModalProps = {
   readonly levels: readonly Level[];
   readonly parents: readonly ParentOption[];
   readonly updateAction: (prevState: ActionState, formData: FormData) => Promise<ActionState>;
+  /** Trigger styling, so the same modal fits a dense table row and a mobile card. */
+  readonly triggerClassName?: string;
+  readonly showLabel?: boolean;
 };
 
 export function EditStudentModal({
@@ -32,6 +36,8 @@ export function EditStudentModal({
   levels,
   parents,
   updateAction,
+  triggerClassName,
+  showLabel = false,
 }: EditStudentModalProps) {
   const t = useTranslations("students");
   const tCommon = useTranslations("common");
@@ -58,8 +64,16 @@ export function EditStudentModal({
 
   return (
     <>
-      <Button variant="ghost" size="sm" onClick={() => setOpen(true)} className="h-7 px-2">
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={() => setOpen(true)}
+        className={cn("h-7 px-2", triggerClassName)}
+        title={t("editTitle")}
+      >
         <Pencil className="h-3.5 w-3.5" />
+        {showLabel ? <span>{tCommon("edit")}</span> : null}
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
@@ -69,7 +83,7 @@ export function EditStudentModal({
           </DialogHeader>
 
           <form action={handleAction} className="flex flex-col gap-4 pt-1">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="e-name">{t("nameLabel")}</Label>
                 <Input id="e-name" name="name" defaultValue={student.name} required autoFocus />
@@ -92,7 +106,7 @@ export function EditStudentModal({
               <Input id="e-phone" name="phone" type="tel" defaultValue={student.phone ?? ""} />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">
                 <Label>{t("levelLabel")}</Label>
                 <Select value={levelId} onValueChange={setLevelId}>

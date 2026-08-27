@@ -20,7 +20,8 @@
     "approve": "Approve",
     "selectPlaceholder": "Select…",
     "optional": "optional",
-    "localeTag": "en"
+    "localeTag": "en",
+    "edit": "Edit"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -396,7 +397,8 @@
     "colCourses": "Courses",
     "colActions": "Actions",
     "deleteConfirmTitle": "Delete this student?",
-    "deleteConfirmDesc": "This permanently removes the student along with their enrolments, payments and attendance records."
+    "deleteConfirmDesc": "This permanently removes the student along with their enrolments, payments and attendance records.",
+    "qrBtn": "QR code"
   },
   "roster": {
     "allCourses": "All courses",

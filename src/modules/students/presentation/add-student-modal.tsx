@@ -181,7 +181,7 @@ export function AddStudentModal({
             </div>
           ) : (
             <form ref={formRef} action={handleAction} className="flex flex-col gap-4 pt-1">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="s-name">{t("nameLabel")}</Label>
                   <Input id="s-name" name="name" required autoFocus />
@@ -203,7 +203,7 @@ export function AddStudentModal({
                 <Input id="s-phone" name="phone" required />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div className="flex flex-col gap-1.5">
                   <Label>{t("levelLabel")}</Label>
                   <Select value={levelId} onValueChange={setLevelId}>

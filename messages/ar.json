@@ -20,7 +20,8 @@
     "approve": "موافقة",
     "selectPlaceholder": "اختر…",
     "optional": "اختياري",
-    "localeTag": "ar"
+    "localeTag": "ar",
+    "edit": "تعديل"
   },
   "nav": {
     "dashboard": "لوحة التحكم",
@@ -396,7 +397,8 @@
     "colCourses": "الدورات",
     "colActions": "إجراءات",
     "deleteConfirmTitle": "حذف هذا الطالب؟",
-    "deleteConfirmDesc": "سيؤدي هذا إلى حذف الطالب نهائياً مع كل تسجيلاته ومدفوعاته وسجلات حضوره."
+    "deleteConfirmDesc": "سيؤدي هذا إلى حذف الطالب نهائياً مع كل تسجيلاته ومدفوعاته وسجلات حضوره.",
+    "qrBtn": "رمز QR"
   },
   "roster": {
     "allCourses": "كل الكورسات",

@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { cn } from "@/shared/lib/utils";
 import type { CourseOption } from "@/modules/students/domain/student-repository";
 import type { ActionState } from "@/shared/domain/action-state";
 
@@ -16,6 +17,9 @@ type EnrollStudentModalProps = {
   readonly enrolledCourseIds: readonly string[];
   readonly courseOptions: readonly CourseOption[];
   readonly enrollAction: (prevState: ActionState, formData: FormData) => Promise<ActionState>;
+  /** Trigger styling, so the same modal fits a dense table row and a mobile card. */
+  readonly triggerClassName?: string;
+  readonly showLabel?: boolean;
 };
 
 export function EnrollStudentModal({
@@ -24,6 +28,8 @@ export function EnrollStudentModal({
   enrolledCourseIds,
   courseOptions,
   enrollAction,
+  triggerClassName,
+  showLabel = false,
 }: EnrollStudentModalProps) {
   const t = useTranslations("students");
   const tCommon = useTranslations("common");
@@ -64,11 +70,12 @@ export function EnrollStudentModal({
         type="button"
         variant="ghost"
         size="sm"
-        className="h-7 px-2"
+        className={cn("h-7 px-2", triggerClassName)}
         onClick={() => handleOpen(true)}
         title={t("enrollBtn")}
       >
         <BookPlus className="h-3.5 w-3.5" />
+        {showLabel ? <span>{t("enrollSave")}</span> : null}
       </Button>
 
       <Dialog open={open} onOpenChange={handleOpen}>

@@ -5,10 +5,14 @@ import { QrCode, Download } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/shared/lib/utils";
 
 type StudentQrModalProps = {
   readonly studentName: string;
   readonly idNumber: number | null;
+  /** Trigger styling, so the same modal fits a dense table row and a mobile card. */
+  readonly triggerClassName?: string;
+  readonly showLabel?: boolean;
 };
 
 const QR_SIZE = 256;
@@ -43,7 +47,12 @@ async function buildCard(idNumber: number): Promise<{ dataUrl: string; canvasDat
   return { dataUrl, canvasDataUrl: canvas.toDataURL("image/png") };
 }
 
-export function StudentQrModal({ studentName, idNumber }: StudentQrModalProps) {
+export function StudentQrModal({
+  studentName,
+  idNumber,
+  triggerClassName,
+  showLabel = false,
+}: StudentQrModalProps) {
   const t = useTranslations("students");
   const [open, setOpen] = useState(false);
   const [card, setCard] = useState<{ dataUrl: string; canvasDataUrl: string } | null>(null);
@@ -75,12 +84,13 @@ export function StudentQrModal({ studentName, idNumber }: StudentQrModalProps) {
         type="button"
         variant="ghost"
         size="sm"
-        className="h-7 px-2"
+        className={cn("h-7 px-2", triggerClassName)}
         onClick={() => setOpen(true)}
         disabled={idNumber === null}
         title={idNumber === null ? t("qrNotEnrolledTitle") : t("qrShowTitle")}
       >
         <QrCode className="h-3.5 w-3.5" />
+        {showLabel ? <span>{t("qrBtn")}</span> : null}
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
