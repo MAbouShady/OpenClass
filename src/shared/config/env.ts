@@ -11,6 +11,14 @@ const envSchema = z.object({
   NEXT_PUBLIC_VAPID_PUBLIC_KEY: z.string().min(1),
   VAPID_PRIVATE_KEY: z.string().min(1),
   VAPID_SUBJECT: z.string().min(1),
+  /**
+   * Public self-registration at `/register`. Off unless explicitly set to "true".
+   * Anything else (unset, "false", "1", "yes") keeps registration closed.
+   */
+  REGISTRATION_ENABLED: z
+    .string()
+    .optional()
+    .transform((value) => value === "true"),
 
   // ── Recorded courses / video pipeline ────────────────────────────────────
   /** Private media root. MUST live outside `public/` so nothing is ever served statically. */

@@ -27,13 +27,17 @@ describe("registerUser", () => {
     if (!result.ok) return;
     expect(result.value).toMatchObject({
       id: "user-1",
-      name: "Ada Lovelace", phone: "+1555000001",
+      name: "Ada Lovelace",
       email: "ada@example.com",
       role: "TEACHER",
       bio: null,
       locale: "en",
     });
     expect(result.value).not.toHaveProperty("passwordHash");
+    // `phone` is persisted but deliberately absent from the `User` domain type,
+    // so it is never echoed back by the registration boundary.
+    expect(result.value).not.toHaveProperty("phone");
+    expect(await userRepository.findByPhone("+1555000001")).toMatchObject({ id: "user-1" });
   });
 
   it("stores the hashed password, not the plain one", async () => {

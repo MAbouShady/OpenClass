@@ -5,12 +5,13 @@ import { AuthLayout } from "@/modules/auth/presentation/auth-layout";
 import { LoginForm } from "@/modules/auth/presentation/login-form";
 import { LinkText } from "@/components/common/link-text";
 import { loginAction } from "@/app/login/actions";
+import { env } from "@/shared/config/env";
 
 export default async function LoginPage() {
   const session = await auth();
   if (session?.user.id) redirect(`/dashboard/${session.user.role.toLowerCase()}`);
 
-  const registrationEnabled = process.env.REGISTRATION_ENABLED === "true";
+  const registrationEnabled = env.REGISTRATION_ENABLED;
   const t = await getTranslations("auth");
   const tCommon = await getTranslations("common");
 
