@@ -33,7 +33,9 @@ export async function registerAction(
     name: formData.get("name"),
     email: formData.get("email"),
     password: formData.get("password"),
-    role: formData.get("role"),
+    // Pinned server-side. Self-registration only ever creates a teacher; the
+    // role must never come from the request, or a caller could ask for ADMIN.
+    role: "TEACHER",
     locale,
   });
 

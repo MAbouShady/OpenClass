@@ -31,7 +31,6 @@ function validForm(): FormData {
   formData.set("name", "Ada Lovelace");
   formData.set("email", "ada@example.com");
   formData.set("password", "password123");
-  formData.set("role", "TEACHER");
   return formData;
 }
 
@@ -61,5 +60,27 @@ describe("registerAction", () => {
 
     await expect(registerAction({}, validForm())).rejects.toThrow("NEXT_REDIRECT");
     expect(registerUserMock).toHaveBeenCalledOnce();
+    expect(registerUserMock.mock.calls[0]?.[1]).toMatchObject({ role: "TEACHER" });
+  });
+
+  it("ignores a client-supplied role and always creates a TEACHER", async () => {
+    envMock.REGISTRATION_ENABLED = true;
+    registerUserMock.mockResolvedValue({ ok: true, value: { id: "user-1" } });
+
+    const formData = validForm();
+    formData.set("role", "ADMIN");
+
+    await expect(registerAction({}, formData)).rejects.toThrow("NEXT_REDIRECT");
+    expect(registerUserMock.mock.calls[0]?.[1]).toMatchObject({ role: "TEACHER" });
+  });
+
+  it("cannot create any role at all while registration is off", async () => {
+    const formData = validForm();
+    formData.set("role", "ADMIN");
+
+    const result = await registerAction({}, formData);
+
+    expect(result.error).toBe("Registration is disabled.");
+    expect(registerUserMock).not.toHaveBeenCalled();
   });
 });

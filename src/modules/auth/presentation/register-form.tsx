@@ -18,7 +18,6 @@ export function RegisterForm({ action }: RegisterFormProps) {
 
   return (
     <form action={formAction} className="space-y-4">
-      <input type="hidden" name="role" value="TEACHER" />
       <div className="space-y-2">
         <Label htmlFor="name">{t("name")}</Label>
         <Input id="name" name="name" type="text" required autoComplete="name" />
