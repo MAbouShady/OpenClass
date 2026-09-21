@@ -221,7 +221,7 @@ export function DashboardChrome({ role, name, email, locale, children }: Dashboa
     <TooltipProvider>
       <div className="flex min-h-full">
         {/* ── Desktop sidebar ──────────────────────────────────────────── */}
-        <aside className="fixed inset-y-0 start-0 z-30 hidden w-64 flex-col border-e border-sidebar-border bg-sidebar md:flex">
+        <aside className="fixed inset-y-0 start-0 z-30 hidden print:hidden w-64 flex-col border-e border-sidebar-border bg-sidebar md:flex">
           {/* Logo */}
           <div className="flex h-14 shrink-0 items-center gap-2.5 px-5">
             {logoMark}
@@ -287,9 +287,9 @@ export function DashboardChrome({ role, name, email, locale, children }: Dashboa
         )}
 
         {/* ── Content column ───────────────────────────────────────────── */}
-        <div className="flex min-h-full flex-1 flex-col md:ps-64">
+        <div className="flex min-h-full flex-1 flex-col md:ps-64 print:ps-0">
           {/* Header */}
-          <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4 shadow-sm">
+          <header className="sticky top-0 z-20 print:hidden flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4 shadow-sm">
             {/* Mobile hamburger */}
             <Button
               variant="ghost"
@@ -315,7 +315,7 @@ export function DashboardChrome({ role, name, email, locale, children }: Dashboa
           </header>
 
           {/* Page content */}
-          <main className="flex-1 p-6">{children}</main>
+          <main className="flex-1 p-6 print:p-0">{children}</main>
         </div>
       </div>
     </TooltipProvider>

@@ -6,12 +6,13 @@ import { PrismaPaymentRepository } from "@/modules/payments/infrastructure/prism
 import { PaymentList } from "@/app/dashboard/teacher/payments/payment-list";
 import { PageHeader } from "@/components/common/page-header";
 import { CreditCard } from "lucide-react";
+import { LinkButton } from "@/components/common/link-button";
 
 const paymentRepository = new PrismaPaymentRepository();
 
 export default async function PaymentsPage() {
   const session = await auth();
-  if (!session || session.user.role !== "TEACHER") notFound();
+  if (!session || (session.user.role !== "TEACHER" && session.user.role !== "ADMIN")) notFound();
 
   const [enrollments, t] = await Promise.all([
     paymentRepository.findEnrollmentSummariesForTeacher(session.user.id),
@@ -25,6 +26,11 @@ export default async function PaymentsPage() {
         title={t("pageTitle")}
         subtitle={t("pageSubtitle")}
         tone="amber"
+        actions={
+          <LinkButton href="/dashboard/teacher/payments/report" variant="outline">
+            {t("reportBtn")}
+          </LinkButton>
+        }
       />
       <Card>
         <CardContent className="pt-6">
