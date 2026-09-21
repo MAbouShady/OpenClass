@@ -62,6 +62,38 @@ describe("startVideoUpload", () => {
     expect(serialized).not.toContain("original.");
   });
 
+  it("opens an upload when the browser reported no MIME type at all", async () => {
+    // The failure this reproduces: on a Windows machine with nothing registered
+    // for .mkv, `file.type` is "" and the upload was rejected before it began,
+    // while the same file uploaded fine from a Mac.
+    const result = await startVideoUpload(uploadDeps(), TEACHER, {
+      filename: "lesson.mkv",
+      mimeType: "",
+      sizeBytes: 500,
+    });
+
+    expect(result.ok).toBe(true);
+  });
+
+  it("opens an upload when the field is missing entirely", async () => {
+    const result = await startVideoUpload(uploadDeps(), TEACHER, {
+      filename: "lesson.mov",
+      sizeBytes: 500,
+    });
+
+    expect(result.ok).toBe(true);
+  });
+
+  it("still refuses a filename that is not a video", async () => {
+    const result = await startVideoUpload(uploadDeps(), TEACHER, {
+      filename: "payload.php",
+      mimeType: "",
+      sizeBytes: 500,
+    });
+
+    expect(result.ok).toBe(false);
+  });
+
   it("refuses a student", async () => {
     const result = await startVideoUpload(uploadDeps(), STUDENT, {
       filename: "lesson.mp4",

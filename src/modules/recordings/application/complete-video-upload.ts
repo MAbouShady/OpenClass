@@ -26,7 +26,7 @@ export type CompleteVideoUploadInput = {
 export type CompleteVideoUploadError = InvalidVideoFileError | RecordedVideoForbiddenError;
 
 /** Bytes read from the head of the upload for container sniffing. */
-const SNIFF_BYTES = 32;
+const SNIFF_BYTES = 64;
 
 /**
  * Seals an upload: the received bytes are sniffed, moved to their permanent

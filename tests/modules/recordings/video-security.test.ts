@@ -166,6 +166,39 @@ describe("upload validation", () => {
     expect(result).toBeInstanceOf(Error);
   });
 
+  it("accepts a file whose MIME type the operating system could not name", () => {
+    // Windows reports "" for .mkv and .mov when nothing has claimed the
+    // extension. The bytes are still sniffed at completion, so this is safe.
+    expect(
+      validateVideoUploadRequest({
+        ...base,
+        filename: "lesson.mkv",
+        declaredMimeType: "",
+        sizeBytes: 500,
+      }),
+    ).toEqual({ mimeType: "video/x-matroska", extension: "mkv" });
+
+    expect(
+      validateVideoUploadRequest({
+        ...base,
+        filename: "lesson.mov",
+        declaredMimeType: "application/octet-stream",
+        sizeBytes: 500,
+      }),
+    ).toEqual({ mimeType: "video/quicktime", extension: "mov" });
+  });
+
+  it("takes the extension over a browser MIME type that disagrees with it", () => {
+    expect(
+      validateVideoUploadRequest({
+        ...base,
+        filename: "lesson.webm",
+        declaredMimeType: "video/mp4",
+        sizeBytes: 500,
+      }),
+    ).toEqual({ mimeType: "video/webm", extension: "webm" });
+  });
+
   it("sniffs the real container from the bytes", () => {
     const mp4 = new Uint8Array([
       0, 0, 0, 24, 0x66, 0x74, 0x79, 0x70, 0x69, 0x73, 0x6f, 0x6d, 0, 0, 0, 0,
@@ -177,8 +210,37 @@ describe("upload validation", () => {
     ]);
     expect(sniffVideoContainer(mov)).toEqual({ mimeType: "video/quicktime", extension: "mov" });
 
-    const webm = new Uint8Array([0x1a, 0x45, 0xdf, 0xa3, 0, 0, 0, 0]);
+    const webm = ebmlWithDocType("webm");
     expect(sniffVideoContainer(webm)).toEqual({ mimeType: "video/webm", extension: "webm" });
+
+    const mkv = ebmlWithDocType("matroska");
+    expect(sniffVideoContainer(mkv)).toEqual({ mimeType: "video/x-matroska", extension: "mkv" });
+
+    // No readable DocType: still EBML, so it is treated as the safer WebM.
+    const bare = new Uint8Array([0x1a, 0x45, 0xdf, 0xa3, 0, 0, 0, 0]);
+    expect(sniffVideoContainer(bare)).toEqual({ mimeType: "video/webm", extension: "webm" });
+  });
+
+  it("recognises a wrong file from the opening bytes alone", () => {
+    // What the upload now checks before sending anything, and again on the
+    // first chunk it receives: the head of a real file, not the whole thing.
+    const pdf = new TextEncoder().encode("%PDF-1.7\n%\xe2\xe3\xcf\xd3\n1 0 obj");
+    expect(sniffVideoContainer(pdf.subarray(0, 64))).toBeNull();
+
+    const zip = new Uint8Array([0x50, 0x4b, 0x03, 0x04, 0x14, 0, 0, 0, 8, 0, 0, 0, 0, 0]);
+    expect(sniffVideoContainer(zip.subarray(0, 64))).toBeNull();
+
+    // A truncated download: the right extension, no container header yet.
+    expect(sniffVideoContainer(new Uint8Array(12))).toBeNull();
+  });
+
+  it("recognises a good file from the opening bytes alone", () => {
+    const mp4 = new Uint8Array(64);
+    mp4.set([0, 0, 0, 24, 0x66, 0x74, 0x79, 0x70, 0x69, 0x73, 0x6f, 0x6d], 0);
+    expect(sniffVideoContainer(mp4.subarray(0, 64))).toEqual({
+      mimeType: "video/mp4",
+      extension: "mp4",
+    });
   });
 
   it("refuses bytes that are not a video, however the file was named", () => {
@@ -192,3 +254,22 @@ describe("upload validation", () => {
     expect(sniffVideoContainer(new Uint8Array(0))).toBeNull();
   });
 });
+
+/** An EBML header carrying the given DocType, the way a real file lays it out. */
+function ebmlWithDocType(docType: string): Uint8Array {
+  const name = new TextEncoder().encode(docType);
+  return new Uint8Array([
+    0x1a,
+    0x45,
+    0xdf,
+    0xa3,
+    0x01,
+    0x00,
+    0x00,
+    0x00,
+    0x42,
+    0x82,
+    0x80 | name.length,
+    ...name,
+  ]);
+}

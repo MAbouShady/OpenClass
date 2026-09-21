@@ -55,7 +55,11 @@ export type ReorderRecordedVideosSchemaInput = z.infer<typeof reorderRecordedVid
 
 export const startVideoUploadSchema = z.object({
   filename: z.string().trim().min(1).max(255),
-  mimeType: z.string().trim().min(1).max(120),
+  // Optional on purpose. `file.type` is empty whenever the operating system has
+  // no registry entry for the extension — routine on Windows for .mkv and .mov
+  // — and requiring it here failed the upload before any validation could
+  // explain why. The type is decided by sniffing the bytes at completion.
+  mimeType: z.string().trim().max(120).optional().default(""),
   sizeBytes: z.coerce.number().int().positive(),
 });
 
