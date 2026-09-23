@@ -716,6 +716,8 @@
     "byLevel": "Total by level",
     "pageOf": "Page {page} of {total}",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "rowsPerPage": "Rows per page",
+    "showAll": "Show all"
   }
 }

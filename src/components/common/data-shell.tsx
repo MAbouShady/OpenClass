@@ -12,8 +12,15 @@ type DataShellProps = {
  */
 export function DataShell({ children, className }: DataShellProps) {
   return (
-    <div className={cn("overflow-hidden rounded-xl border bg-card shadow-sm", className)}>
-      <div className="overflow-x-auto">{children}</div>
+    <div
+      className={cn(
+        "overflow-hidden rounded-xl border bg-card shadow-sm print:overflow-visible",
+        className,
+      )}
+    >
+      {/* print:overflow-visible: a printed page can't be scrolled, so a table that only fits via horizontal
+          scroll on screen must stop being clipped and show every column when printed instead. */}
+      <div className="overflow-x-auto print:overflow-visible">{children}</div>
     </div>
   );
 }

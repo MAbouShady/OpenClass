@@ -716,6 +716,8 @@
     "byLevel": "الإجمالي حسب المستوى",
     "pageOf": "صفحة {page} من {total}",
     "previous": "السابق",
-    "next": "التالي"
+    "next": "التالي",
+    "rowsPerPage": "عدد الصفوف",
+    "showAll": "عرض الكل"
   }
 }
