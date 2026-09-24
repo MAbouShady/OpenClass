@@ -8,12 +8,13 @@ import {
   BookOpen,
   ClipboardList,
   CreditCard,
-  LayoutDashboard,
   Layers,
+  LayoutDashboard,
   Link2,
   Menu,
   QrCode,
   ScanLine,
+  Shield,
   User,
   Users,
   Video,
@@ -28,7 +29,6 @@ import { NotificationOptInButton } from "@/modules/notifications/presentation/no
 import { LanguageSwitcher } from "@/i18n/language-switcher";
 import { signOutAction } from "@/app/dashboard/actions";
 import { cn } from "@/shared/lib/utils";
-import { Shield } from "lucide-react";
 import type { Role } from "@/modules/auth/domain/role";
 import type { Locale } from "@/i18n/locale";
 
@@ -287,7 +287,10 @@ export function DashboardChrome({ role, name, email, locale, children }: Dashboa
         )}
 
         {/* ── Content column ───────────────────────────────────────────── */}
-        <div className="flex min-h-full flex-1 flex-col md:ps-64 print:ps-0">
+        {/* min-w-0: without it, a flex item's automatic min-width is its content's min-content size, so a wide
+            table (e.g. the payments report) on any page stretches this whole column — and the page — past the
+            viewport instead of scrolling internally. */}
+        <div className="flex min-h-full min-w-0 flex-1 flex-col md:ps-64 print:ps-0">
           {/* Header */}
           <header className="sticky top-0 z-20 print:hidden flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4 shadow-sm">
             {/* Mobile hamburger */}

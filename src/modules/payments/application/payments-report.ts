@@ -40,6 +40,8 @@ export function parsePaymentsReportFilters(
 }
 
 export type PaymentsReportRow = {
+  /** Stable identity for the row: the payment id, or `${enrollmentId}:unpaid`. Used for React keys and de-duplication. */
+  readonly id: string;
   readonly studentName: string;
   readonly studentIdNumber: number | null;
   readonly courseId: string;
@@ -66,27 +68,59 @@ export type PaymentsReport = {
   readonly byLevel: readonly ReportBucket[];
 };
 
+/** Every status/method the report can show, in the order the filter dropdown and the breakdown use. */
+const STATUS_DOMAIN: readonly ReportStatus[] = ["APPROVED", "PENDING", "UNPAID"];
+const METHOD_DOMAIN: readonly (PaymentMethod | "NONE")[] = ["ONLINE", "CASH", "NONE"];
+
 /** `Date` (a UTC first-of-month) → `YYYY-MM`. */
 function monthKey(date: Date): string {
   return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
 }
 
-/** Sums rows into buckets keyed by `keyOf`, keeping first-seen `label`, sorted by amount desc. */
+/** This month, as `YYYY-MM` — the report's default `from`/`to` before the filter form is ever submitted. */
+export function currentMonthKey(): string {
+  return monthKey(new Date());
+}
+
+/**
+ * Sums rows into buckets keyed by `keyOf`. Every entry in `domain` is present in the result — with
+ * count/amount 0 if no row matched it — so a narrow filter never makes a whole type (a status, a method, a
+ * course…) disappear from the breakdown; it only zeroes it out. Order follows `domain`, not amount, so the
+ * breakdown doesn't reshuffle as filters change.
+ */
 function bucketize(
   rows: readonly PaymentsReportRow[],
-  keyOf: (row: PaymentsReportRow) => { key: string; label: string },
+  domain: readonly { key: string; label: string }[],
+  keyOf: (row: PaymentsReportRow) => string,
 ): ReportBucket[] {
   const map = new Map<string, { label: string; count: number; amount: number }>();
+  for (const { key, label } of domain) {
+    map.set(key, { label, count: 0, amount: 0 });
+  }
   for (const row of rows) {
-    const { key, label } = keyOf(row);
-    const bucket = map.get(key) ?? { label, count: 0, amount: 0 };
+    const key = keyOf(row);
+    const bucket = map.get(key) ?? { label: key, count: 0, amount: 0 };
     bucket.count += 1;
     bucket.amount += row.amount;
     map.set(key, bucket);
   }
+  return [...map.entries()].map(([key, b]) => ({ key, ...b }));
+}
+
+/** Distinct `{ key, label }` pairs, first occurrence wins, sorted by label. Used to build a breakdown's domain. */
+function uniqueSorted<T>(
+  items: readonly T[],
+  keyOf: (item: T) => string,
+  labelOf: (item: T) => string,
+): { key: string; label: string }[] {
+  const map = new Map<string, string>();
+  for (const item of items) {
+    const key = keyOf(item);
+    if (!map.has(key)) map.set(key, labelOf(item));
+  }
   return [...map.entries()]
-    .map(([key, b]) => ({ key, ...b }))
-    .sort((a, b) => b.amount - a.amount || a.label.localeCompare(b.label));
+    .map(([key, label]) => ({ key, label }))
+    .sort((a, b) => a.label.localeCompare(b.label));
 }
 
 /** One row per payment record, plus one `UNPAID` row for an enrollment with no payment at all. */
@@ -102,10 +136,20 @@ function toRows(summaries: readonly EnrollmentPaymentSummary[]): PaymentsReportR
       amount: s.coursePrice ?? 0,
     };
     if (s.allPayments.length === 0) {
-      return [{ ...base, month: null, method: null, status: "UNPAID", notes: null }];
+      return [
+        {
+          ...base,
+          id: `${s.enrollmentId}:unpaid`,
+          month: null,
+          method: null,
+          status: "UNPAID",
+          notes: null,
+        },
+      ];
     }
     return s.allPayments.map((p) => ({
       ...base,
+      id: p.id,
       month: monthKey(p.month),
       method: p.method,
       status: p.status,
@@ -128,7 +172,11 @@ export function buildPaymentsReport(
   summaries: readonly EnrollmentPaymentSummary[],
   filters: PaymentsReportFilters,
 ): PaymentsReport {
-  const all = toRows(summaries);
+  // De-duplicated by row id: a payment can only ever produce one row (its id), and an enrollment with no
+  // payment produces exactly one `:unpaid` row, so this also guards against a future repository bug that
+  // returns the same payment/enrollment twice (e.g. an accidental join fan-out).
+  const seen = new Set<string>();
+  const all = toRows(summaries).filter((r) => (seen.has(r.id) ? false : (seen.add(r.id), true)));
 
   const q = filters.q?.toLowerCase();
   const rows = all
@@ -150,15 +198,40 @@ export function buildPaymentsReport(
           .includes(q),
     )
     // Newest month first, unpaid (no month) last, then by student for a stable order.
-    .sort((a, b) => (b.month ?? "").localeCompare(a.month ?? "") || a.studentName.localeCompare(b.studentName));
+    .sort(
+      (a, b) =>
+        (b.month ?? "").localeCompare(a.month ?? "") || a.studentName.localeCompare(b.studentName),
+    );
+
+  // Breakdown domains come from ALL summaries (not just the filtered rows), so every status/method/course/level
+  // the teacher has still shows up — at 0 — instead of vanishing when a filter narrows the result to nothing of
+  // that type.
+  const courseDomain = uniqueSorted(
+    summaries,
+    (s) => s.courseId,
+    (s) => s.courseName,
+  );
+  const levelDomain = uniqueSorted(
+    summaries,
+    (s) => s.levelId,
+    (s) => s.levelName,
+  );
 
   return {
     rows,
     total: { count: rows.length, amount: rows.reduce((sum, r) => sum + r.amount, 0) },
-    byStatus: bucketize(rows, (r) => ({ key: r.status, label: r.status })),
-    byMethod: bucketize(rows, (r) => ({ key: r.method ?? "NONE", label: r.method ?? "NONE" })),
-    byCourse: bucketize(rows, (r) => ({ key: r.courseId, label: r.courseName })),
-    byLevel: bucketize(rows, (r) => ({ key: r.levelId, label: r.levelName })),
+    byStatus: bucketize(
+      rows,
+      STATUS_DOMAIN.map((s) => ({ key: s, label: s })),
+      (r) => r.status,
+    ),
+    byMethod: bucketize(
+      rows,
+      METHOD_DOMAIN.map((m) => ({ key: m, label: m })),
+      (r) => r.method ?? "NONE",
+    ),
+    byCourse: bucketize(rows, courseDomain, (r) => r.courseId),
+    byLevel: bucketize(rows, levelDomain, (r) => r.levelId),
   };
 }
 

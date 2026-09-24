@@ -1,8 +1,6 @@
-import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { cn } from "@/shared/lib/utils";
 import { DataShell } from "@/components/common/data-shell";
 import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type {
@@ -32,42 +30,51 @@ export function ReportTable(props: {
   readonly emptyLabel: string;
 }) {
   const { rows, labels, money, emptyLabel } = props;
+  // Screen: nowrap + horizontal scroll (the results can be wide; scrolling beats squeezing). Print: a page can't
+  // be scrolled, so cells wrap instead — combined with DataShell's print:overflow-visible and the smaller
+  // print:text-[10px], all 8 columns end up visible on the printed/PDF page rather than a few being cut off.
+  const cell = "whitespace-nowrap print:whitespace-normal print:break-words";
   return (
     <DataShell>
-      <Table>
+      <Table className="print:text-[10px]">
         <TableHeader>
           <TableRow>
             {labels.columns.map((c) => (
-              <TableHead key={c}>{c}</TableHead>
+              <TableHead key={c} className={cell}>
+                {c}
+              </TableHead>
             ))}
           </TableRow>
         </TableHeader>
         <TableBody>
           {rows.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={labels.columns.length} className="py-8 text-center text-muted-foreground">
+              <TableCell
+                colSpan={labels.columns.length}
+                className="py-8 text-center text-muted-foreground"
+              >
                 {emptyLabel}
               </TableCell>
             </TableRow>
           ) : (
-            rows.map((r, i) => (
-              <TableRow key={i}>
-                <TableCell className="font-medium">{r.studentName}</TableCell>
-                <TableCell>{r.studentIdNumber ?? "—"}</TableCell>
-                <TableCell>{r.courseName}</TableCell>
-                <TableCell>{r.levelName}</TableCell>
-                <TableCell>{r.month ?? "—"}</TableCell>
-                <TableCell>{labels.method[r.method ?? "NONE"]}</TableCell>
-                <TableCell>
+            rows.map((r) => (
+              <TableRow key={r.id}>
+                <TableCell className={cn(cell, "font-medium")}>{r.studentName}</TableCell>
+                <TableCell className={cell}>{r.studentIdNumber ?? "—"}</TableCell>
+                <TableCell className={cell}>{r.courseName}</TableCell>
+                <TableCell className={cell}>{r.levelName}</TableCell>
+                <TableCell className={cell}>{r.month ?? "—"}</TableCell>
+                <TableCell className={cell}>{labels.method[r.method ?? "NONE"]}</TableCell>
+                <TableCell className={cell}>
                   {/* print-color-adjust keeps the badge colour in the printed PDF (browsers drop backgrounds by default). */}
                   <Badge
-                    className="text-xs text-white [print-color-adjust:exact]"
+                    className="text-xs text-white [print-color-adjust:exact] print:text-[10px]"
                     style={{ backgroundColor: STATUS_COLOR[r.status] }}
                   >
                     {labels.status[r.status]}
                   </Badge>
                 </TableCell>
-                <TableCell>{money(r.amount)}</TableCell>
+                <TableCell className={cell}>{money(r.amount)}</TableCell>
               </TableRow>
             ))
           )}
@@ -124,50 +131,3 @@ export function ReportTotals(props: {
   );
 }
 
-/**
- * Previous/next links that keep every active filter and only change `page`. Chevrons flip in RTL.
- * Renders nothing when there is a single page.
- */
-export function Pagination(props: {
-  readonly page: number;
-  readonly totalPages: number;
-  readonly query: Readonly<Record<string, string | undefined>>;
-  readonly label: string;
-  readonly prev: string;
-  readonly next: string;
-}) {
-  const { page, totalPages, query, label, prev, next } = props;
-  if (totalPages <= 1) return null;
-
-  const href = (target: number) => {
-    const params = new URLSearchParams(
-      Object.entries(query).filter(([k, v]) => k !== "page" && v) as [string, string][],
-    );
-    params.set("page", String(target));
-    return `?${params.toString()}`;
-  };
-  const btn = buttonVariants({ variant: "outline", size: "sm" });
-  const off = `${btn} pointer-events-none opacity-40`;
-
-  return (
-    <div className="mt-3 flex items-center justify-between text-sm text-muted-foreground">
-      <span>{label}</span>
-      <div className="flex gap-1">
-        {page > 1 ? (
-          <Link href={href(page - 1)} className={btn} aria-label={prev}>
-            <ChevronLeft size={14} className="rtl:rotate-180" />
-          </Link>
-        ) : (
-          <span className={off}><ChevronLeft size={14} className="rtl:rotate-180" /></span>
-        )}
-        {page < totalPages ? (
-          <Link href={href(page + 1)} className={btn} aria-label={next}>
-            <ChevronRight size={14} className="rtl:rotate-180" />
-          </Link>
-        ) : (
-          <span className={off}><ChevronRight size={14} className="rtl:rotate-180" /></span>
-        )}
-      </div>
-    </div>
-  );
-}
