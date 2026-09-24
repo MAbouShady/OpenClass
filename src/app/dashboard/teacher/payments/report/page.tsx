@@ -11,6 +11,7 @@ import {
   buildPaymentsReport,
   currentMonthKey,
   parsePaymentsReportFilters,
+  type ReportSortKey,
 } from "@/modules/payments/application/payments-report";
 import { getReportLabels } from "./labels";
 import { PAGE_SIZE_OPTIONS, type PageSizeOption } from "./page-size";
@@ -58,6 +59,19 @@ export default async function PaymentsReportPage({ searchParams }: PageProps) {
 
   const courses = [...new Map(summaries.map((s) => [s.courseId, s.courseName])).entries()];
   const levels = [...new Map(summaries.map((s) => [s.levelId, s.levelName])).entries()];
+  // Header links: clicking the active column flips its direction, any other column starts ascending. Back to
+  // page 1, since a new order makes the current page number meaningless. Other params are kept as-is.
+  const sortDir = filters.dir ?? "asc";
+  const sortHref = (key: ReportSortKey) => {
+    const next = new URLSearchParams(
+      Object.entries(params).filter((e): e is [string, string] => e[1] !== undefined),
+    );
+    next.set("sort", key);
+    next.set("dir", filters.sort === key && sortDir === "asc" ? "desc" : "asc");
+    next.set("page", "1");
+    return `?${next.toString()}`;
+  };
+
   // Only the filters that are actually set, forwarded verbatim to the CSV endpoint.
   const csvQuery = new URLSearchParams(
     Object.entries(filters).map(([k, v]) => [k, String(v)] as [string, string]),
@@ -109,6 +123,9 @@ export default async function PaymentsReportPage({ searchParams }: PageProps) {
 
       {/* Filters: a plain GET form, so the URL is the single source of truth (shareable, and reused by the CSV link). */}
       <form method="GET" className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 print:hidden">
+        {/* Keep the chosen sort when filters are re-applied. */}
+        {filters.sort && <input type="hidden" name="sort" value={filters.sort} />}
+        {filters.dir && <input type="hidden" name="dir" value={filters.dir} />}
         <Input
           name="q"
           defaultValue={filters.q}
@@ -163,7 +180,18 @@ export default async function PaymentsReportPage({ searchParams }: PageProps) {
 
       {/* Screen: one page of rows. Print: every row (the PDF should be the full report, not just page N). */}
       <div className="print:hidden">
-        <ReportTable rows={pageRows} labels={labels} money={money} emptyLabel={t("noResults")} />
+        <ReportTable
+          rows={pageRows}
+          labels={labels}
+          money={money}
+          emptyLabel={t("noResults")}
+          sort={{
+            key: filters.sort,
+            dir: sortDir,
+            hrefFor: sortHref,
+            ariaLabel: (column) => t("sortBy", { column }),
+          }}
+        />
         <PaginationBar
           hasRows={report.rows.length > 0}
           pageSize={pageSize}

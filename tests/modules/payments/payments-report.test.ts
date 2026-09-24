@@ -19,10 +19,12 @@ const pay = (
     status,
     proofUrl: null,
     notes: null,
+    updatedAt: new Date(`${month}-05T10:00:00Z`),
   }) as const;
 
 const summary = (over: Partial<EnrollmentPaymentSummary>): EnrollmentPaymentSummary => ({
   enrollmentId: "e",
+  studentId: "s1",
   studentName: "Sara",
   studentIdNumber: 100001,
   courseId: "c1",
@@ -46,6 +48,7 @@ const data = [
   }),
   summary({
     enrollmentId: "e2",
+    studentId: "s2",
     studentName: "=cmd|x",
     courseId: "c2",
     courseName: "Physics",
@@ -54,13 +57,13 @@ const data = [
     levelName: "Level 2",
     allPayments: [pay("p3", "2026-09", "ONLINE", "APPROVED")],
   }),
-  summary({ enrollmentId: "e3", studentName: "Omar", allPayments: [] }),
+  summary({ enrollmentId: "e3", studentId: "s3", studentName: "Omar", allPayments: [] }),
 ];
 
 describe("buildPaymentsReport", () => {
   it("totals everything and includes unpaid enrollments", () => {
     const r = buildPaymentsReport(data, {});
-    expect(r.total).toEqual({ count: 4, amount: 300 + 300 + 500 + 300 });
+    expect(r.total).toEqual({ count: 4, students: 3, amount: 300 + 300 + 500 + 300 });
     expect(r.byStatus.find((b) => b.key === "UNPAID")?.amount).toBe(300);
   });
 
@@ -74,8 +77,36 @@ describe("buildPaymentsReport", () => {
     expect(buildPaymentsReport(data, { q: "omar" }).rows).toHaveLength(1);
   });
 
+  it("counts a student paid on two enrollments of one course once in `students`", () => {
+    // The production case: same student, two semesters of the course, both marked paid for the same month.
+    const twice = [
+      summary({ enrollmentId: "a", allPayments: [pay("pa", "2026-09", "CASH", "APPROVED")] }),
+      summary({ enrollmentId: "b", allPayments: [pay("pb", "2026-09", "CASH", "APPROVED")] }),
+    ];
+    expect(buildPaymentsReport(twice, {}).total).toMatchObject({ count: 2, students: 1 });
+  });
+
+  it("sets paidAt only on approved rows", () => {
+    const rows = buildPaymentsReport(data, {}).rows;
+    expect(rows.find((r) => r.id === "p1")?.paidAt).toEqual(new Date("2026-09-05T10:00:00Z"));
+    expect(rows.find((r) => r.id === "p2")?.paidAt).toBeNull();
+    expect(rows.find((r) => r.status === "UNPAID")?.paidAt).toBeNull();
+  });
+
+  it("sorts by any column, both directions, nulls last", () => {
+    const ids = (f: Parameters<typeof buildPaymentsReport>[1]) =>
+      buildPaymentsReport(data, f).rows.map((r) => r.id);
+    expect(ids({ sort: "amount", dir: "desc" })[0]).toBe("p3");
+    // p1/p3 share a paid-at time; the null ties (p2, unpaid) fall back to student name: Omar before Sara.
+    expect(ids({ sort: "paidAt" })).toEqual(["p3", "p1", "e3:unpaid", "p2"]);
+    expect(ids({ sort: "paidAt", dir: "desc" }).slice(-2).sort()).toEqual(["e3:unpaid", "p2"]);
+    expect(ids({ sort: "student" })[0]).toBe("p3"); // "=cmd|x" sorts before letters
+  });
+
   it("ignores invalid query params", () => {
-    expect(parsePaymentsReportFilters({ status: "NOPE", from: "2026-13", q: "" })).toEqual({});
+    expect(
+      parsePaymentsReportFilters({ status: "NOPE", from: "2026-13", q: "", sort: "x", dir: "up" }),
+    ).toEqual({});
   });
 
   it("keeps every status/method/course/level in the breakdown even at zero, once a filter empties it", () => {
@@ -109,10 +140,11 @@ describe("buildPaymentsReport", () => {
 describe("paymentsReportToCsv", () => {
   it("neutralises formula cells and appends totals", () => {
     const labels = {
-      columns: ["a", "b", "c", "d", "e", "f", "g", "h"],
+      columns: ["a", "b", "c", "d", "e", "f", "g", "h", "i"],
       status: { APPROVED: "ok", PENDING: "wait", UNPAID: "no" },
       method: { ONLINE: "on", CASH: "cash", NONE: "-" },
       total: "TOTAL",
+      students: "STUDENTS",
       byStatus: "S",
       byMethod: "M",
       byCourse: "C",
@@ -121,5 +153,8 @@ describe("paymentsReportToCsv", () => {
     const csv = paymentsReportToCsv(buildPaymentsReport(data, {}), labels);
     expect(csv).toContain("'=cmd|x");
     expect(csv).toContain("TOTAL,4,1400");
+    expect(csv).toContain("STUDENTS,3");
+    // Paid-at column, Cairo time (UTC+3 in September).
+    expect(csv).toContain("2026-09-05 13:00");
   });
 });

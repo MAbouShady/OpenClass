@@ -7,6 +7,20 @@ export type ReportStatus = "APPROVED" | "PENDING" | "UNPAID";
 
 const MONTH = /^\d{4}-(0[1-9]|1[0-2])$/;
 
+/** Columns the table can be sorted by, in display order (the CSV/table columns follow the same order). */
+export const REPORT_SORT_KEYS = [
+  "student",
+  "code",
+  "course",
+  "level",
+  "month",
+  "method",
+  "status",
+  "amount",
+  "paidAt",
+] as const;
+export type ReportSortKey = (typeof REPORT_SORT_KEYS)[number];
+
 /**
  * Query-string shape of the report. Every field is optional and an invalid value is dropped (`catch`)
  * rather than rejected, so a hand-edited URL degrades to "no filter" instead of erroring.
@@ -22,6 +36,10 @@ export const paymentsReportFiltersSchema = z.object({
   to: z.string().regex(MONTH).optional().catch(undefined),
   /** Free text matched against student name/code, course, level and notes. */
   q: z.string().trim().min(1).max(100).optional().catch(undefined),
+  /** Column to sort by; unset keeps the default order (newest month first, then student). */
+  sort: z.enum(REPORT_SORT_KEYS).optional().catch(undefined),
+  /** Sort direction for `sort`; defaults to ascending. */
+  dir: z.enum(["asc", "desc"]).optional().catch(undefined),
 });
 
 export type PaymentsReportFilters = z.infer<typeof paymentsReportFiltersSchema>;
@@ -35,13 +53,17 @@ export type PaymentsReportFilters = z.infer<typeof paymentsReportFiltersSchema>;
 export function parsePaymentsReportFilters(
   params: Readonly<Record<string, string | undefined>>,
 ): PaymentsReportFilters {
-  const clean = Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined && v !== ""));
+  const clean = Object.fromEntries(
+    Object.entries(params).filter(([, v]) => v !== undefined && v !== ""),
+  );
   return paymentsReportFiltersSchema.parse(clean);
 }
 
 export type PaymentsReportRow = {
   /** Stable identity for the row: the payment id, or `${enrollmentId}:unpaid`. Used for React keys and de-duplication. */
   readonly id: string;
+  /** Used to count distinct students: one student can have several rows (several months or enrollments). */
+  readonly studentId: string;
   readonly studentName: string;
   readonly studentIdNumber: number | null;
   readonly courseId: string;
@@ -55,13 +77,21 @@ export type PaymentsReportRow = {
   /** The course price. Payments store no amount of their own, so this is the amount due for the row. */
   readonly amount: number;
   readonly notes: string | null;
+  /** When the payment became paid; `null` unless the row is `APPROVED`. */
+  readonly paidAt: Date | null;
 };
 
-export type ReportBucket = { readonly key: string; readonly label: string; readonly count: number; readonly amount: number };
+export type ReportBucket = {
+  readonly key: string;
+  readonly label: string;
+  readonly count: number;
+  readonly amount: number;
+};
 
 export type PaymentsReport = {
   readonly rows: readonly PaymentsReportRow[];
-  readonly total: { readonly count: number; readonly amount: number };
+  /** `count` is rows (payments); `students` is distinct students among them, which is what the courses page counts. */
+  readonly total: { readonly count: number; readonly students: number; readonly amount: number };
   readonly byStatus: readonly ReportBucket[];
   readonly byMethod: readonly ReportBucket[];
   readonly byCourse: readonly ReportBucket[];
@@ -75,6 +105,58 @@ const METHOD_DOMAIN: readonly (PaymentMethod | "NONE")[] = ["ONLINE", "CASH", "N
 /** `Date` (a UTC first-of-month) → `YYYY-MM`. */
 function monthKey(date: Date): string {
   return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
+}
+
+const PAID_AT_FORMAT = new Intl.DateTimeFormat("sv-SE", {
+  dateStyle: "short",
+  timeStyle: "short",
+  timeZone: "Africa/Cairo",
+});
+
+/**
+ * Formats a paid-at time as `YYYY-MM-DD HH:mm` in Cairo time (same zone as the rest of the app), shared by the
+ * table and the CSV so both show the same value.
+ *
+ * @param date - Paid-at time, or `null` for a row that isn't paid.
+ * @returns The formatted time, or `null`.
+ */
+export function formatPaidAt(date: Date | null): string | null {
+  return date === null ? null : PAID_AT_FORMAT.format(date);
+}
+
+/** Sort value of a row for each sortable column. `null` always sorts last, whatever the direction. */
+const SORT_VALUE: Record<ReportSortKey, (r: PaymentsReportRow) => string | number | null> = {
+  student: (r) => r.studentName,
+  code: (r) => r.studentIdNumber,
+  course: (r) => r.courseName,
+  level: (r) => r.levelName,
+  month: (r) => r.month,
+  method: (r) => r.method,
+  status: (r) => r.status,
+  amount: (r) => r.amount,
+  paidAt: (r) => r.paidAt?.getTime() ?? null,
+};
+
+/**
+ * Compares two rows on a column, then by student name so ties keep a stable order.
+ *
+ * @param key - Column to sort by.
+ * @param dir - Direction; affects non-null values only.
+ * @returns A negative number, zero or a positive number, as `Array.prototype.sort` expects.
+ */
+function compareBy(key: ReportSortKey, dir: "asc" | "desc") {
+  return (a: PaymentsReportRow, b: PaymentsReportRow): number => {
+    const va = SORT_VALUE[key](a);
+    const vb = SORT_VALUE[key](b);
+    let c = 0;
+    if (va === null || vb === null) c = va === vb ? 0 : va === null ? 1 : -1;
+    else
+      c =
+        (typeof va === "number" && typeof vb === "number"
+          ? va - vb
+          : String(va).localeCompare(String(vb))) * (dir === "desc" ? -1 : 1);
+    return c || a.studentName.localeCompare(b.studentName);
+  };
 }
 
 /** This month, as `YYYY-MM` — the report's default `from`/`to` before the filter form is ever submitted. */
@@ -127,6 +209,7 @@ function uniqueSorted<T>(
 function toRows(summaries: readonly EnrollmentPaymentSummary[]): PaymentsReportRow[] {
   return summaries.flatMap((s): PaymentsReportRow[] => {
     const base = {
+      studentId: s.studentId,
       studentName: s.studentName,
       studentIdNumber: s.studentIdNumber,
       courseId: s.courseId,
@@ -144,6 +227,7 @@ function toRows(summaries: readonly EnrollmentPaymentSummary[]): PaymentsReportR
           method: null,
           status: "UNPAID",
           notes: null,
+          paidAt: null,
         },
       ];
     }
@@ -154,6 +238,7 @@ function toRows(summaries: readonly EnrollmentPaymentSummary[]): PaymentsReportR
       method: p.method,
       status: p.status,
       notes: p.notes,
+      paidAt: p.status === "APPROVED" ? p.updatedAt : null,
     }));
   });
 }
@@ -197,10 +282,13 @@ export function buildPaymentsReport(
           .toLowerCase()
           .includes(q),
     )
-    // Newest month first, unpaid (no month) last, then by student for a stable order.
+    // Default: newest month first, unpaid (no month) last, then by student for a stable order.
     .sort(
-      (a, b) =>
-        (b.month ?? "").localeCompare(a.month ?? "") || a.studentName.localeCompare(b.studentName),
+      filters.sort
+        ? compareBy(filters.sort, filters.dir ?? "asc")
+        : (a, b) =>
+            (b.month ?? "").localeCompare(a.month ?? "") ||
+            a.studentName.localeCompare(b.studentName),
     );
 
   // Breakdown domains come from ALL summaries (not just the filtered rows), so every status/method/course/level
@@ -219,7 +307,11 @@ export function buildPaymentsReport(
 
   return {
     rows,
-    total: { count: rows.length, amount: rows.reduce((sum, r) => sum + r.amount, 0) },
+    total: {
+      count: rows.length,
+      students: new Set(rows.map((r) => r.studentId)).size,
+      amount: rows.reduce((sum, r) => sum + r.amount, 0),
+    },
     byStatus: bucketize(
       rows,
       STATUS_DOMAIN.map((s) => ({ key: s, label: s })),
@@ -237,10 +329,23 @@ export function buildPaymentsReport(
 
 /** Localised strings the CSV needs; supplied by the caller so this module stays i18n-free. */
 export type PaymentsReportCsvLabels = {
-  readonly columns: readonly [string, string, string, string, string, string, string, string];
+  /** One heading per entry of {@link REPORT_SORT_KEYS}, same order. */
+  readonly columns: readonly [
+    string,
+    string,
+    string,
+    string,
+    string,
+    string,
+    string,
+    string,
+    string,
+  ];
   readonly status: Readonly<Record<ReportStatus, string>>;
   readonly method: Readonly<Record<PaymentMethod | "NONE", string>>;
   readonly total: string;
+  /** Unit after the distinct-student count, e.g. "students". */
+  readonly students: string;
   readonly byStatus: string;
   readonly byMethod: string;
   readonly byCourse: string;
@@ -265,7 +370,10 @@ function csvField(value: string | number | null): string {
  * @param labels - Localised headings and enum labels.
  * @returns CSV text with `\r\n` line endings.
  */
-export function paymentsReportToCsv(report: PaymentsReport, labels: PaymentsReportCsvLabels): string {
+export function paymentsReportToCsv(
+  report: PaymentsReport,
+  labels: PaymentsReportCsvLabels,
+): string {
   const line = (cells: readonly (string | number | null)[]) => cells.map(csvField).join(",");
   const lines: string[] = [line(labels.columns)];
 
@@ -280,16 +388,22 @@ export function paymentsReportToCsv(report: PaymentsReport, labels: PaymentsRepo
         labels.method[r.method ?? "NONE"],
         labels.status[r.status],
         r.amount,
+        formatPaidAt(r.paidAt),
       ]),
     );
   }
 
-  const section = (title: string, buckets: readonly ReportBucket[], name: (b: ReportBucket) => string) => {
+  const section = (
+    title: string,
+    buckets: readonly ReportBucket[],
+    name: (b: ReportBucket) => string,
+  ) => {
     lines.push("", line([title]));
     for (const b of buckets) lines.push(line([name(b), b.count, b.amount]));
   };
 
   lines.push("", line([labels.total, report.total.count, report.total.amount]));
+  lines.push(line([labels.students, report.total.students]));
   section(labels.byStatus, report.byStatus, (b) => labels.status[b.key as ReportStatus]);
   section(labels.byMethod, report.byMethod, (b) => labels.method[b.key as PaymentMethod | "NONE"]);
   section(labels.byCourse, report.byCourse, (b) => b.label);

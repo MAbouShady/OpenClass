@@ -695,6 +695,7 @@
     "reset": "إعادة ضبط",
     "noResults": "لا توجد مدفوعات تطابق هذه الفلاتر.",
     "payments": "دفعة",
+    "students": "طالب",
     "colStudent": "الطالب",
     "colCode": "الكود",
     "colCourse": "الدورة",
@@ -703,6 +704,7 @@
     "colMethod": "الطريقة",
     "colStatus": "الحالة",
     "colAmount": "المبلغ",
+    "colPaidAt": "تاريخ الدفع",
     "statusApproved": "مقبولة",
     "statusPending": "قيد المراجعة",
     "statusUnpaid": "غير مدفوعة",
@@ -718,6 +720,7 @@
     "previous": "السابق",
     "next": "التالي",
     "rowsPerPage": "عدد الصفوف",
-    "showAll": "عرض الكل"
+    "showAll": "عرض الكل",
+    "sortBy": "ترتيب حسب {column}"
   }
 }

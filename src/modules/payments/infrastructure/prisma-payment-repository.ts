@@ -103,9 +103,11 @@ export class PrismaPaymentRepository implements PaymentRepository {
         status: p.status,
         proofUrl: p.proofUrl,
         notes: p.notes,
+        updatedAt: p.updatedAt,
       }));
       return {
         enrollmentId: enrollment.id,
+        studentId: enrollment.studentId,
         studentName: enrollment.student.name,
         studentIdNumber: enrollment.student.idNumber,
         courseId: enrollment.semester.course.id,

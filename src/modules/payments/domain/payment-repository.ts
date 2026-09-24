@@ -8,6 +8,11 @@ export type PaymentRow = {
   readonly status: PaymentStatus;
   readonly proofUrl: string | null;
   readonly notes: string | null;
+  /**
+   * Last write to the record. Payments are only ever created or approved (never otherwise edited), so for an
+   * APPROVED payment this is when it became paid: creation for cash, approval for online.
+   */
+  readonly updatedAt: Date;
 };
 
 export type PaymentWithContext = {
@@ -26,6 +31,7 @@ export type PaymentWithContext = {
 
 export type EnrollmentPaymentSummary = {
   readonly enrollmentId: string;
+  readonly studentId: string;
   readonly studentName: string;
   readonly studentIdNumber: number | null;
   readonly courseId: string;
