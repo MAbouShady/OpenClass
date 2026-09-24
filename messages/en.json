@@ -695,6 +695,7 @@
     "reset": "Reset",
     "noResults": "No payments match these filters.",
     "payments": "payments",
+    "students": "students",
     "colStudent": "Student",
     "colCode": "Code",
     "colCourse": "Course",
@@ -703,6 +704,7 @@
     "colMethod": "Method",
     "colStatus": "Status",
     "colAmount": "Amount",
+    "colPaidAt": "Paid at",
     "statusApproved": "Approved",
     "statusPending": "Pending",
     "statusUnpaid": "Unpaid",
@@ -718,6 +720,7 @@
     "previous": "Previous",
     "next": "Next",
     "rowsPerPage": "Rows per page",
-    "showAll": "Show all"
+    "showAll": "Show all",
+    "sortBy": "Sort by {column}"
   }
 }

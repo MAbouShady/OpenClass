@@ -11,10 +11,25 @@ type Translate = (key: string) => string;
  */
 export function getReportLabels(t: Translate): PaymentsReportCsvLabels {
   return {
-    columns: [t("colStudent"), t("colCode"), t("colCourse"), t("colLevel"), t("colMonth"), t("colMethod"), t("colStatus"), t("colAmount")],
-    status: { APPROVED: t("statusApproved"), PENDING: t("statusPending"), UNPAID: t("statusUnpaid") },
+    columns: [
+      t("colStudent"),
+      t("colCode"),
+      t("colCourse"),
+      t("colLevel"),
+      t("colMonth"),
+      t("colMethod"),
+      t("colStatus"),
+      t("colAmount"),
+      t("colPaidAt"),
+    ],
+    status: {
+      APPROVED: t("statusApproved"),
+      PENDING: t("statusPending"),
+      UNPAID: t("statusUnpaid"),
+    },
     method: { ONLINE: t("methodOnline"), CASH: t("methodCash"), NONE: t("methodNone") },
     total: t("total"),
+    students: t("students"),
     byStatus: t("byStatus"),
     byMethod: t("byMethod"),
     byCourse: t("byCourse"),
